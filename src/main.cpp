@@ -1,3 +1,6 @@
+#define isDebug true
+//TODO : share the isDebug define with the other files
+
 #include <DNSServer.h>
 #ifdef ESP32
 #include <WiFi.h>
@@ -12,14 +15,19 @@
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
 
-#define LED 4
-#define isDebug true
+//Our control
+#include "controls/ButtonControl.h"
+
+#define LED_PIN 4
+#define BUTTON_PIN 15
 
 DNSServer dnsServer;
 AsyncWebServer server(80);
 String html = String(
 #include "index.html"
 );
+
+ButtonControl control = ButtonControl(BUTTON_PIN);
 
 void setup(){
     Serial.begin(115200);
@@ -29,8 +37,8 @@ void setup(){
     #endif
 
     //initialize the LED
-    pinMode(LED, OUTPUT);
-    digitalWrite(LED, LOW);
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
     //initialize the WiFi hotspot and DNS server
     Serial.println("Hotsport starting...");
@@ -39,13 +47,25 @@ void setup(){
     dnsServer.start(53, "*", WiFi.softAPIP());
 
     //handlers for the web server
-    server.addHandler(new LEDRequestHandler(LED, &html));
+    server.addHandler(new LEDRequestHandler(LED_PIN, &html));
     server.addHandler(new CaptiveRequestHandler(&html));//call last, if no specific handler matched
 
     Serial.println("Web server starting...");
     server.begin();
+
+    //initialize the ultrasonic sensor
+    control.initialize();
 }
 
 void loop(){
     dnsServer.processNextRequest();
+
+    //check the ultrasonic sensor
+    if (control.checkControl()){
+        Serial.println("The button control is detecting something !");
+    } else {
+        //Serial.println("The button control is not detecting anything !");
+    }
+    delay(500);
+
 }
