@@ -1,6 +1,6 @@
+#include "isDebug.h"
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
-
 
 LEDRequestHandler::LEDRequestHandler(uint8_t ledPin, String* html) {
     this->ledPin = ledPin;
@@ -10,7 +10,6 @@ LEDRequestHandler::LEDRequestHandler(uint8_t ledPin, String* html) {
 bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
     if (request->url()=="/") {
         #ifdef isDebug
-        //for debug print all parameters
         Serial.println("LEDRequestHandler received params: ");
         for (uint8_t i=0; i<request->params(); i++) {
             AsyncWebParameter* p = request->getParam(i);

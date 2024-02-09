@@ -1,3 +1,4 @@
+#include "isDebug.h"
 #include "CaptiveRequestHandler.h"
 #include "ESPAsyncWebServer.h"
 /*
@@ -8,8 +9,10 @@ CaptiveRequestHandler::CaptiveRequestHandler(String* html) {
 }
 
 bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request){
+    #ifdef isDebug
     Serial.print("CaptiveRequestHandler received request: ");
     Serial.println(request->url());
+    #endif
     return true;
 }
 

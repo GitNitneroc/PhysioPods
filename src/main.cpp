@@ -1,5 +1,4 @@
-#define isDebug true
-//TODO : share the isDebug define with the other files
+#include "isDebug.h" //this file is used to define the isDebug variable
 
 #include <DNSServer.h>
 #ifdef ESP32
