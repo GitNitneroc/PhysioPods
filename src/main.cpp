@@ -61,10 +61,10 @@ void loop(){
 
     //check the ultrasonic sensor
     if (control.checkControl()){
-        Serial.println("The button control is detecting something !");
+        //Serial.println("The button control is detecting something !");
     } else {
         //Serial.println("The button control is not detecting anything !");
     }
-    delay(500);
 
+    //TODO : consider a timer to go easy on the battery ?
 }

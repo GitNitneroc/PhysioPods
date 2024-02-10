@@ -15,4 +15,6 @@ class ButtonControl: public PhysioPodControl {
     private:
         byte pin;
         bool checking;
+        bool state;
+        ulong lastDebounceTime;
 };
