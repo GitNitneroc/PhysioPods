@@ -31,7 +31,7 @@ ButtonControl control = ButtonControl(BUTTON_PIN);
 void setup(){
     Serial.begin(115200);
     #ifdef isDebug
-    delay(7000); //My esp module Serial is messed up after upload, so I need to wait for it to boot up
+    //delay(7000); //My esp module Serial is messed up after upload, so I need to wait for it to boot up
     Serial.println("Booting");
     #endif
 
@@ -52,18 +52,18 @@ void setup(){
     Serial.println("Web server starting...");
     server.begin();
 
-    //initialize the ultrasonic sensor
+    //initialize the control
     control.initialize();
 }
 
 void loop(){
     dnsServer.processNextRequest();
 
-    //check the ultrasonic sensor
+    //check the control
     if (control.checkControl()){
-        //Serial.println("The button control is detecting something !");
+        //Serial.println("The control is detecting something !");
     } else {
-        //Serial.println("The button control is not detecting anything !");
+        //Serial.println("The control is not detecting anything !");
     }
 
     //TODO : consider a timer to go easy on the battery ?
