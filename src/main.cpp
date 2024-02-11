@@ -13,6 +13,7 @@
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
+#include "handlers/ServerMacAddressHandler.h"
 
 //Our control
 #include "controls/ButtonControl.h"
@@ -46,8 +47,10 @@ void setup(){
     dnsServer.start(53, "*", WiFi.softAPIP());
 
     //handlers for the web server
-    server.addHandler(new LEDRequestHandler(LED_PIN, &html));
+    server.addHandler(new LEDRequestHandler(LED_PIN, &html)); //Handles the LED control requests
+    server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
     server.addHandler(new CaptiveRequestHandler(&html));//call last, if no specific handler matched
+    
 
     Serial.println("Web server starting...");
     server.begin();
