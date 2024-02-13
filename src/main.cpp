@@ -52,6 +52,7 @@ void setup(){
     dnsServer.start(53, "*", WiFi.softAPIP());
 
     //handlers for the web server
+    //TODO : create a handler to start the mode
     server.addHandler(new LEDRequestHandler(LED_PIN, &html)); //Handles the LED control requests
     server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
     server.addHandler(new CaptiveRequestHandler(&html));//call last, if no specific handler matched
