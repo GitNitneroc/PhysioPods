@@ -18,6 +18,9 @@
 //Our control
 #include "controls/ButtonControl.h"
 
+//Our modes
+#include "modes/FastPressMode.h"
+
 #define LED_PIN 4
 #define BUTTON_PIN 15
 
@@ -27,7 +30,9 @@ String html = String(
 #include "index.html"
 );
 
-ButtonControl control = ButtonControl(BUTTON_PIN);
+ButtonControl* control = new ButtonControl(BUTTON_PIN);
+
+FastPressMode* mode;
 
 void setup(){
     Serial.begin(115200);
@@ -56,18 +61,15 @@ void setup(){
     server.begin();
 
     //initialize the control
-    control.initialize();
+    control->initialize();
+
+    //start the fast press mode
+    mode = new FastPressMode(control);
+    mode->initialize(1000, 3000);
 }
 
 void loop(){
     dnsServer.processNextRequest();
-
-    //check the control
-    if (control.checkControl()){
-        //Serial.println("The control is detecting something !");
-    } else {
-        //Serial.println("The control is not detecting anything !");
-    }
-
+    mode->update();
     //TODO : consider a timer to go easy on the battery ?
 }
