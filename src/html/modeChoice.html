@@ -1,18 +1,46 @@
-R"(<!DOCTYPE html> 
+R"(<!DOCTYPE html>
 <html> 
     <body> 
         <h1>PhysioPods</h1>
         <a href="./serverMacAddress">Mac Address</a>
-        <br/>
         <form action="/launchMode">
-            <input type="radio" id="mode1" name="mode" value="FP">
+            <input type="radio" id="mode1" name="mode" value="FP" onclick='show("mode1Details")'>
             <label for="mode1"> FastPress</label><br>
-            <input type="radio" id="mode2" name="mode" value="M2" disabled>
+            <input type="radio" id="mode2" name="mode" value="M2" onclick='show("mode2Details")' disabled>
             <label for="mode2"> Le choix 2</label><br>
             <input type="radio" id="mode3" name="mode" value="M3" disabled>
             <label for="mode3"> ... genre on a des modes quoi</label><br><br>
-            <input type="submit" value="Launch">
-          </form>
+            <!-- <input type="submit" value="Launch"> -->
+        </form>
+        <div id = "details">
+            <div id="mode1Details" style="display:none">
+                <h2>FastPress</h2>
+                <p>Press the button as fast as you can for 10 seconds</p>
+                <form action="/launchMode">
+                    <input type="hidden" id="mode" name="mode" value="FP">
+                    <label for="minInterval">Min Interval (0 to 20):</label>
+                    <input type="range" id="minInterval" name="minInterval" min="0" max="20" value="3" oninput="this.nextElementSibling.value = this.value"><output>3</output><br/>
+                    <label for="maxInterval">Max Interval (added to min Interval 0 to 20):</label>
+                    <input type="range" id="maxInterval" name="maxInterval" min="0" max="50" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br/>
+                    <input type="submit" value="Launch">
+                </form>
+            </div>
+            <div id="mode2Details" style="display:none">
+                <h2>"Ce Mode n'existe même pas !"</h2>
+            </div>
+        </div>
+        <script>
+            function show(id){
+                let divs = document.getElementById("details").getElementsByTagName("div")
+                for (let i = 0; i < divs.length; i++) {
+                    if (divs[i].id == id){
+                        divs[i].style.display = "block";
+                    }else{
+                        divs[i].style.display = "none";
+                    }
+                }
+            }
+        </script>
     </body>
 </html>
 )"

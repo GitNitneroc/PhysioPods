@@ -55,7 +55,7 @@ void setup(){
     //handlers for the web server
     //TODO : create a handler to start/stop the mode
     //TODO : create a handler to get the score
-    //TODO : create a handler where other physioPods can send their mac address and register themselves to the server, and get the server mac address, this will be used for ESPNow
+    //TODO : create a handler where other physioPods can send their mac addresses and register themselves to the server, and get the server mac address, this will be used for ESPNow
     server.addHandler(new ModeChoiceHandler()); //Handles the mode choice request
     server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
     server.addHandler(new LEDRequestHandler(LED_PIN, &html)); //Handles the LED control requests
