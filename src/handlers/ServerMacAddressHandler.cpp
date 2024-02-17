@@ -24,7 +24,7 @@ bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
 }
 
 void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
-    AsyncResponseStream *response = request->beginResponseStream("text/html");
+    AsyncResponseStream *response = request->beginResponseStream("text/plain");
     response->print(WiFi.macAddress());
     request->send(response);
 }

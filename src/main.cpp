@@ -16,6 +16,7 @@
 #include "handlers/ServerMacAddressHandler.h"
 #include "handlers/ModeChoiceHandler.h"
 #include "handlers/ModeLaunchHandler.h"
+#include "handlers/CSSRequestHandler.h"
 
 //Our control
 #include "controls/ButtonControl.h"
@@ -75,8 +76,8 @@ void setup(){
     server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
     server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
     server.addHandler(new LEDRequestHandler(LED_PIN, &html)); //Handles the LED control requests
+    server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
     server.addHandler(new CaptiveRequestHandler(&html));//call last, if no specific handler matched
-    
 
     Serial.println("Web server starting...");
     server.begin();

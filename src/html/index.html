@@ -1,15 +1,35 @@
 R"||(<!DOCTYPE html> 
-<html> 
-    <body> 
-        <h1>PhysioPods</h1>
-        <a href="./serverMacAddress">Mac Address</a>
-        </br>
-        <a href="./modeChoice">Choose a mode</a>
-        <br/>
-        <form> 
-            <button name='LED' style='color:green' value='ON' type='button' onclick='fetch("./?LED=ON")'>LED ON</button>
-            <button name='LED' style='color:red' value='OFF' type='button' onclick='fetch("./?LED=OFF")'>LED OFF</button>
-        </form> 
+<html>
+    <head>
+        <title>PhysioPods</title>
+        <link rel="stylesheet" href="lit.css">
+    </head>
+    <body>
+        <div class="c">
+            <div class="row card">
+                <h1>PhysioPods</h1>
+                <hr>
+            </div>
+            <div class="row card">
+                <b class="col">Home</b>
+                <div class="col"><a href="/serverMacAddress">Mac Address</a></div>
+                <div class="col"><a href="/modeChoice">Choose a mode</a></div>
+                <div class="col"><a href="#">Docs</a></div>
+            </div>
+
+            <form>
+                <div class="row">
+                    <div class="6 col">
+                        <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./?LED=ON")'>LED ON</button>
+                    </div>
+                    <div class="6 col">
+                        <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./?LED=OFF")'>LED OFF</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
     </body>
 </html>
+
 )||"
