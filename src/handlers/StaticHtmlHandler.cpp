@@ -18,6 +18,9 @@ bool StaticHtmlHandler::canHandle(AsyncWebServerRequest *request){
     String url = request->url();
     for (int i = 0; i < SIZE; i++) {
         if (url==urls[i]) {
+            #ifdef isDebug
+            Serial.println("StaticHtmlHandler received a request for : " + urls[i]);
+            #endif
             return true;
         }
     }
