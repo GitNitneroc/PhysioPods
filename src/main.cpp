@@ -32,7 +32,6 @@ AsyncWebServer server(80);
 String html = String(
 #include "./html/index.html"
 );
-//TODO : use better delimiters for raw litterals, )" could happen in html files.
 
 ButtonControl* control = new ButtonControl(BUTTON_PIN);
 
