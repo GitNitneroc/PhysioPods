@@ -60,8 +60,8 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         uint8_t minInterval = minIntervalParam->value().toInt();
         uint8_t maxInterval = minInterval+ maxIntervalParam->value().toInt();
         #ifdef isDebug
-        Serial.println("minInterval : "+minInterval);
-        Serial.println("maxInterval : "+maxInterval);
+        Serial.println("minInterval : "+ String(minInterval));
+        Serial.println("maxInterval : "+ String(maxInterval));
         #endif
 
         //create the mode

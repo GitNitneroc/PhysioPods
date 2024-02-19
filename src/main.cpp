@@ -45,8 +45,10 @@ void startMode(PhysioPodMode* newMode){
         Serial.println("Stopping older mode...");
         #endif
         mode->stop();
+        delete mode;
     }
     #ifdef isDebug
+    Serial.println("Free memory : "+String(ESP.getFreeHeap()));
     Serial.println("Starting mode...");
     #endif
     mode = newMode;
