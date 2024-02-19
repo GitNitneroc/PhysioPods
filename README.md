@@ -3,7 +3,7 @@ Pour l'instant l'objectif est juste d'avoir un proof of concept, le physiopod do
 
 ## Quel ESP utiliser ?
 Pour l'instant ce n'est testé que sur ESP32-S3
-l'ESP01 ne semble pas assez puissant.
+l'ESP01 ne semble pas assez puissant (tous les ESP8266 doivent donc être concernés ?).
 NB : En mettant isDebug à false dans isDebug.h, on doit pouvoir améliorer un peu les performances : la plupart des écritures sur le port séries seront desactivées.
 
 ## Montage
