@@ -72,7 +72,6 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         mode->initialize(minInterval*1000, maxInterval*1000);
         startMode(mode);
 
-        //TODO : actually create the FastPressMode object and launch it
         sendResponse(request, htmlSuccess);
         return;
     } else if (mode == "2") {

@@ -3,7 +3,8 @@
 #include "ESPAsyncWebServer.h"
 
 /*
-    * This is a request handler to get the different modes available.
+    * This is a request handler to get the different static html pages available.
+    * to add a page, add the url to the urls array and the corresponding html to the htmls array
 */
 StaticHtmlHandler::StaticHtmlHandler() : urls{"/modeChoice", "/results"}{
     htmls[0] = new String(
