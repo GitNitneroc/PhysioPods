@@ -8,6 +8,7 @@ NB : En mettant isDebug à false dans isDebug.h, on doit pouvoir améliorer un p
 
 ## Montage
 Il faudrait écrire ici un montage "de base"
+les pins utilisées pour les boutons et LED sont écrits dans pins.h
 
 ## Créer un nouveau contrôleur pour le PhysioPode
 Il faudrait expliquer comment créer un nouveau Controleur.
