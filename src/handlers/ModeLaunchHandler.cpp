@@ -50,18 +50,21 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         //TODO : this could be a function in the FastPressMode class, it would return a FastPressMode object if the params are correct
         AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
         AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
-        if (minIntervalParam == NULL || maxIntervalParam == NULL) {
+        AsyncWebParameter* triesParam = request->getParam("tries");
+        if (minIntervalParam == NULL || maxIntervalParam == NULL || triesParam == NULL) {
             Serial.println("could not read a parameter");
             sendResponse(request, htmlFail);
             return;
         }
         //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
         //remember this is in seconds
-        uint8_t minInterval = minIntervalParam->value().toInt();
-        uint8_t maxInterval = minInterval+ maxIntervalParam->value().toInt();
+        long minInterval = minIntervalParam->value().toInt();
+        long maxInterval = minInterval+ maxIntervalParam->value().toInt();
+        uint8_t tries = triesParam->value().toInt();
         #ifdef isDebug
         Serial.println("minInterval : "+ String(minInterval));
         Serial.println("maxInterval : "+ String(maxInterval));
+        Serial.println("tries : "+ String(tries));
         #endif
 
         //create the mode
@@ -69,7 +72,7 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         #ifdef isDebug
         Serial.println("Mode created, initializing...");
         #endif
-        mode->initialize(minInterval*1000, maxInterval*1000);
+        mode->initialize(minInterval*1000, maxInterval*1000, tries);//this is in ms
         startMode(mode);
 
         sendResponse(request, htmlSuccess);

@@ -3,8 +3,23 @@ R"||(<!DOCTYPE html>
     <head>
         <title>PhysioPods results</title>
         <link rel="stylesheet" href="lit.css">
+        <script type="text/javascript">
+            function loadScores() {
+                fetch("/score")
+                .then(response => response.json())
+                .then(data => {
+                    let table = document.getElementById("results");
+                    table.innerHTML = "<thead><tr><th>Mode</th><th>Tries</th><th>Score</th><th>Errors</th><th>meanDelay</th></tr></thead><tbody>";
+                    data.forEach(score => {
+                        table.innerHTML += "<tr><td>"+score.mode+"</td><td>"+score.tries+"</td><td>"+score.score+"</td><td>"+score.errors+"</td><td>"+parseInt(score.meanDelay)/1000+"sec</td></tr>";
+                    });
+                    table.innerHTML += "</tbody>";
+                    table.innerHTML +=response;
+                });
+            }
+        </script>
     </head>
-    <body>
+    <body onload="loadScores()">
         <div class="c">
             <div class="row card">
                 <h1>PhysioPods</h1>

@@ -47,6 +47,8 @@ R"||(<!DOCTYPE html>
 							<input type="range" id="minInterval" name="minInterval" min="0" max="20" value="3" oninput="this.nextElementSibling.value = this.value"><output>3</output><br/>
 							<label for="maxInterval">Max Interval (added to min Interval 0 to 20):</label>
 							<input type="range" id="maxInterval" name="maxInterval" min="0" max="50" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br/>
+							<label for="tries">Number of tries (1 to 255) :</label>
+							<input type="number" id="tries" name="tries" value="30" min="1" max="255"><br/>
 							<input type="submit" class="btn primary" value="Launch">
 						</form>
 					</div>

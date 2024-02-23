@@ -2,12 +2,11 @@
 #include "FastPressMode.h"
 #include "controls/PhysioPodControl.h"
 
-void FastPressMode::initialize(long minInterval, long maxInterval) {
+void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
-    score = 0;
-    errors = 0;
-    updatePodToPress();
+    this->numberOfTries = numberOfTries;
+    reset();
     //TODO : count the number of tries, and stop the game after a certain number of tries
     //TODO : compute a reaction time
 }
@@ -17,18 +16,19 @@ FastPressMode::FastPressMode(PhysioPodControl* control) {
 }
 
 void FastPressMode::stop() {
-    timer = 0;
-    score = 0;
+    state = STOPPED;
+    //let's clean things up
+    reset();
 }
 
 void FastPressMode::lightPod(uint pod) {
     //TODO : light the pod
-    digitalWrite(4, HIGH);
+    digitalWrite(8, HIGH);
 }
 
 void FastPressMode::unlightPod(uint pod) {
     //TODO : unlight the pod
-    digitalWrite(4, LOW);
+    digitalWrite(8, LOW);
 }
 
 void FastPressMode::onError(uint pod) {
@@ -40,9 +40,13 @@ void FastPressMode::onError(uint pod) {
 void FastPressMode::update() {
     //TODO : check if the user pressed the wrong pod
     //TODO : check if the user took too long to press the pod
+    //TODO : count the number of tries, and stop the game after a certain number of tries
     switch (state){
-        case DURING_INTERVAL:
-        {
+        case STOPPED:{
+            //do nothing
+            break;
+        }
+        case DURING_INTERVAL:{
             //we are waiting for the interval to be over
             if (millis() - timer > interval) {
                 //the interval is over
@@ -57,7 +61,9 @@ void FastPressMode::update() {
                 //we are still in the interval
                 bool pressed = control->checkControl();
                 if (pressed) {
+                    //the user pressed the button too early
                     onError(podToPress);
+                    scoreStorage->updateScore(returnScore());
                     state = WAIT_FOR_RELEASE;
                 }
             }
@@ -65,12 +71,15 @@ void FastPressMode::update() {
         }
 
         case WAIT_FOR_PRESS:{
-
             //we are waiting for the user to press the button
             //check control
             bool pressed = control->checkControl();
             if (pressed) {
+                //the user pressed the button
                 score++;
+                pressDelay += millis() - timer;
+                numberOfTries++;
+                scoreStorage->updateScore(returnScore());
                 state = WAIT_FOR_RELEASE;
                 this->unlightPod(podToPress);
             }
@@ -83,6 +92,15 @@ void FastPressMode::update() {
             bool pressed = control->checkControl();
             if (!pressed) {
                 updatePodToPress();
+                currentTry++;
+            }
+            
+            if (currentTry >= numberOfTries) {
+                //the game is over
+                #ifdef isDebug
+                Serial.println("FastPressMode game over");
+                #endif
+                stop();
             }
             break;
         }
@@ -92,6 +110,9 @@ void FastPressMode::update() {
 void FastPressMode::reset() {
     timer = 0;
     score = 0;
+    errors = 0;
+    pressDelay = 0;
+    currentTry = 0;
 }
 
 /*
@@ -119,6 +140,35 @@ void FastPressMode::updatePodToPress() {
     #endif
 }
 
-String FastPressMode::returnScore() {
-    return String(score);
+/*
+    The mode should now be ready to start, and will create a new score that will be updated later
+    it will therefore reset the score first
+*/
+void FastPressMode::start() {
+    //prepare the scores
+    reset();
+    scoreStorage->addScore(returnScore());
+    //prepare the first interval
+    updatePodToPress();
+}
+
+//TODO : this is called at every score update, it could be called at the end of the game only, to save some resources.
+/*
+    This function returns a JSON string with the score
+*/
+String* FastPressMode::returnScore() {
+    String* scoreStr =  new String("{\"mode\": \"FastPress\", \"tries\": ");
+    *scoreStr += String(currentTry<=numberOfTries?currentTry:numberOfTries);
+    *scoreStr += ", \"score\": ";
+    *scoreStr += String(this->score);
+    *scoreStr += ", \"errors\": ";
+    *scoreStr += String(this->errors);
+    *scoreStr += ", \"meanDelay\": ";
+    if (this->currentTry == 0) { //avoid division by 0
+        *scoreStr += "0";
+    } else {
+        *scoreStr += String(this->pressDelay / this->currentTry);
+    }
+    *scoreStr += "}";
+    return scoreStr;
 }

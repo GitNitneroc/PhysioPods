@@ -1,8 +1,10 @@
 #include "PhysioPodMode.h"
 #include <Arduino.h>
 #include "controls/PhysioPodControl.h"
+#include "scoreStorage.h"
 
 enum State{
+    STOPPED,
     DURING_INTERVAL,
     WAIT_FOR_PRESS,
     WAIT_FOR_RELEASE
@@ -13,11 +15,12 @@ enum State{
 */
 class FastPressMode : public PhysioPodMode {
 public:
-    void initialize(long minInterval, long maxInterval);
+    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries); 
+    void start();
     void stop();
     void update();
     void reset();
-    String returnScore();
+    String* returnScore();
 
     FastPressMode(PhysioPodControl* control);
     virtual ~FastPressMode() {}
@@ -27,6 +30,9 @@ private:
     long interval;
     long minInterval;
     long maxInterval;
+    long pressDelay;
+    uint numberOfTries;
+    uint currentTry;
     int score;
     int errors;
     uint podToPress;

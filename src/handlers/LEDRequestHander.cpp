@@ -2,6 +2,8 @@
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
 
+
+//TODO : there is no reason to pass the pin of the led, it should be defined somewhere else and included
 LEDRequestHandler::LEDRequestHandler(uint8_t ledPin, String* html) {
     this->ledPin = ledPin;
     this->html = html;
