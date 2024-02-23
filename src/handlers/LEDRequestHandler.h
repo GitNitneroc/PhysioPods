@@ -5,9 +5,8 @@
 */
 class LEDRequestHandler : public AsyncWebHandler {
     public:
-    LEDRequestHandler(uint8_t ledPin, String* html);
+    LEDRequestHandler( String* html);
     virtual ~LEDRequestHandler() {}
-    uint8_t ledPin;
     String* html;
 
     bool canHandle(AsyncWebServerRequest *request);

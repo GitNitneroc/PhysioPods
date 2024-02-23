@@ -1,11 +1,11 @@
 #include "isDebug.h"
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
+#include "pins.h"
 
 
 //TODO : there is no reason to pass the pin of the led, it should be defined somewhere else and included
-LEDRequestHandler::LEDRequestHandler(uint8_t ledPin, String* html) {
-    this->ledPin = ledPin;
+LEDRequestHandler::LEDRequestHandler( String* html) {
     this->html = html;
 }
 
@@ -31,9 +31,9 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
         AsyncWebParameter* p = request->getParam(i);
         if (p->name()=="LED") {
             if (p->value()=="ON") {
-                digitalWrite(ledPin, HIGH);
+                digitalWrite(LED_PIN, HIGH);
             } else {
-                digitalWrite(ledPin, LOW);
+                digitalWrite(LED_PIN, LOW);
             }
             break;
         }
