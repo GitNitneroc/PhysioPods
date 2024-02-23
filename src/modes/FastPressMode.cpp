@@ -1,14 +1,13 @@
 #include "isDebug.h"
 #include "FastPressMode.h"
 #include "controls/PhysioPodControl.h"
+#include "../pins.h"
 
 void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
     this->numberOfTries = numberOfTries;
     reset();
-    //TODO : count the number of tries, and stop the game after a certain number of tries
-    //TODO : compute a reaction time
 }
 
 FastPressMode::FastPressMode(PhysioPodControl* control) {
@@ -23,12 +22,12 @@ void FastPressMode::stop() {
 
 void FastPressMode::lightPod(uint pod) {
     //TODO : light the pod
-    digitalWrite(8, HIGH);
+    digitalWrite(LED_PIN, HIGH);
 }
 
 void FastPressMode::unlightPod(uint pod) {
     //TODO : unlight the pod
-    digitalWrite(8, LOW);
+    digitalWrite(LED_PIN, LOW);
 }
 
 void FastPressMode::onError(uint pod) {
@@ -47,17 +46,7 @@ void FastPressMode::update() {
             break;
         }
         case DURING_INTERVAL:{
-            //we are waiting for the interval to be over
-            if (millis() - timer > interval) {
-                //the interval is over
-                #ifdef isDebug
-                Serial.println("FastPressMode interval over");
-                #endif
-                //the interval is over
-                state = WAIT_FOR_PRESS;
-                this->lightPod(podToPress);
-                timer = millis();
-            }else{
+            if (millis()- timer < interval){
                 //we are still in the interval
                 bool pressed = control->checkControl();
                 if (pressed) {
@@ -66,6 +55,15 @@ void FastPressMode::update() {
                     scoreStorage->updateScore(returnScore());
                     state = WAIT_FOR_RELEASE;
                 }
+            }else{
+                //the interval is over
+                #ifdef isDebug
+                Serial.println("FastPressMode interval over");
+                #endif
+                //the interval is over, we can now light the pod and wait for the user to press it
+                state = WAIT_FOR_PRESS;
+                this->lightPod(podToPress);
+                timer = millis();
             }
             break;
         }
@@ -78,7 +76,7 @@ void FastPressMode::update() {
                 //the user pressed the button
                 score++;
                 pressDelay += millis() - timer;
-                numberOfTries++;
+                currentTry++;
                 scoreStorage->updateScore(returnScore());
                 state = WAIT_FOR_RELEASE;
                 this->unlightPod(podToPress);
@@ -92,7 +90,6 @@ void FastPressMode::update() {
             bool pressed = control->checkControl();
             if (!pressed) {
                 updatePodToPress();
-                currentTry++;
             }
             
             if (currentTry >= numberOfTries) {

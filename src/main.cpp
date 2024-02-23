@@ -1,4 +1,5 @@
 #include "isDebug.h" //this file is used to define the isDebug variable
+#include "pins.h" //this file is used to define the pins
 
 #include <DNSServer.h>
 #ifdef ESP32
@@ -26,10 +27,6 @@
 #include "modes/FastPressMode.h"
 
 #include "scoreStorage.h"
-
-#define LED_PIN 8
-//TODO : this LED_PIN is hard coded in FastPressMode.cpp, this is bad
-#define BUTTON_PIN 10
 
 DNSServer dnsServer;
 AsyncWebServer server(80);
