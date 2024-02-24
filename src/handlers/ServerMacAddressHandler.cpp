@@ -14,7 +14,7 @@ ServerMacAddressHandler::ServerMacAddressHandler() {
 }
 
 bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
-    if (request->url()=="/serverMacAddress") {
+    if (request->url()=="/serverMacAddress") { //Remember this is hard coded in the client connection of pods too
         #ifdef isDebug
         Serial.println("ServerMacAddressHandler request !");
         #endif

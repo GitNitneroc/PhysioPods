@@ -77,6 +77,7 @@ void startAsServer(){
 
     //initialize the WiFi hotspot
     Serial.println("Hotsport starting...");
+    WiFi.mode(WIFI_AP);
     if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
         #ifdef isDebug
@@ -84,6 +85,17 @@ void startAsServer(){
         #endif
         ESP.restart();
     }
+
+    //set the IP address of the hotspot
+    delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START
+    Serial.println("Set softAPConfig");
+    IPAddress Ip(192, 168, 1, 1);
+    IPAddress NMask(255, 255, 255, 0);
+    WiFi.softAPConfig(Ip, Ip, NMask);
+    #ifdef isDebug
+    Serial.print("AP IP address: ");
+    Serial.println(WiFi.softAPIP());
+    #endif
 
     //start the DNS server
     Serial.println("DNS server starting...");
@@ -129,6 +141,40 @@ void startAsClient(){
     #ifdef isDebug
     Serial.println("Connected to WiFi");
     #endif
+
+    //get the server mac address
+    WiFiClient client;
+    if (!client.connect("192.168.1.1", 80)){
+        #ifdef isDebug
+        Serial.println("Failed to connect to server, restarting the device");
+        #endif
+        ESP.restart();
+    }
+    #ifdef isDebug
+    Serial.println("Connected to server");
+    #endif
+    client.print("GET /serverMacAddress HTTP/1.1\r\nConnection: close\r\n\r\n");
+    while (client.connected()){
+        if (client.available()){
+            //this is the response header, we don't need it
+            String line = client.readStringUntil('\n');
+            Serial.println(line);
+            if (line == "\r"){
+                break;
+            }
+        }
+    }
+    //this is the response body, the server mac address
+    String line = client.readStringUntil('\n');
+    #ifdef isDebug
+    Serial.println("Server mac address : "+line);
+    #endif
+    if (WiFi.macAddress()==line){
+        #ifdef isDebug
+        Serial.println("This Pod has the same mac address as the server, restarting...");
+        #endif
+        //TODO : we should add a new mac address to the eeprom and restart the device
+    }
 }
 
 /*
