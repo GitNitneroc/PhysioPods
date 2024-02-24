@@ -69,7 +69,7 @@ void startMode(PhysioPodMode* newMode){
 */
 void startAsServer(){
     #ifdef isDebug
-    Serial.println("Failed to connect to WiFi as a client, starting as a server");
+    Serial.println("Starting as a server");
     #endif
     //stop the WiFi client
     WiFi.disconnect();
@@ -120,6 +120,15 @@ void startAsClient(){
     WiFi.disconnect();
     delay(100);
     WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED){
+        delay(500);
+        #ifdef isDebug
+        Serial.print(".");
+        #endif
+    }
+    #ifdef isDebug
+    Serial.println("Connected to WiFi");
+    #endif
 }
 
 /*
