@@ -28,7 +28,11 @@
 
 #include "scoreStorage.h"
 
-DNSServer dnsServer;
+//WIFI settings :
+const char* ssid = "PhysioPods";
+const char* password = "0123456789";
+
+DNSServer* dnsServer = nullptr;
 AsyncWebServer server(80);
 String html = String(
 #include "./html/index.html"
@@ -38,12 +42,12 @@ ButtonControl* control = new ButtonControl(BUTTON_PIN);
 ScoreStorage scoreStorage = ScoreStorage();
 ScoreStorage* PhysioPodMode::scoreStorage = nullptr;
 
-PhysioPodMode* mode = NULL;
+PhysioPodMode* mode = nullptr;
 
 /* This can be called to start the specified PhysioPodMode*/
 void startMode(PhysioPodMode* newMode){
     //if there is a mode running, stop it
-    if (mode != NULL){
+    if (mode != nullptr){
         #ifdef isDebug
         Serial.println("Stopping older mode...");
         #endif
@@ -59,22 +63,32 @@ void startMode(PhysioPodMode* newMode){
     mode->start();
 }
 
-void setup(){
-    Serial.begin(115200);
+/*
+    * This function is called when the device is not able to connect to the WiFi as a client
+    * It will start the device as a server, and initialize the web server
+*/
+void startAsServer(){
     #ifdef isDebug
-    //delay(7000); //My esp module Serial is messed up after upload, so I need to wait for it to boot up
-    Serial.println("Booting");
+    Serial.println("Failed to connect to WiFi as a client, starting as a server");
     #endif
+    //stop the WiFi client
+    WiFi.disconnect();
+    delay(1000); //not sure if this is necessary
 
-    //initialize the LED
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
-
-    //initialize the WiFi hotspot and DNS server
+    //initialize the WiFi hotspot
     Serial.println("Hotsport starting...");
-    WiFi.softAP("PhysioPods","0123456789",1,0,1); //SSID, password, channel, hidden, max connection
+    if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
+        //if the hotspot failed to start, restart the device
+        #ifdef isDebug
+        Serial.println("Failed to start the hotspot, restarting the device");
+        #endif
+        ESP.restart();
+    }
+
+    //start the DNS server
     Serial.println("DNS server starting...");
-    dnsServer.start(53, "*", WiFi.softAPIP());
+    dnsServer = new DNSServer();
+    dnsServer->start(53, "*", WiFi.softAPIP());
 
     //initialize the score storage
     PhysioPodMode::scoreStorage = &scoreStorage;
@@ -91,16 +105,93 @@ void setup(){
 
     Serial.println("Web server starting...");
     server.begin();
+}
+
+/*
+    * This function is called when the device is able to connect to the WiFi as a client
+*/
+void startAsClient(){
+    //TODO : send a request to the server to get the server mac address
+    //maybe we should send the server our own mac address, it's not available from ESPAsyncTCP library
+    #ifdef isDebug
+    Serial.println("Connecting to WiFi as a client");
+    #endif
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+    WiFi.begin(ssid, password);
+}
+
+/*
+    * This function is called to search for other PhysioPods
+    * It will scan for WiFi networks and look for the PhysioPod network
+    * It will return true if it found a PhysioPod network, and false otherwise
+*/
+bool searchOtherPhysioWiFi(){
+    #ifdef isDebug
+    Serial.println("Scanning for other PhysioPods...");
+    #endif
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+    int n = WiFi.scanNetworks();
+    bool found = false;
+    for (int i = 0; i < n; i++){
+        #ifdef isDebug
+        Serial.println(WiFi.SSID(i));
+        #endif
+        if (WiFi.SSID(i) == ssid){
+            #ifdef isDebug
+            Serial.println("Found a PhysioPod network");
+            #endif
+            found = true;
+            break;
+        }
+    }
+    WiFi.scanDelete();
+    WiFi.disconnect();
+    delay(100);
+    return found;
+}
+
+void setup(){
+    Serial.begin(115200);
+    #ifdef isDebug
+    //delay(7000); //My esp module Serial is messed up after upload, so I need to wait for it to boot up
+    Serial.println("Booting");
+    #endif
+
+    //initialize the LED
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+
+    // Set WiFi to station mode and disconnect from an AP if it was previously connected.
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+
+
+    //Look for other physioPod wifi network
+    if (!searchOtherPhysioWiFi()){
+        #ifdef isDebug
+        Serial.println("No PhysioPod network found");
+        #endif
+        startAsServer();
+    }else{
+        startAsClient();
+    }
 
     //initialize the control
     control->initialize();
 }
 
 void loop(){
-    dnsServer.processNextRequest();//look for an asynchronous system rather than this one ?
+    if (dnsServer != nullptr){
+        dnsServer->processNextRequest();//look for an asynchronous system rather than this one ?
+    }
 
     //update the game mode if there is one started
-    if (mode != NULL){
+    if (mode != nullptr){
         mode->update();
     }
 
