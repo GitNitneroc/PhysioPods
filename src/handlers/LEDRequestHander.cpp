@@ -2,7 +2,7 @@
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
 #include "pins.h"
-#include "../messages.h"
+#include "messages.h"
 #include <esp_now.h>
 
 LEDRequestHandler::LEDRequestHandler() {

@@ -1,8 +1,8 @@
 #include "isDebug.h"
 #include "ModeLaunchHandler.h"
 #include "ESPAsyncWebServer.h"
-#include "../modes/PhysioPodMode.h"
-#include "../modes/FastPressMode.h"
+#include "modes/PhysioPodMode.h"
+#include "modes/FastPressMode.h"
 
 /*
     * This is a request handler to launch a mode.

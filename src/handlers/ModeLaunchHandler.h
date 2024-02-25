@@ -1,6 +1,6 @@
 #include "ESPAsyncWebServer.h"
-#include "../modes/PhysioPodMode.h"
-#include "../controls/PhysioPodControl.h"
+#include "modes/PhysioPodMode.h"
+#include "controls/PhysioPodControl.h"
 
 /*
     * This is a request handler for the captive portal.

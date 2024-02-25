@@ -1,5 +1,5 @@
 #include "ESPAsyncWebServer.h"
-#include "./scoreStorage.h"
+#include "scoreStorage.h"
 /*
     * This is a request handler for the captive portal.
 */
