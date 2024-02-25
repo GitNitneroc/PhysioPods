@@ -24,7 +24,22 @@ bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
 }
 
 void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
+    //start the response
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
     response->print(WiFi.macAddress());
+
+    //add an extra line to the response if the client provided a mac address
+    AsyncWebParameter* clientMac = request->getParam("mac");
+    if (clientMac == NULL) {
+        #ifdef isDebug
+        Serial.println("No mac address provided");
+        #endif
+    }else{
+        #ifdef isDebug
+        Serial.println("Client mac address : "+clientMac->value());
+        #endif
+        //TODO add the client mac address to the list of known mac addresses and send back an id or something
+    }
+
     request->send(response);
 }

@@ -153,7 +153,7 @@ void startAsClient(){
     #ifdef isDebug
     Serial.println("Connected to server");
     #endif
-    client.print("GET /serverMacAddress HTTP/1.1\r\nConnection: close\r\n\r\n");
+    client.print("GET /serverMacAddress?mac="+WiFi.macAddress()+" HTTP/1.1\r\nConnection: close\r\n\r\n");
     while (client.connected()){
         if (client.available()){
             //this is the response header, we don't need it
