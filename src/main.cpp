@@ -29,6 +29,8 @@
 #include "scoreStorage.h"
 #include "messages.h"
 
+#define LIMIT_CONNECTION_ATTEMPTS 20 //The number of attempts a clientpod makes to connect to the WiFi before restarting
+
 //WIFI settings :
 const char* ssid = "PhysioPods";
 const char* password = "0123456789";
@@ -136,11 +138,18 @@ void startAsClient(){
     WiFi.disconnect();
     delay(100);
     WiFi.begin(ssid, password);
+    uint8_t i = 0;
     while (WiFi.status() != WL_CONNECTED){
         delay(500);
         #ifdef isDebug
         Serial.print(".");
         #endif
+        if (i++ > LIMIT_CONNECTION_ATTEMPTS){
+            #ifdef isDebug
+            Serial.println("Failed to connect to WiFi, restarting the device");
+            #endif
+            ESP.restart();
+        }
     }
     #ifdef isDebug
     Serial.println("Connected to WiFi");
