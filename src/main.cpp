@@ -134,6 +134,23 @@ void startAsServer(){
     Serial.println("ServerPod seems ready !");
 }
 
+// callback function that will be executed when data is received
+void OnDataRecv(const uint8_t * sender_addr, const uint8_t *data, int len) {
+    LEDMessage* message = (LEDMessage*)data;
+    #ifdef isDebug
+    Serial.println("Received a LED message");
+    Serial.println("-Target pod : "+String(message->id));
+    Serial.println("-State : "+String(message->state));
+    #endif
+    //check if the message is for me (255 is the broadcast id, it's for everyone)
+    if (message->id == podId || message->id == 255){
+        #ifdef isDebug
+        Serial.println("-This message is for me !");
+        #endif
+        digitalWrite(LED_PIN, message->state);
+    }
+}
+
 /*
     * This function is called when the device is able to connect to the WiFi as a client
 */
@@ -225,6 +242,7 @@ void startAsClient(){
         ESP.restart();
     }
     Serial.println("ESP-NOW initialized");
+    esp_now_register_recv_cb(OnDataRecv);
 
     Serial.println("ClientPod seems ready !");
 }
