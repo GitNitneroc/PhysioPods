@@ -1,6 +1,8 @@
 #include "isDebug.h" //this file is used to define the isDebug variable
 #include "pins.h" //this file is used to define the pins
+#include "messages.h" //this file is used to define the messages that are used to communicate between the serverpod and its clientpods
 
+//The libraries we need
 #include <DNSServer.h>
 #ifdef ESP32
 #include <WiFi.h>
@@ -22,12 +24,11 @@
 
 //Our control
 #include "controls/ButtonControl.h"
-
 //Our modes
 #include "modes/FastPressMode.h"
 
 #include "scoreStorage.h"
-#include "messages.h"
+
 
 #define LIMIT_CONNECTION_ATTEMPTS 20 //The number of attempts a clientpod makes to connect to the WiFi before restarting
 
@@ -44,10 +45,9 @@ String html = String(
 ButtonControl* control = new ButtonControl(BUTTON_PIN);
 ScoreStorage scoreStorage = ScoreStorage();
 ScoreStorage* PhysioPodMode::scoreStorage = nullptr;
-
 PhysioPodMode* mode = nullptr;
 
-//The id of the pod, if it's a client.
+//The id of the pod, it will be set to another value if it's a clientpod.
 uint8_t podId = 0;
 
 /* This can be called to start the specified PhysioPodMode*/
