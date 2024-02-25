@@ -44,6 +44,9 @@ ScoreStorage* PhysioPodMode::scoreStorage = nullptr;
 
 PhysioPodMode* mode = nullptr;
 
+//The id of the pod, if it's a client.
+uint8_t podId = 0;
+
 /* This can be called to start the specified PhysioPodMode*/
 void startMode(PhysioPodMode* newMode){
     //if there is a mode running, stop it
@@ -164,7 +167,7 @@ void startAsClient(){
             }
         }
     }
-    //this is the response body, the server mac address
+    //this is the response body, the server mac address and id
     String line = client.readStringUntil('\n');
     #ifdef isDebug
     Serial.println("Server mac address : "+line);
@@ -173,8 +176,27 @@ void startAsClient(){
         #ifdef isDebug
         Serial.println("This Pod has the same mac address as the server, restarting...");
         #endif
-        //TODO : we should add a new mac address to the eeprom and restart the device
+        //TODO : This could theoretically happend... We can't change the mac permanently
+        // so we should add a new mac address to the eeprom and restart the device
+        // at startup it would read the mac from eeprom and use it until next restart
     }
+
+    //id now
+    line = client.readStringUntil('\n');
+    if (line == ""){
+        #ifdef isDebug
+        Serial.println("No id provided, restarting the device");
+        #endif
+        ESP.restart();
+    }
+    podId = line.toInt();
+    #ifdef isDebug
+    Serial.println("Pod id : "+String(podId));
+    #endif
+
+    //disconnect from the http
+    client.stop();
+
 }
 
 /*

@@ -39,6 +39,7 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("Client mac address : "+clientMac->value());
         #endif
         //TODO add the client mac address to the list of known mac addresses and send back an id or something
+        response->print("\r\n1"); //for now we just send back a id of 1
     }
 
     request->send(response);
