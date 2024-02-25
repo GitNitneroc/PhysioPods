@@ -7,6 +7,9 @@
 #elif defined(ESP8266)
 #include <ESP8266WiFi.h>
 #endif
+
+#include <esp_now.h>
+
 /*
     * This is a request handler to get the server's mac address
 */
@@ -35,12 +38,36 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("No mac address provided");
         #endif
     }else{
+        //read the mac address
+        const char* macStr = clientMac->value().c_str();
         #ifdef isDebug
-        Serial.println("Client mac address : "+clientMac->value());
+        Serial.print("Client mac address : ");
+        Serial.println(macStr);
         #endif
-        //TODO add the client mac address to the list of known mac addresses and send back an id or something
+        
+        //create the peer info
+        esp_now_peer_info_t peerInfo;
+        peerInfo.channel = 1;
+        peerInfo.encrypt = false;
+        if (sscanf(macStr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &peerInfo.peer_addr[0], &peerInfo.peer_addr[1], &peerInfo.peer_addr[2], &peerInfo.peer_addr[3], &peerInfo.peer_addr[4], &peerInfo.peer_addr[5]) != 6) {
+            #ifdef isDebug
+            Serial.println("Failed to parse mac address");
+            #endif
+        }else{
+            //add the peer
+            if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+                #ifdef isDebug
+                Serial.println("Failed to add peer");
+                #endif
+            }else{
+                #ifdef isDebug
+                Serial.println("Peer added");
+                #endif
+            }
+        }
         response->print("\r\n1"); //for now we just send back a id of 1
     }
 
+    //send the response
     request->send(response);
 }

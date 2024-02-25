@@ -2,9 +2,9 @@
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
 #include "pins.h"
+#include "../messages.h"
+#include <esp_now.h>
 
-
-//TODO : there is no reason to pass the pin of the led, it should be defined somewhere else and included
 LEDRequestHandler::LEDRequestHandler( String* html) {
     this->html = html;
 }
@@ -27,19 +27,41 @@ bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
 
 void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     //this means we received a request to "/"
+
+    //check if the request contains a parameter "LED"
     for (uint8_t i=0; i<request->params(); i++) {
         AsyncWebParameter* p = request->getParam(i);
         if (p->name()=="LED") {
+            //create the message
+            LEDMessage message;
             if (p->value()=="ON") {
                 digitalWrite(LED_PIN, HIGH);
+                message.id = 255;
+                message.state = 1;
             } else {
                 digitalWrite(LED_PIN, LOW);
+                message.id = 255;
+                message.state = 0;
             }
+
+            //send the message
+            esp_err_t result = esp_now_send(NULL, (uint8_t *) &message, sizeof(LEDMessage));
+            if (result == ESP_OK) {
+                #ifdef isDebug
+                Serial.println("ESP-NOW Message sent");
+                #endif
+            } else {
+                #ifdef isDebug
+                Serial.print("Error sending the ESP-NOW message : ");
+                Serial.println(esp_err_to_name(result));
+                #endif
+            }
+            //stop parsing the parameters
             break;
         }
     }
     //send the same page back
     AsyncResponseStream *response = request->beginResponseStream("text/html");
-    response->print(*html);
+    response->print("OK");
     request->send(response);
 }

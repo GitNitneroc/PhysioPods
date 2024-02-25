@@ -12,6 +12,7 @@
 #include <ESPAsyncTCP.h>
 #endif
 #include "ESPAsyncWebServer.h"
+#include <esp_now.h>
 
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
@@ -83,7 +84,7 @@ void startAsServer(){
 
     //initialize the WiFi hotspot
     Serial.println("Hotsport starting...");
-    WiFi.mode(WIFI_AP);
+    WiFi.mode(WIFI_AP_STA);
     if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
         #ifdef isDebug
@@ -123,6 +124,17 @@ void startAsServer(){
 
     Serial.println("Web server starting...");
     server.begin();
+
+    // Init ESP-NOW
+    if (esp_now_init() != ESP_OK) {
+        #ifdef isDebug
+        Serial.println("Error initializing ESP-NOW, restarting the device");
+        #endif
+        ESP.restart();
+    }
+    Serial.println("ESP-NOW initialized");
+
+    Serial.println("ServerPod seems ready !");
 }
 
 /*
@@ -191,7 +203,7 @@ void startAsClient(){
         // at startup it would read the mac from eeprom and use it until next restart
     }
 
-    //id now
+    //read id now
     line = client.readStringUntil('\n');
     if (line == ""){
         #ifdef isDebug
@@ -206,7 +218,18 @@ void startAsClient(){
 
     //disconnect from the http
     client.stop();
+    WiFi.disconnect();
 
+    // Init ESP-NOW
+    if (esp_now_init() != ESP_OK) {
+        #ifdef isDebug
+        Serial.println("Error initializing ESP-NOW, restarting the device");
+        #endif
+        ESP.restart();
+    }
+    Serial.println("ESP-NOW initialized");
+
+    Serial.println("ClientPod seems ready !");
 }
 
 /*
