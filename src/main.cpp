@@ -27,6 +27,7 @@
 #include "modes/FastPressMode.h"
 
 #include "scoreStorage.h"
+#include "messages.h"
 
 //WIFI settings :
 const char* ssid = "PhysioPods";
@@ -161,7 +162,7 @@ void startAsClient(){
         if (client.available()){
             //this is the response header, we don't need it
             String line = client.readStringUntil('\n');
-            Serial.println(line);
+            /* Serial.println(line); */
             if (line == "\r"){
                 break;
             }
