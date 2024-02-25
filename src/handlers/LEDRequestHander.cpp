@@ -5,12 +5,11 @@
 #include "../messages.h"
 #include <esp_now.h>
 
-LEDRequestHandler::LEDRequestHandler( String* html) {
-    this->html = html;
+LEDRequestHandler::LEDRequestHandler() {
 }
 
 bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
-    if (request->url()=="/") {
+    if (request->url()=="/LED") {
         #ifdef isDebug
         Serial.println("LEDRequestHandler received params: ");
         for (uint8_t i=0; i<request->params(); i++) {
@@ -26,7 +25,7 @@ bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
 }
 
 void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
-    //this means we received a request to "/"
+    //this means we received a request to "/LED"
 
     //check if the request contains a parameter "LED"
     for (uint8_t i=0; i<request->params(); i++) {

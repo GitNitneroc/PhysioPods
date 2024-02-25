@@ -7,7 +7,7 @@ private:
     String* html;
 
 public:
-    CaptiveRequestHandler(String* html);
+    CaptiveRequestHandler();
     virtual ~CaptiveRequestHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);

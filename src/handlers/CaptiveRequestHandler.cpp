@@ -1,11 +1,15 @@
 #include "isDebug.h"
 #include "CaptiveRequestHandler.h"
 #include "ESPAsyncWebServer.h"
+
 /*
     * This is a request handler for the captive portal.
+    * It serves the index.html file for any request
 */
-CaptiveRequestHandler::CaptiveRequestHandler(String* html) {
-    this->html = html;
+CaptiveRequestHandler::CaptiveRequestHandler() {
+    this->html = new String(
+    #include "./html/index.html"
+    );
 }
 
 bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request){

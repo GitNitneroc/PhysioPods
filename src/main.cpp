@@ -39,9 +39,6 @@ const char* password = "0123456789";
 
 DNSServer* dnsServer = nullptr;
 AsyncWebServer server(80);
-String html = String(
-#include "./html/index.html"
-);
 
 ButtonControl* control = new ButtonControl(BUTTON_PIN);
 ScoreStorage scoreStorage = ScoreStorage();
@@ -118,9 +115,9 @@ void startAsServer(){
     server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
     server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
     server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
-    server.addHandler(new LEDRequestHandler(&html)); //Handles the LED control requests
+    server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
     server.addHandler(new ScoreJSONHandler(&scoreStorage)); //Handles the score requests
-    server.addHandler(new CaptiveRequestHandler(&html));//call last, if no specific handler matched
+    server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched
 
     Serial.println("Web server starting...");
     server.begin();
