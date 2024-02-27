@@ -45,6 +45,7 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println(macStr);
         #endif
         
+        /* For now this is disabled, we only use the broadcast address
         //create the peer info
         esp_now_peer_info_t peerInfo;
         peerInfo.channel = 1;
@@ -64,7 +65,7 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
                 Serial.println("Peer added");
                 #endif
             }
-        }
+        } */
         response->print("\r\n1"); //for now we just send back a id of 1
     }
 

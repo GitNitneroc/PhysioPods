@@ -48,6 +48,9 @@ PhysioPodMode* mode = nullptr;
 //The id of the pod, it will be set to another value if it's a clientpod.
 uint8_t podId = 0;
 
+//TODO : there should be a PysioPod virtual class, with ServerPod and ClientPod classes that inherit from it
+
+
 /* This can be called to start the specified PhysioPodMode*/
 void startMode(PhysioPodMode* newMode){
     //if there is a mode running, stop it
@@ -72,9 +75,7 @@ void startMode(PhysioPodMode* newMode){
     * It will start the device as a server, and initialize the web server
 */
 void startAsServer(){
-    #ifdef isDebug
     Serial.println("Starting as a server");
-    #endif
     //stop the WiFi client
     WiFi.disconnect();
     delay(1000); //not sure if this is necessary
@@ -84,9 +85,7 @@ void startAsServer(){
     WiFi.mode(WIFI_AP_STA);
     if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
-        #ifdef isDebug
         Serial.println("Failed to start the hotspot, restarting the device");
-        #endif
         ESP.restart();
     }
 
@@ -124,12 +123,32 @@ void startAsServer(){
 
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
-        #ifdef isDebug
         Serial.println("Error initializing ESP-NOW, restarting the device");
-        #endif
         ESP.restart();
     }
     Serial.println("ESP-NOW initialized");
+
+    //add broadcast mac address to the peers
+    uint8_t broadcastMac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    
+    // Register peer
+    esp_now_peer_info_t peerInfo;
+    memcpy(peerInfo.peer_addr, broadcastMac, 6);
+    peerInfo.channel = 1;  
+    peerInfo.encrypt = false;
+    
+    // Add peer        
+    if (esp_now_add_peer(&peerInfo) != ESP_OK){
+        Serial.println("Failed to add broadcast as peer");
+        return;
+    }else{
+        Serial.println("Broadcast peer added");
+    }
+
+    /* if (!addMacToESPNowPeers(broadcastMac)){
+        Serial.println("Failed to add broadcast to peers, restarting the device");
+        ESP.restart();
+    } */
 
     Serial.println("ServerPod seems ready !");
 }
@@ -155,11 +174,12 @@ void OnDataRecv(const uint8_t * sender_addr, const uint8_t *data, int len) {
     * This function is called when the device is able to connect to the WiFi as a client
 */
 void startAsClient(){
-    //TODO : send a request to the server to get the server mac address
-    //maybe we should send the server our own mac address, it's not available from ESPAsyncTCP library
     #ifdef isDebug
     Serial.println("Connecting to WiFi as a client");
     #endif
+
+    uint8_t serverMac[6];
+
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
@@ -216,6 +236,14 @@ void startAsClient(){
         // so we should add a new mac address to the eeprom and restart the device
         // at startup it would read the mac from eeprom and use it until next restart
     }
+    
+    //parse the server mac address
+    if (sscanf(line.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &serverMac[0], &serverMac[1], &serverMac[2], &serverMac[3], &serverMac[4], &serverMac[5]) != 6) {
+        #ifdef isDebug
+        Serial.println("Failed to parse server mac address, restarting the device");
+        #endif
+        ESP.restart();
+    }
 
     //read id now
     line = client.readStringUntil('\n');
@@ -242,6 +270,19 @@ void startAsClient(){
         ESP.restart();
     }
     Serial.println("ESP-NOW initialized");
+
+    //add the server mac address to the peers
+    esp_now_peer_info_t peerInfo;
+    peerInfo.channel = 1;
+    peerInfo.encrypt = false;
+    memcpy(peerInfo.peer_addr, serverMac, 6);
+    if (esp_now_add_peer(&peerInfo) != ESP_OK){
+        Serial.println("Failed to add server as peer, restarting the device");
+        ESP.restart();
+    }else{
+        Serial.println("Server added as peer");
+    }
+
     esp_now_register_recv_cb(OnDataRecv);
 
     Serial.println("ClientPod seems ready !");
@@ -263,11 +304,11 @@ bool searchOtherPhysioWiFi(){
     bool found = false;
     for (int i = 0; i < n; i++){
         #ifdef isDebug
-        Serial.println(WiFi.SSID(i));
+        Serial.println(" - "+WiFi.SSID(i));
         #endif
         if (WiFi.SSID(i) == ssid){
             #ifdef isDebug
-            Serial.println("Found a PhysioPod network");
+            Serial.println(" * Found a PhysioPod network");
             #endif
             found = true;
             break;

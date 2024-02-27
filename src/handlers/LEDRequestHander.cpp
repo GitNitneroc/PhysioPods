@@ -43,8 +43,11 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
                 message.state = 0;
             }
 
+            //TODO : this address should be stored in memory
+            uint8_t ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+
             //send the message
-            esp_err_t result = esp_now_send(NULL, (uint8_t *) &message, sizeof(LEDMessage));
+            esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
             if (result == ESP_OK) {
                 #ifdef isDebug
                 Serial.println("ESP-NOW Message sent");
