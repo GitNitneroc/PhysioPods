@@ -22,10 +22,24 @@ R"||(<!DOCTYPE html>
             <form>
                 <div class="row">
                     <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./LED?LED=ON")'>LED ON</button>
+                        <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("./LED?LED=ON&id=0")'> ServerPod LED ON</button>
                     </div>
                     <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./LED?LED=OFF")'>LED OFF</button>
+                        <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("./LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <form>
+                        <label for="podId">Control specific pood (0 to 254) : </label>
+                        <input type="number" id="podId" name="podId" value="1" min="0" max="255"><br />
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="6 col">
+                        <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
+                    </div>
+                    <div class="6 col">
+                        <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
                     </div>
                 </div>
             </form>
