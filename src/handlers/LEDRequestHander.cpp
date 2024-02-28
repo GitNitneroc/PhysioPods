@@ -55,25 +55,34 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
         destId = idParam->value().toInt();
     }
 
-    //create the message
-    LEDMessage message;        
-    message.id = destId;
-    message.state = ledState;
-           
-    //TODO : this address should be stored in memory
-    uint8_t ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    //should the message be sent to another pod ?
+    if (destId > 0) {
+        //create the message
+        LEDMessage message;        
+        message.id = destId;
+        message.state = ledState;
+            
+        //TODO : this address should be stored in memory
+        uint8_t ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-    //send the message
-    esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
-    if (result == ESP_OK) {
-        #ifdef isDebug
-        Serial.println("ESP-NOW Message sent");
-        #endif
+        //send the message
+        esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
+        if (result == ESP_OK) {
+            #ifdef isDebug
+            Serial.println("ESP-NOW Message sent");
+            #endif
+        } else {
+            #ifdef isDebug
+            Serial.print("Error sending the ESP-NOW message : ");
+            Serial.println(esp_err_to_name(result));
+            #endif
+        }
     } else {
+        //the serverPod is the target
         #ifdef isDebug
-        Serial.print("Error sending the ESP-NOW message : ");
-        Serial.println(esp_err_to_name(result));
+        Serial.println("LEDRequestHandler : the serverPod is the target");
         #endif
+        digitalWrite(LED_PIN, ledState);
     }
 
     //send some response to the client
