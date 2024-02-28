@@ -10,4 +10,7 @@ public:
     bool canHandle(AsyncWebServerRequest *request);
 
     void handleRequest(AsyncWebServerRequest *request);
+
+private:
+    uint8_t peersNum = 0; //number of peers connected to the server
 };

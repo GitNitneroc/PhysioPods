@@ -1,7 +1,8 @@
 #include "ESPAsyncWebServer.h"
 
 /*
- * This handles the request for the LED state
+ * This handles the requests to change the LED states
+ * The request should be in the form of "/LED?LED=ON&id=1", the order of the parameters matters !
 */
 class LEDRequestHandler : public AsyncWebHandler {
     public:
