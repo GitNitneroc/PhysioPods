@@ -126,7 +126,9 @@ void startAsServer(){
         Serial.println("Error initializing ESP-NOW, restarting the device");
         ESP.restart();
     }
-    Serial.println("ESP-NOW initialized");
+    uint32_t version = 0;
+    esp_now_get_version(&version);
+    Serial.println("ESP-NOW v"+String(version)+" initialized");
 
     //add broadcast mac address to the peers
     uint8_t broadcastMac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -134,7 +136,7 @@ void startAsServer(){
     // Register peer
     esp_now_peer_info_t peerInfo;
     memcpy(peerInfo.peer_addr, broadcastMac, 6);
-    peerInfo.channel = 1;  
+    peerInfo.channel = 0;  
     peerInfo.encrypt = false;
     
     // Add peer        
@@ -269,11 +271,13 @@ void startAsClient(){
         #endif
         ESP.restart();
     }
-    Serial.println("ESP-NOW initialized");
+    uint32_t version = 0;
+    esp_now_get_version(&version);
+    Serial.println("ESP-NOW v"+String(version)+" initialized");
 
     //add the server mac address to the peers
     esp_now_peer_info_t peerInfo;
-    peerInfo.channel = 1;
+    peerInfo.channel = 0;
     peerInfo.encrypt = false;
     memcpy(peerInfo.peer_addr, serverMac, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK){
@@ -302,16 +306,18 @@ bool searchOtherPhysioWiFi(){
     delay(100);
     int n = WiFi.scanNetworks();
     bool found = false;
+    //TODO : this could help to find the best channel
     for (int i = 0; i < n; i++){
         #ifdef isDebug
-        Serial.println(" - "+WiFi.SSID(i));
+        Serial.print(" - "+WiFi.SSID(i));
+        Serial.println(" (channel "+String(WiFi.channel(i))+")");
         #endif
         if (WiFi.SSID(i) == ssid){
             #ifdef isDebug
-            Serial.println(" * Found a PhysioPod network");
+            Serial.println(" ! Found a PhysioPod network !");
             #endif
             found = true;
-            break;
+            //break; We could break here, but displaying the channel could be interesting
         }
     }
     WiFi.scanDelete();
