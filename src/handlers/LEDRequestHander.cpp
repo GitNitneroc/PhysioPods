@@ -77,6 +77,14 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
             Serial.println(esp_err_to_name(result));
             #endif
         }
+
+        if (destId == 255) {
+            //the serverPod is one of the targets
+            #ifdef isDebug
+            Serial.println("LEDRequestHandler : the serverPod is one of the targets");
+            #endif
+            digitalWrite(LED_PIN, ledState);
+        }
     } else {
         //the serverPod is the target
         #ifdef isDebug
