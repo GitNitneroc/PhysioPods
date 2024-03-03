@@ -131,6 +131,7 @@ void startAsServer(){
     Serial.println("ESP-NOW v"+String(version)+" initialized");
 
     //add broadcast mac address to the peers
+    //TODO : actually check this is needed, I read somewhere that it's not necessary
     uint8_t broadcastMac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     
     // Register peer
