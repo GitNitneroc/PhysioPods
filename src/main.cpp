@@ -142,8 +142,8 @@ void startAsServer(){
     
     // Add peer        
     if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add broadcast as peer");
-        return;
+        Serial.println("Failed to add broadcast as peer, restarting the device");
+        ESP.restart();
     }else{
         Serial.println("Broadcast peer added");
     }
