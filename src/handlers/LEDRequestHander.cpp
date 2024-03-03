@@ -83,14 +83,35 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
             #ifdef isDebug
             Serial.println("LEDRequestHandler : the serverPod is one of the targets");
             #endif
-            digitalWrite(LED_PIN, ledState);
+            #ifdef USE_NEOPIXEL
+                if (ledState){
+                    neopixelWrite(LED_PIN,100,20,20); // on
+                }
+                else{
+                    neopixelWrite(LED_PIN,0,0,0); // off
+                }
+            #else
+                digitalWrite(LED_PIN, message->state);
+            #endif
         }
     } else {
         //the serverPod is the target
         #ifdef isDebug
         Serial.println("LEDRequestHandler : the serverPod is the target");
         #endif
-        digitalWrite(LED_PIN, ledState);
+        #ifdef USE_NEOPIXEL
+            if (ledState){
+                neopixelWrite(LED_PIN,100,20,20); // on
+            }
+            else{
+                neopixelWrite(LED_PIN,0,0,0); // off
+            }
+        #else
+            #ifdef INVERTED_LED
+            message->state = !message->state;
+            #endif
+            digitalWrite(LED_PIN, message->state);
+        #endif
     }
 
     //send some response to the client

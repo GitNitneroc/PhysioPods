@@ -135,6 +135,7 @@ void startAsServer(){
     
     // Register peer
     esp_now_peer_info_t peerInfo;
+    memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !
     memcpy(peerInfo.peer_addr, broadcastMac, 6);
     peerInfo.channel = 0;  
     peerInfo.encrypt = false;
@@ -168,7 +169,20 @@ void OnDataRecv(const uint8_t * sender_addr, const uint8_t *data, int len) {
         #ifdef isDebug
         Serial.println("-This message is for me !");
         #endif
-        digitalWrite(LED_PIN, message->state);
+        #ifdef USE_NEOPIXEL
+            if (message->state){
+                neopixelWrite(LED_PIN,100,20,20); // on
+            }
+            else{
+                neopixelWrite(LED_PIN,0,0,0); // off
+            }
+        #else
+            #ifdef INVERTED_LED
+            message->state = !message->state;
+            #endif
+            digitalWrite(LED_PIN, message->state);
+        #endif
+        
     }
 }
 
@@ -279,6 +293,7 @@ void startAsClient(){
     esp_now_peer_info_t peerInfo;
     peerInfo.channel = 0;
     peerInfo.encrypt = false;
+    memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !
     memcpy(peerInfo.peer_addr, serverMac, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK){
         Serial.println("Failed to add server as peer, restarting the device");
