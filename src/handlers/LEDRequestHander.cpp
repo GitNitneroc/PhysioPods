@@ -91,7 +91,11 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
                     neopixelWrite(LED_PIN,0,0,0); // off
                 }
             #else
-                digitalWrite(LED_PIN, message->state);
+                #ifdef INVERTED_LED
+                    digitalWrite(LED_PIN, !ledState);
+                #else
+                    digitalWrite(LED_PIN, ledState);
+                #endif
             #endif
         }
     } else {
@@ -108,9 +112,10 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
             }
         #else
             #ifdef INVERTED_LED
-            message->state = !message->state;
+                digitalWrite(LED_PIN, !ledState);
+            #else
+                digitalWrite(LED_PIN, ledState);
             #endif
-            digitalWrite(LED_PIN, message->state);
         #endif
     }
 

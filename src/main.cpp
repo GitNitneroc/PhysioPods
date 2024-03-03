@@ -178,9 +178,10 @@ void OnDataRecv(const uint8_t * sender_addr, const uint8_t *data, int len) {
             }
         #else
             #ifdef INVERTED_LED
-            message->state = !message->state;
-            #endif
+            digitalWrite(LED_PIN, !message->state);
+            #else
             digitalWrite(LED_PIN, message->state);
+            #endif
         #endif
         
     }
