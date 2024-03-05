@@ -5,13 +5,10 @@
 */
 class ScoreJSONHandler : public AsyncWebHandler {
 public:
-    ScoreJSONHandler(ScoreStorage* scoreStorage);
+    ScoreJSONHandler();
     virtual ~ScoreJSONHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);
 
     void handleRequest(AsyncWebServerRequest *request);
-    
-private:
-    ScoreStorage* scoreStorage;
 };

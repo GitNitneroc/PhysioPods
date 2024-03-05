@@ -2,21 +2,13 @@
 #include "isDebug.h"
 #include "scoreStorage.h"
 
-ScoreStorage::ScoreStorage()
+String* scores[3];
+
+void ScoreStorage::init()
 {
     //init scores with NULL
     for (uint8_t i=0; i<3; i++){
-        scores[i] = NULL;
-    }
-}
-
-ScoreStorage::~ScoreStorage()
-{
-    //it doesn't seem very useful to delete the scores, but let's do it anyway
-    for (uint8_t i=0; i<3; i++){
-        if (scores[i] != NULL){
-            delete scores[i];
-        }
+        scores[i] = nullptr;
     }
 }
 
@@ -24,7 +16,7 @@ ScoreStorage::~ScoreStorage()
     * Call this to update the current score
  */
 void ScoreStorage::updateScore(String* score){
-    if (scores[0] != NULL){
+    if (scores[0] != nullptr){
         delete scores[0];
     }
     scores[0] = score;
@@ -36,6 +28,16 @@ void ScoreStorage::updateScore(String* score){
     * The oldest score will be deleted
  */
 void ScoreStorage::addScore(String* score){
+    #ifdef isDebug
+    Serial.print("Adding this score to storage : ");
+    Serial.println(*score);
+    //Serial.println(sizeof(score));
+    //print the score memory addresses
+    for (uint8_t i=0; i<3; i++){
+        Serial.printf("Score %d : %p\n", i, scores[i]);
+    }
+    #endif
+
     delete scores[2];
     scores[2] = scores[1];
     scores[1] = scores[0];
@@ -48,11 +50,11 @@ void ScoreStorage::addScore(String* score){
 String ScoreStorage::getAllJSON(){
     String json = "[";
     for (uint8_t i=0; i<3; i++){
-        if (scores[i] != NULL){
+        if (scores[i] != nullptr){
             json += *scores[i];
         }
         //add a comma if it's not the last score, and if it's not empty
-        if (i<2 && scores[i+1] != NULL){
+        if (i<2 && scores[i+1] != nullptr){
             json += ",";
         }
     }
@@ -65,7 +67,7 @@ String ScoreStorage::getAllJSON(){
     * returns an empty string if there is no score
  */
 String ScoreStorage::getLastJSON(){
-    if (scores[0] != NULL){
+    if (scores[0] != nullptr){
         return *scores[0];
     }
     return "";

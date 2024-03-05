@@ -1,6 +1,6 @@
 #include "isDebug.h" //this file is used to define the isDebug variable
-#include "pins.h" //this file is used to define the pins
-#include "messages.h" //this file is used to define the messages that are used to communicate between the serverpod and its clientpods
+#include "ServerPod.h"
+#include "ClientPod.h"
 
 //The libraries we need
 #include <DNSServer.h>
@@ -14,334 +14,11 @@
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
 
-//Our handlers for the web server
-#include "handlers/LEDRequestHandler.h"
-#include "handlers/CaptiveRequestHandler.h"
-#include "handlers/ServerMacAddressHandler.h"
-#include "handlers/StaticHtmlHandler.h"
-#include "handlers/ModeLaunchHandler.h"
-#include "handlers/CSSRequestHandler.h"
-#include "handlers/ScoreJSONHandler.h"
-
-//Our control
-#include "controls/ButtonControl.h"
-//Our modes
-#include "modes/FastPressMode.h"
-
 #include "scoreStorage.h"
 
 
-#define LIMIT_CONNECTION_ATTEMPTS 20 //The number of attempts a clientpod makes to connect to the WiFi before restarting
+PhysioPod* pod = nullptr;
 
-//WIFI settings :
-const char* ssid = "PhysioPods";
-const char* password = "0123456789";
-
-DNSServer* dnsServer = nullptr;
-AsyncWebServer server(80);
-
-ButtonControl* control = new ButtonControl(BUTTON_PIN);
-ScoreStorage scoreStorage = ScoreStorage();
-ScoreStorage* PhysioPodMode::scoreStorage = nullptr;
-PhysioPodMode* mode = nullptr;
-
-//The id of the pod, it will be set to another value if it's a clientpod.
-uint8_t podId = 0;
-
-//TODO : there should be a PysioPod virtual class, with ServerPod and ClientPod classes that inherit from it
-
-
-/* This can be called to start the specified PhysioPodMode*/
-void startMode(PhysioPodMode* newMode){
-    //if there is a mode running, stop it
-    if (mode != nullptr){
-        #ifdef isDebug
-        Serial.println("Stopping older mode...");
-        #endif
-        mode->stop();
-        delete mode;
-    }
-    #ifdef isDebug
-    Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
-    Serial.println("Starting mode...");
-    #endif
-    //switch to the new mode, and start it
-    mode = newMode;
-    mode->start();
-}
-
-/*
-    * This function is called when the device is not able to connect to the WiFi as a client
-    * It will start the device as a server, and initialize the web server
-*/
-void startAsServer(){
-    Serial.println("Starting as a server");
-    //stop the WiFi client
-    WiFi.disconnect();
-    delay(1000); //not sure if this is necessary
-
-    //initialize the WiFi hotspot
-    Serial.println("Hotsport starting...");
-    WiFi.mode(WIFI_AP_STA);
-    if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
-        //if the hotspot failed to start, restart the device
-        Serial.println("Failed to start the hotspot, restarting the device");
-        ESP.restart();
-    }
-
-    //set the IP address of the hotspot
-    delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START
-    Serial.println("Set softAPConfig");
-    IPAddress Ip(192, 168, 1, 1);
-    IPAddress NMask(255, 255, 255, 0);
-    WiFi.softAPConfig(Ip, Ip, NMask);
-    #ifdef isDebug
-    Serial.print("AP IP address: ");
-    Serial.println(WiFi.softAPIP());
-    #endif
-
-    //start the DNS server
-    Serial.println("DNS server starting...");
-    dnsServer = new DNSServer();
-    dnsServer->start(53, "*", WiFi.softAPIP());
-
-    //initialize the score storage
-    PhysioPodMode::scoreStorage = &scoreStorage;
-
-    //handlers for the web server
-    //TODO : create a handler where other physioPods can send their mac addresses and register themselves to the server, and get the server mac address, this will be used for ESPNow
-    server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
-    server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
-    server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
-    server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
-    server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
-    server.addHandler(new ScoreJSONHandler(&scoreStorage)); //Handles the score requests
-    server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched
-
-    Serial.println("Web server starting...");
-    server.begin();
-
-    // Init ESP-NOW
-    if (esp_now_init() != ESP_OK) {
-        Serial.println("Error initializing ESP-NOW, restarting the device");
-        ESP.restart();
-    }
-    uint32_t version = 0;
-    esp_now_get_version(&version);
-    Serial.println("ESP-NOW v"+String(version)+" initialized");
-
-    //add broadcast mac address to the peers
-    //TODO : actually check this is needed, I read somewhere that it's not necessary
-    uint8_t broadcastMac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    
-    // Register peer
-    esp_now_peer_info_t peerInfo;
-    memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !
-    memcpy(peerInfo.peer_addr, broadcastMac, 6);
-    peerInfo.channel = 0;  
-    peerInfo.encrypt = false;
-    
-    // Add peer        
-    if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add broadcast as peer, restarting the device");
-        ESP.restart();
-    }else{
-        Serial.println("Broadcast peer added");
-    }
-
-    /* if (!addMacToESPNowPeers(broadcastMac)){
-        Serial.println("Failed to add broadcast to peers, restarting the device");
-        ESP.restart();
-    } */
-
-    Serial.println("ServerPod seems ready !");
-}
-
-// callback function that will be executed when data is received
-void OnDataRecv(const uint8_t * sender_addr, const uint8_t *data, int len) {
-    LEDMessage* message = (LEDMessage*)data;
-    #ifdef isDebug
-    Serial.println("Received a LED message");
-    Serial.println("-Target pod : "+String(message->id));
-    Serial.println("-State : "+String(message->state));
-    #endif
-    //check if the message is for me (255 is the broadcast id, it's for everyone)
-    if (message->id == podId || message->id == 255){
-        #ifdef isDebug
-        Serial.println("-This message is for me !");
-        #endif
-        #ifdef USE_NEOPIXEL
-            if (message->state){
-                neopixelWrite(LED_PIN,100,20,20); // on
-            }
-            else{
-                neopixelWrite(LED_PIN,0,0,0); // off
-            }
-        #else
-            #ifdef INVERTED_LED
-            digitalWrite(LED_PIN, !message->state);
-            #else
-            digitalWrite(LED_PIN, message->state);
-            #endif
-        #endif
-        
-    }
-}
-
-/*
-    * This function is called when the device is able to connect to the WiFi as a client
-*/
-void startAsClient(){
-    #ifdef isDebug
-    Serial.println("Connecting to WiFi as a client");
-    #endif
-
-    uint8_t serverMac[6];
-
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
-    WiFi.begin(ssid, password);
-    uint8_t i = 0;
-    while (WiFi.status() != WL_CONNECTED){
-        delay(500);
-        #ifdef isDebug
-        Serial.print(".");
-        #endif
-        if (i++ > LIMIT_CONNECTION_ATTEMPTS){
-            #ifdef isDebug
-            Serial.println("Failed to connect to WiFi, restarting the device");
-            #endif
-            ESP.restart();
-        }
-    }
-    #ifdef isDebug
-    Serial.println("Connected to WiFi");
-    #endif
-
-    //get the server mac address
-    WiFiClient client;
-    if (!client.connect("192.168.1.1", 80)){
-        #ifdef isDebug
-        Serial.println("Failed to connect to server, restarting the device");
-        #endif
-        ESP.restart();
-    }
-    #ifdef isDebug
-    Serial.println("Connected to server");
-    #endif
-    client.print("GET /serverMacAddress?mac="+WiFi.macAddress()+" HTTP/1.1\r\nConnection: close\r\n\r\n");
-    while (client.connected()){
-        if (client.available()){
-            //this is the response header, we don't need it
-            String line = client.readStringUntil('\n');
-            /* Serial.println(line); */
-            if (line == "\r"){
-                break;
-            }
-        }
-    }
-    //this is the response body, the server mac address and id
-    String line = client.readStringUntil('\n');
-    #ifdef isDebug
-    Serial.println("Server mac address : "+line);
-    #endif
-    if (WiFi.macAddress()==line){
-        #ifdef isDebug
-        Serial.println("This Pod has the same mac address as the server, restarting...");
-        #endif
-        //TODO : This could theoretically happend... We can't change the mac permanently
-        // so we should add a new mac address to the eeprom and restart the device
-        // at startup it would read the mac from eeprom and use it until next restart
-    }
-    
-    //parse the server mac address
-    if (sscanf(line.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &serverMac[0], &serverMac[1], &serverMac[2], &serverMac[3], &serverMac[4], &serverMac[5]) != 6) {
-        #ifdef isDebug
-        Serial.println("Failed to parse server mac address, restarting the device");
-        #endif
-        ESP.restart();
-    }
-
-    //read id now
-    line = client.readStringUntil('\n');
-    if (line == ""){
-        #ifdef isDebug
-        Serial.println("No id provided, restarting the device");
-        #endif
-        ESP.restart();
-    }
-    podId = line.toInt();
-    #ifdef isDebug
-    Serial.println("Pod id : "+String(podId));
-    #endif
-
-    //disconnect from the http
-    client.stop();
-    WiFi.disconnect();
-
-    // Init ESP-NOW
-    if (esp_now_init() != ESP_OK) {
-        #ifdef isDebug
-        Serial.println("Error initializing ESP-NOW, restarting the device");
-        #endif
-        ESP.restart();
-    }
-    uint32_t version = 0;
-    esp_now_get_version(&version);
-    Serial.println("ESP-NOW v"+String(version)+" initialized");
-
-    //add the server mac address to the peers
-    esp_now_peer_info_t peerInfo;
-    peerInfo.channel = 0;
-    peerInfo.encrypt = false;
-    memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !
-    memcpy(peerInfo.peer_addr, serverMac, 6);
-    if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add server as peer, restarting the device");
-        ESP.restart();
-    }else{
-        Serial.println("Server added as peer");
-    }
-
-    esp_now_register_recv_cb(OnDataRecv);
-
-    Serial.println("ClientPod seems ready !");
-}
-
-/*
-    * This function is called to search for other PhysioPods
-    * It will scan for WiFi networks and look for the PhysioPod network
-    * It will return true if it found a PhysioPod network, and false otherwise
-*/
-bool searchOtherPhysioWiFi(){
-    #ifdef isDebug
-    Serial.println("Scanning for other PhysioPods...");
-    #endif
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
-    int n = WiFi.scanNetworks();
-    bool found = false;
-    //TODO : this could help to find the best channel
-    for (int i = 0; i < n; i++){
-        #ifdef isDebug
-        Serial.print(" - "+WiFi.SSID(i));
-        Serial.println(" (channel "+String(WiFi.channel(i))+")");
-        #endif
-        if (WiFi.SSID(i) == ssid){
-            #ifdef isDebug
-            Serial.println(" ! Found a PhysioPod network !");
-            #endif
-            found = true;
-            //break; We could break here, but displaying the channel could be interesting
-        }
-    }
-    WiFi.scanDelete();
-    WiFi.disconnect();
-    delay(100);
-    return found;
-}
 
 void setup(){
     Serial.begin(115200);
@@ -352,37 +29,26 @@ void setup(){
 
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
 
-    // Set WiFi to station mode and disconnect from an AP if it was previously connected.
+    /* // Set WiFi to station mode and disconnect from an AP if it was previously connected.
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
-    delay(100);
+    delay(100); */
+   
 
-
-    //Look for other physioPod wifi network
-    if (!searchOtherPhysioWiFi()){
-        #ifdef isDebug
-        Serial.println("No PhysioPod network found");
-        #endif
-        startAsServer();
+    if (PhysioPod::searchOtherPhysioWiFi()){
+        pod = new ClientPod();
     }else{
-        startAsClient();
+        ScoreStorage::init();
+        pod = new ServerPod();
     }
 
-    //initialize the control
-    control->initialize();
+    //make sure the light is off
+    pod->setLightState(false);
 }
 
 void loop(){
-    if (dnsServer != nullptr){
-        dnsServer->processNextRequest();//look for an asynchronous system rather than this one ?
-    }
-
-    //update the game mode if there is one started
-    if (mode != nullptr){
-        mode->update();
-    }
+    pod->updatePod();
 
     //TODO : consider a timer to go easy on the battery ?
 }

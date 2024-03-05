@@ -52,7 +52,7 @@ void FastPressMode::update() {
                 if (pressed) {
                     //the user pressed the button too early
                     onError(podToPress);
-                    scoreStorage->updateScore(returnScore());
+                    ScoreStorage::updateScore(returnScore());
                     state = WAIT_FOR_RELEASE;
                 }
             }else{
@@ -77,7 +77,7 @@ void FastPressMode::update() {
                 score++;
                 pressDelay += millis() - timer;
                 currentTry++;
-                scoreStorage->updateScore(returnScore());
+                ScoreStorage::updateScore(returnScore());
                 state = WAIT_FOR_RELEASE;
                 this->unlightPod(podToPress);
             }
@@ -144,7 +144,7 @@ void FastPressMode::updatePodToPress() {
 void FastPressMode::start() {
     //prepare the scores
     reset();
-    scoreStorage->addScore(returnScore());
+    ScoreStorage::addScore(returnScore());
     //prepare the first interval
     updatePodToPress();
 }
@@ -154,18 +154,12 @@ void FastPressMode::start() {
     This function returns a JSON string with the score
 */
 String* FastPressMode::returnScore() {
-    String* scoreStr =  new String("{\"mode\": \"FastPress\", \"tries\": ");
-    *scoreStr += String(currentTry<=numberOfTries?currentTry:numberOfTries);
-    *scoreStr += ", \"score\": ";
-    *scoreStr += String(this->score);
-    *scoreStr += ", \"errors\": ";
-    *scoreStr += String(this->errors);
-    *scoreStr += ", \"meanDelay\": ";
-    if (this->currentTry == 0) { //avoid division by 0
-        *scoreStr += "0";
-    } else {
-        *scoreStr += String(this->pressDelay / this->currentTry);
-    }
-    *scoreStr += "}";
+    char scoreChar[200]; // HACK : this should be enough
+    int meanDelay = this->currentTry == 0 ? 0 : this->pressDelay / this->currentTry;
+    int tries = currentTry<=numberOfTries?currentTry:numberOfTries;
+
+    sprintf(scoreChar, "{\"mode\": \"FastPress\", \"tries\": %d, \"score\": %d, \"errors\": %d, \"meanDelay\": %d}", tries, this->score, this->errors, meanDelay);
+
+    String* scoreStr = new String(scoreChar);
     return scoreStr;
 }

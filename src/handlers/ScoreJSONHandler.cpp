@@ -6,7 +6,7 @@
 /*
     * This is a request handler to get the scores in JSON format
 */
-ScoreJSONHandler::ScoreJSONHandler(ScoreStorage* scoreStorage) : scoreStorage(scoreStorage) {
+ScoreJSONHandler::ScoreJSONHandler() {
 }
 
 bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request){
@@ -21,6 +21,6 @@ bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request){
 
 void ScoreJSONHandler::handleRequest(AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
-    response->print(scoreStorage->getAllJSON());
+    response->print(ScoreStorage::getAllJSON());
     request->send(response);
 }

@@ -1,3 +1,5 @@
+#ifndef ButtonControl_h
+#define ButtonControl_h
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 
@@ -18,3 +20,4 @@ class ButtonControl: public PhysioPodControl {
         bool state;
         ulong lastDebounceTime;
 };
+#endif

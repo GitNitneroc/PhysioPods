@@ -5,6 +5,8 @@
 #include "messages.h"
 #include <esp_now.h>
 
+#include "PhysioPod.h"
+
 LEDRequestHandler::LEDRequestHandler() {
 }
 
@@ -83,40 +85,14 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
             #ifdef isDebug
             Serial.println("LEDRequestHandler : the serverPod is one of the targets");
             #endif
-            #ifdef USE_NEOPIXEL
-                if (ledState){
-                    neopixelWrite(LED_PIN,100,20,20); // on
-                }
-                else{
-                    neopixelWrite(LED_PIN,0,0,0); // off
-                }
-            #else
-                #ifdef INVERTED_LED
-                    digitalWrite(LED_PIN, !ledState);
-                #else
-                    digitalWrite(LED_PIN, ledState);
-                #endif
-            #endif
+            PhysioPod::setLightState(ledState);
         }
     } else {
         //the serverPod is the target
         #ifdef isDebug
         Serial.println("LEDRequestHandler : the serverPod is the target");
         #endif
-        #ifdef USE_NEOPIXEL
-            if (ledState){
-                neopixelWrite(LED_PIN,100,20,20); // on
-            }
-            else{
-                neopixelWrite(LED_PIN,0,0,0); // off
-            }
-        #else
-            #ifdef INVERTED_LED
-                digitalWrite(LED_PIN, !ledState);
-            #else
-                digitalWrite(LED_PIN, ledState);
-            #endif
-        #endif
+        PhysioPod::setLightState(ledState);
     }
 
     //send some response to the client

@@ -3,22 +3,24 @@
 #include <Arduino.h>
 #include "scoreStorage.h"
 
+/*
+    * This is the base class for all the modes that the PhysioPod can be in.
+    * It is used to define the basic functions that all the modes should have.
+*/
 class PhysioPodMode {
 public:
-    //virtual void initialize() = 0;
-    virtual void stop() = 0;
+    virtual void stop() {}
 
     virtual ~PhysioPodMode() {}
 
-    virtual void start() = 0;
-    virtual void update() = 0;
+    virtual void start() {}
+    virtual void update() {}
     /*
-        * Call this to reset the mode
-        * This will reset the score
+        * This function is called when the mode is reset
+        * It is used to reset the score and state of the mode
     */
-    virtual void reset() = 0;
-    virtual String* returnScore() = 0;
-    static ScoreStorage* scoreStorage;
+    virtual void reset() {}
+    virtual String* returnScore() { return nullptr; }
 };
 
 #endif
