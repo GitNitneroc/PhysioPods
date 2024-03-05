@@ -3,22 +3,10 @@
 #ifndef scoreStorage_h
 #define scoreStorage_h
 
-/* class ScoreStorage
-{
-private:
-    String* scores[3];
-
-public:
-    ScoreStorage();
-    ~ScoreStorage();
-    String getAllJSON();
-    String getLastJSON();
-    void addScore(String* score);
-    void updateScore(String* score);
-}; */
-
 namespace ScoreStorage
 {
+    extern String* scores[3];
+
     void init();
     void updateScore(String* score);
     void addScore(String* score);

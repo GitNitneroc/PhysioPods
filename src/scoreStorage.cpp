@@ -2,7 +2,7 @@
 #include "isDebug.h"
 #include "scoreStorage.h"
 
-String* scores[3];
+String* ScoreStorage::scores[3] = {nullptr, nullptr, nullptr};
 
 void ScoreStorage::init()
 {
