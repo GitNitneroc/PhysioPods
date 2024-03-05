@@ -31,11 +31,6 @@ void ScoreStorage::addScore(String* score){
     #ifdef isDebug
     Serial.print("Adding this score to storage : ");
     Serial.println(*score);
-    //Serial.println(sizeof(score));
-    //print the score memory addresses
-    for (uint8_t i=0; i<3; i++){
-        Serial.printf("Score %d : %p\n", i, scores[i]);
-    }
     #endif
 
     delete scores[2];

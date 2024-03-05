@@ -2,23 +2,7 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
-//The libraries we need
-#include <DNSServer.h>
-#ifdef ESP32
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
-#endif
-#include "ESPAsyncWebServer.h"
-#include <esp_now.h>
-
-#include "scoreStorage.h"
-
-
 PhysioPod* pod = nullptr;
-
 
 void setup(){
     Serial.begin(115200);

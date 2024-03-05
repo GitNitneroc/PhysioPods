@@ -104,12 +104,6 @@ ServerPod::ServerPod() : server(80) {
     }
 
     Serial.println("ServerPod seems ready !");
-
-    //DEBUG :
-    for (int i = 0; i < 5; i++){
-        this->startMode(new FastPressMode(control));
-        delay(1000);
-    }   
 }
 
 /* This can be called to start the specified PhysioPodMode*/
