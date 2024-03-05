@@ -23,6 +23,8 @@
 
 ClientPod* ClientPod::instance = nullptr;
 
+
+//TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
 ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
 
@@ -142,6 +144,12 @@ ClientPod::ClientPod() {
 
     esp_now_register_recv_cb(this->OnDataReceived);
 
+    //initialize the control
+    control = new ButtonControl(BUTTON_PIN);
+    control->initialize();
+    Serial.println("Control initialized");
+
+
     Serial.println("ClientPod seems ready !");
 }
 
@@ -164,5 +172,5 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
 }
 
 void ClientPod::updatePod(){
-    //TODO : check the button control
+    bool state = control->checkControl();
 }
