@@ -36,6 +36,8 @@ void FastPressMode::onError(uint pod) {
     score--;
 }
 
+//TODO tout ça est à refaire maintenant
+
 void FastPressMode::update() {
     //TODO : check if the user pressed the wrong pod
     //TODO : check if the user took too long to press the pod

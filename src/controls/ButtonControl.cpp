@@ -11,11 +11,12 @@ ButtonControl::ButtonControl(byte pin){
     this->state = false;
 }
 
-void ButtonControl::initialize(){
+void ButtonControl::initialize(void (*callback)()){
     this->checking = true;
     pinMode(pin, INPUT_PULLUP);
     this->state = digitalRead(pin);
     this->lastDebounceTime = millis();
+    this->onPressedCallback = callback;
 }
 
 void ButtonControl::stop(){
@@ -33,6 +34,10 @@ bool ButtonControl::checkControl(){
                 #ifdef isDebug
                 Serial.print("Button state changed : ");
                 Serial.println(state ? "HIGH" : "LOW");
+                //notify the pod that the button is pressed
+                if (state){
+                    onPressedCallback();
+                }
                 #endif
                 return !state; //return true if the button is pressed
             }

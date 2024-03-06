@@ -11,7 +11,7 @@
 class ButtonControl: public PhysioPodControl {
     public:
         ButtonControl(byte pin);
-        void initialize();
+        void initialize(void (*callback)());
         void stop();
         bool checkControl();
     private:

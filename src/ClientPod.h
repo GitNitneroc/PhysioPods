@@ -24,4 +24,5 @@ private :
 public :
     ClientPod();
     void updatePod() override;
+    static void onControlPressed(); //The callback for when the control is pressed
 };

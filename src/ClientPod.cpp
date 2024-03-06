@@ -30,7 +30,7 @@ ClientPod::ClientPod() {
 
     //initialize the control
     control = new ButtonControl(BUTTON_PIN);
-    control->initialize();
+    control->initialize(onControlPressed);
 
     #ifdef isDebug
     Serial.println("Connecting to WiFi as a client");
@@ -146,13 +146,19 @@ ClientPod::ClientPod() {
 
     //initialize the control
     control = new ButtonControl(BUTTON_PIN);
-    control->initialize();
+    control->initialize(onControlPressed);
     Serial.println("Control initialized");
 
 
     Serial.println("ClientPod seems ready !");
 }
 
+void ClientPod::onControlPressed(){
+    #ifdef isDebug
+    Serial.println("This pods' Control is activated !");
+    #endif
+    //Create a message
+}
 
 // callback function that will be executed when data is received
 void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len) {

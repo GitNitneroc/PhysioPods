@@ -27,7 +27,7 @@ ServerPod::ServerPod() : server(80) {
 
     //initialize the control
     control = new ButtonControl(BUTTON_PIN);
-    control->initialize();
+    control->initialize(onControlPressed);
     PhysioPodMode* mode = nullptr;
     instance = this;
 
@@ -125,6 +125,15 @@ void ServerPod::startMode(PhysioPodMode* newMode){
     instance->mode->start();
 }
 
+void ServerPod::onControlPressed(){
+    #ifdef isDebug
+    Serial.println("This pods' Control is activated !");
+    #endif
+    //this should be transmitted to the mode, just like clientPods controls
+}
+
+//TODO : create a handler for the clients pressMessages
+
 void ServerPod::updatePod(){
     if (dnsServer != nullptr){
         dnsServer->processNextRequest();//look for an asynchronous system rather than this one ?
@@ -134,4 +143,7 @@ void ServerPod::updatePod(){
     if (mode != nullptr){
         mode->update();
     }
+
+    //Update the control
+    bool state = control->checkControl();
 }

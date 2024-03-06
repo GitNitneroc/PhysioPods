@@ -19,7 +19,7 @@ protected :
 
 public :
     //WIFI settings :
-    static constexpr const char* ssid = "PhysioPods";
+    static constexpr const char* ssid = "PhysioPods"; //having this as a static member rather than a define allows us to change it at runtime if needed someday
     static constexpr const char* password = "0123456789";
     /*
         * This function is called to search for other PhysioPods

@@ -41,6 +41,8 @@ public :
 
     /* This can be called to start the specified PhysioPodMode*/
     static void startMode(PhysioPodMode* newMode);
+
+    static void onControlPressed(); //The callback for when the control is pressed
 };
 
 #endif
