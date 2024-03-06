@@ -21,6 +21,7 @@
 #include "modes/FastPressMode.h"
 
 ServerPod* ServerPod::instance = nullptr;
+const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
@@ -68,7 +69,7 @@ ServerPod::ServerPod() : server(80) {
     server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
     server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
     server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
-    server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
+    server.addHandler(new LEDRequestHandler(setPodLightState)); //Handles the LED control requests
     server.addHandler(new ScoreJSONHandler()); //Handles the score requests
     server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched
 
@@ -125,14 +126,52 @@ void ServerPod::startMode(PhysioPodMode* newMode){
     instance->mode->start();
 }
 
+void ServerPod::setPodLightState(uint8_t podId, bool ledState){
+    //should the message be sent to another pod ?
+    if (podId > 0) {
+        //create the message
+        LEDMessage message;        
+        message.id = podId;
+        message.state = ledState;
+        message.mode = 0;
+
+        //send the message
+        esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
+        if (result == ESP_OK) {
+            #ifdef isDebug
+            Serial.println("LEDMessage broadcasted (pod "+String(podId)+")");
+            #endif
+        } else {
+            #ifdef isDebug
+            Serial.print("Error sending the ESP-NOW message : ");
+            Serial.println(esp_err_to_name(result));
+            #endif
+        }
+        //check if the serverPod is one of the targets
+        if (podId == 255) {
+            #ifdef isDebug
+            Serial.println("The ServerPod is one of the targets");
+            #endif
+            ServerPod::setOwnLightState(ledState);
+        }
+    } else {
+        //the serverPod is the only target
+        #ifdef isDebug
+        Serial.println("The serverPod is the target");
+        #endif
+        ServerPod::setOwnLightState(ledState);
+    }
+}
+
 void ServerPod::onControlPressed(){
     #ifdef isDebug
     Serial.println("This pods' Control is activated !");
     #endif
     //this should be transmitted to the mode, just like clientPods controls
+    if (instance->mode != nullptr){
+        instance->mode->onPodPressed(0);
+    }
 }
-
-//TODO : create a handler for the clients pressMessages
 
 void ServerPod::updatePod(){
     if (dnsServer != nullptr){

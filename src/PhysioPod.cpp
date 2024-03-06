@@ -39,7 +39,7 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     return found;
 }
 
-void PhysioPod::setLightState(bool state) {
+void PhysioPod::setOwnLightState(bool state) {
     #ifdef isDebug
         Serial.println("Setting the light to "+String(state));
     #endif

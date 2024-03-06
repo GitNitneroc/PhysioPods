@@ -9,8 +9,16 @@
     *state : the state of the LED
 */
 struct LEDMessage {
-    int id;
-    int state;
+    uint8_t id;
+    bool state;
+    uint8_t mode; //TODO : at some point this could design the mode (flashing, rotating, etc), or color
 };
+
+struct ControlMessage {
+    uint8_t id;
+    bool state; //in case we need to send a state, but for now it's only sent once on the press
+};
+
+//constexpr size_t debugSize = sizeof(LEDMessage);
 
 #endif //MESSAGES_H

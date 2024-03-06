@@ -40,7 +40,7 @@ public :
     }
 
     /* This is used to set this pod light on or off*/
-    static void setLightState(bool state) ;
+    static void setOwnLightState(bool state) ;
 };
 
 #endif

@@ -2,6 +2,10 @@
 #include "FastPressMode.h"
 #include "controls/PhysioPodControl.h"
 #include "../pins.h"
+#include "esp_now.h"
+#include "ServerPod.h"
+
+FastPressMode* FastPressMode::instance = nullptr;
 
 void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries) {
     this->minInterval = minInterval;
@@ -10,33 +14,96 @@ void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numbe
     reset();
 }
 
+//TODO : this could probably be moved to the PhysioPodMode class
+void FastPressMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len){
+    switch (len){
+    case sizeof(ControlMessage):{
+        ControlMessage* message = (ControlMessage*)data;
+        #ifdef isDebug
+        Serial.println("Received a control message from pod "+String(message->id));
+        #endif
+        instance->onPodPressed(message->id);
+        break;
+    }
+    default:
+        Serial.print("Received a message of unknown length from ");
+        for (int i = 0; i < 6; i++) {
+            Serial.print(sender_addr[i], HEX);
+            if (i<5) Serial.print(":");
+        }
+        Serial.println();
+        break;
+    }
+}
+
+void FastPressMode::onPodPressed(uint8_t id){
+    #ifdef isDebug
+    Serial.println("FastPressMode : pod "+String(id)+" pressed");
+    #endif
+
+    switch (state){
+    case WAIT_FOR_PRESS:{
+        #ifdef isDebug
+        Serial.println("Press happening during state : wait for press");
+        #endif
+        if (id == podToPress){
+            #ifdef isDebug
+            Serial.println("Correct pod pressed !");
+            #endif
+            ServerPod::setPodLightState(podToPress,false);
+            onSuccess(id);
+        } else {
+            #ifdef isDebug
+            Serial.println("Wrong pod pressed !");
+            #endif
+            //the user pressed the wrong pod
+            onError(id);
+        }
+        break;
+    }
+    case DURING_INTERVAL:{
+        #ifdef isDebug
+        Serial.println("Press happening during state : during interval");
+        #endif
+        //the user pressed a pod too early
+        onError(id);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 FastPressMode::FastPressMode(PhysioPodControl* control) {
     this->control = control;
+    instance = this;
 }
 
 void FastPressMode::stop() {
     state = STOPPED;
     //let's clean things up
     reset();
+    esp_now_unregister_recv_cb();
 }
 
-void FastPressMode::lightPod(uint pod) {
-    //TODO : light the pod
-    digitalWrite(LED_PIN, HIGH);
+void FastPressMode::onSuccess(uint8_t pod) {
+    //the user pressed the right pod
+    score++;
+    pressDelay += millis() - timer;
+    currentTry++;
+    if (currentTry < numberOfTries){
+        updatePodToPress();
+    } else {
+        //the game is over
+        stop();
+    }
 }
 
-void FastPressMode::unlightPod(uint pod) {
-    //TODO : unlight the pod
-    digitalWrite(LED_PIN, LOW);
-}
-
-void FastPressMode::onError(uint pod) {
+void FastPressMode::onError(uint8_t pod) {
     //TODO : display an error on all pods or something like that ?
     errors++;
     score--;
 }
-
-//TODO tout ça est à refaire maintenant
 
 void FastPressMode::update() {
     //TODO : check if the user pressed the wrong pod
@@ -48,59 +115,25 @@ void FastPressMode::update() {
             break;
         }
         case DURING_INTERVAL:{
-            if (millis()- timer < interval){
-                //we are still in the interval
-                bool pressed = control->checkControl();
-                if (pressed) {
-                    //the user pressed the button too early
-                    onError(podToPress);
-                    ScoreStorage::updateScore(returnScore());
-                    state = WAIT_FOR_RELEASE;
-                }
-            }else{
-                //the interval is over
+            if (millis()- timer >= interval){
                 #ifdef isDebug
                 Serial.println("FastPressMode interval over");
                 #endif
-                //the interval is over, we can now light the pod and wait for the user to press it
-                state = WAIT_FOR_PRESS;
-                this->lightPod(podToPress);
+                //the interval is over, we should light the pod
+                ServerPod::setPodLightState(podToPress,true);
                 timer = millis();
+                state = WAIT_FOR_PRESS;
             }
             break;
         }
 
         case WAIT_FOR_PRESS:{
             //we are waiting for the user to press the button
-            //check control
-            bool pressed = control->checkControl();
-            if (pressed) {
-                //the user pressed the button
-                score++;
-                pressDelay += millis() - timer;
-                currentTry++;
-                ScoreStorage::updateScore(returnScore());
-                state = WAIT_FOR_RELEASE;
-                this->unlightPod(podToPress);
-            }
             break;
         }
         
         case WAIT_FOR_RELEASE:{
-            //we are waiting for the user to release the button, so we can start a new interval
-            //TODO : this might be stupid, the user could pause the game by keeping the button pressed
-            bool pressed = control->checkControl();
-            if (!pressed) {
-                updatePodToPress();
-            }
-            
-            if (currentTry >= numberOfTries) {
-                //the game is over
-                #ifdef isDebug
-                Serial.println("FastPressMode game over");
-                #endif
-                stop();
-            }
+            //this does not exist anymore
             break;
         }
     }
@@ -122,20 +155,12 @@ void FastPressMode::updatePodToPress() {
     #ifdef isDebug
     Serial.println("Updating pod to press");
     #endif
-    podToPress = 0; //TODO : randomize the pod to press
+    podToPress = random(2); //TODO : get the number of pods from somewhere
     interval = random(minInterval, maxInterval);
     timer = millis();
     state = DURING_INTERVAL;
     #ifdef isDebug
-    Serial.print(timer);
-    Serial.print(" - ");
-    Serial.print(minInterval);
-    Serial.print(" - ");
-    Serial.print(interval);
-    Serial.print(" - ");
-    Serial.print(maxInterval);
-    Serial.println(" !");
-    Serial.println("FastPressMode interval started");
+    Serial.printf("Try %d/%d ! Pod to press : %d... in %d ms !\n",currentTry, numberOfTries, podToPress, interval);
     #endif
 }
 
@@ -147,6 +172,10 @@ void FastPressMode::start() {
     //prepare the scores
     reset();
     ScoreStorage::addScore(returnScore());
+
+    //register the callback
+    esp_now_register_recv_cb(this->OnDataReceived);
+
     //prepare the first interval
     updatePodToPress();
 }

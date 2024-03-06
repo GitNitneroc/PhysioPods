@@ -21,6 +21,7 @@ public:
     */
     virtual void reset() {}
     virtual String* returnScore() { return nullptr; }
+    virtual void onPodPressed(uint8_t id) {}
 };
 
 #endif

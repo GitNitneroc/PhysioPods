@@ -28,7 +28,7 @@ void setup(){
     }
 
     //make sure the light is off
-    pod->setLightState(false);
+    pod->setOwnLightState(false);
 }
 
 void loop(){

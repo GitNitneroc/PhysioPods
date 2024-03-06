@@ -1,3 +1,5 @@
+#ifndef LEDRequestHandler_h
+#define LEDRequestHandler_h
 #include "isDebug.h"
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
@@ -5,9 +7,8 @@
 #include "messages.h"
 #include <esp_now.h>
 
-#include "PhysioPod.h"
-
-LEDRequestHandler::LEDRequestHandler() {
+LEDRequestHandler::LEDRequestHandler(void (*setPodLightState)(uint8_t, bool)) {
+    this->setPodLightState = setPodLightState;
 }
 
 bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
@@ -57,46 +58,12 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
         destId = idParam->value().toInt();
     }
 
-    //should the message be sent to another pod ?
-    if (destId > 0) {
-        //create the message
-        LEDMessage message;        
-        message.id = destId;
-        message.state = ledState;
-            
-        //TODO : this address should be stored in memory
-        uint8_t ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-
-        //send the message
-        esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
-        if (result == ESP_OK) {
-            #ifdef isDebug
-            Serial.println("ESP-NOW Message sent");
-            #endif
-        } else {
-            #ifdef isDebug
-            Serial.print("Error sending the ESP-NOW message : ");
-            Serial.println(esp_err_to_name(result));
-            #endif
-        }
-
-        if (destId == 255) {
-            //the serverPod is one of the targets
-            #ifdef isDebug
-            Serial.println("LEDRequestHandler : the serverPod is one of the targets");
-            #endif
-            PhysioPod::setLightState(ledState);
-        }
-    } else {
-        //the serverPod is the target
-        #ifdef isDebug
-        Serial.println("LEDRequestHandler : the serverPod is the target");
-        #endif
-        PhysioPod::setLightState(ledState);
-    }
+    //let the serverPod handle the request
+    setPodLightState(destId, ledState);
 
     //send some response to the client
     AsyncResponseStream *response = request->beginResponseStream("text/html");
     response->print("OK");
     request->send(response);
 }
+#endif

@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "controls/PhysioPodControl.h"
 #include "scoreStorage.h"
+#include "messages.h"
 
 enum State{
     STOPPED,
@@ -35,12 +36,14 @@ private:
     uint currentTry;
     int score;
     int errors;
-    uint podToPress;
+    uint8_t podToPress;
     State state;
     PhysioPodControl* control;
+    static FastPressMode* instance;
 
     void updatePodToPress();
-    void lightPod(uint pod);
-    void unlightPod(uint pod);
-    void onError(uint pod);
+    void onError(uint8_t pod);
+    void onSuccess(uint8_t pod);
+    static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
+    void onPodPressed(uint8_t id) override;
 };

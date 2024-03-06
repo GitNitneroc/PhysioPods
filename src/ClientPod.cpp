@@ -158,6 +158,21 @@ void ClientPod::onControlPressed(){
     Serial.println("This pods' Control is activated !");
     #endif
     //Create a message
+    ControlMessage message;
+    message.id = instance->id;
+    message.state = true;
+    //send the message, there is no callback for now...
+    esp_err_t result = esp_now_send(instance->serverMac, (uint8_t *) &message, sizeof(ControlMessage));
+    if (result == ESP_OK) {
+        #ifdef isDebug
+        Serial.println("Sent the control press message");
+        #endif
+    } else {
+        #ifdef isDebug
+        Serial.print("Error sending the control press message : ");
+        Serial.println(esp_err_to_name(result));
+        #endif
+    }
 }
 
 // callback function that will be executed when data is received
@@ -173,10 +188,10 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         #ifdef isDebug
         Serial.println("-This message is for me !");
         #endif
-        PhysioPod::setLightState(message->state);
+        PhysioPod::setOwnLightState(message->state);
     }
 }
 
 void ClientPod::updatePod(){
-    bool state = control->checkControl();
+    bool state = control->checkControl(); //storing the state might have no use...
 }

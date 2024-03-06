@@ -33,16 +33,17 @@ private :
     DNSServer* dnsServer = nullptr;
     AsyncWebServer server;
     PhysioPodMode* mode = nullptr;
-    static ServerPod* instance;
-
+    
 public :
+    static ServerPod* instance;
+    static const uint8_t ip_addr_broadcast[6];
+
     ServerPod();
     void updatePod() override;
-
     /* This can be called to start the specified PhysioPodMode*/
     static void startMode(PhysioPodMode* newMode);
-
     static void onControlPressed(); //The callback for when the control is pressed
+    static void setPodLightState(uint8_t podId, bool state);
 };
 
 #endif
