@@ -32,7 +32,6 @@ class ServerPod : public PhysioPod {
 private :
     DNSServer* dnsServer = nullptr;
     AsyncWebServer server;
-    PhysioPodMode* mode = nullptr;
     
 public :
     static ServerPod* instance;

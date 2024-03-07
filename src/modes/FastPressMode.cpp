@@ -5,8 +5,6 @@
 #include "esp_now.h"
 #include "ServerPod.h"
 
-FastPressMode* FastPressMode::instance = nullptr;
-
 void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
@@ -22,7 +20,7 @@ void FastPressMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *d
         #ifdef isDebug
         Serial.println("Received a control message from pod "+String(message->id));
         #endif
-        instance->onPodPressed(message->id);
+        currentMode->onPodPressed(message->id);
         break;
     }
     default:
@@ -76,11 +74,13 @@ void FastPressMode::onPodPressed(uint8_t id){
 
 FastPressMode::FastPressMode(PhysioPodControl* control) {
     this->control = control;
-    instance = this;
 }
 
 void FastPressMode::stop() {
     state = STOPPED;
+    #ifdef isDebug
+    Serial.println("FastPressMode stopped");
+    #endif
     //make sure each pod is off
     ServerPod::setPodLightState(255,false);
 
@@ -100,9 +100,15 @@ void FastPressMode::onSuccess(uint8_t pod) {
     score++;
     pressDelay += millis() - timer;
     currentTry++;
+    #ifdef isDebug
+    Serial.println("Success ! score : "+String(score));
+    #endif
     if (currentTry < numberOfTries){
         updatePodToPress();
     } else {
+        #ifdef isDebug
+        Serial.println("FastPressMode : game over after "+String(currentTry)+" tries !");
+        #endif
         //the game is over
         stop();
     }
@@ -181,6 +187,9 @@ void FastPressMode::start() {
     //prepare the scores
     reset();
     ScoreStorage::addScore(returnScore());
+
+    //make sure each pod is off
+    ServerPod::setPodLightState(255,false);
 
     //register the callback
     esp_now_register_recv_cb(this->OnDataReceived);

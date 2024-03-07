@@ -39,7 +39,6 @@ private:
     uint8_t podToPress;
     State state;
     PhysioPodControl* control;
-    static FastPressMode* instance;
 
     void updatePodToPress();
     void onError(uint8_t pod);

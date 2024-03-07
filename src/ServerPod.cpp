@@ -110,20 +110,20 @@ ServerPod::ServerPod() : server(80) {
 /* This can be called to start the specified PhysioPodMode*/
 void ServerPod::startMode(PhysioPodMode* newMode){
     //if there is a mode running, stop it
-    if (instance->mode != nullptr){
+    if (PhysioPodMode::currentMode != nullptr){
         #ifdef isDebug
         Serial.println("Stopping older mode...");
         #endif
-        instance->mode->stop();
-        delete instance->mode;
+        PhysioPodMode::currentMode->stop();
+        delete PhysioPodMode::currentMode;
     }
     #ifdef isDebug
     Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
     Serial.println("Starting mode...");
     #endif
     //switch to the new mode, and start it
-    instance->mode = newMode;
-    instance->mode->start();
+    PhysioPodMode::currentMode = newMode;
+    PhysioPodMode::currentMode->start();
 }
 
 /*Turn a pod light on/off. 0 is the server and use 255 for every pod*/
@@ -169,8 +169,8 @@ void ServerPod::onControlPressed(){
     Serial.println("This pods' Control is activated !");
     #endif
     //this should be transmitted to the mode, just like clientPods controls
-    if (instance->mode != nullptr){
-        instance->mode->onPodPressed(0);
+    if (PhysioPodMode::currentMode != nullptr){
+        PhysioPodMode::currentMode->onPodPressed(0);
     }
 }
 
@@ -180,8 +180,8 @@ void ServerPod::updatePod(){
     }
 
     //update the game mode if there is one started
-    if (mode != nullptr){
-        mode->update();
+    if (PhysioPodMode::currentMode != nullptr){
+        PhysioPodMode::currentMode->update();
     }
 
     //Update the control

@@ -24,6 +24,9 @@ void ScoreJSONHandler::handleRequest(AsyncWebServerRequest *request) {
 
     //if there is a game started, ask for a score update
     if (PhysioPodMode::currentMode != nullptr){
+        #ifdef isDebug
+        Serial.println("There is a mode under use : Updating score !");
+        #endif
         ScoreStorage::updateScore(PhysioPodMode::currentMode->returnScore());
     }
 

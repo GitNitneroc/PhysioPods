@@ -47,6 +47,9 @@ void ModeLaunchHandler::sendResponse(AsyncWebServerRequest *request, String* htm
 void ModeLaunchHandler::launchNewMode(PhysioPodMode* mode) {
     //stop the current mode before starting a new one
     if (PhysioPodMode::currentMode != nullptr){
+        #ifdef isDebug
+        Serial.println("There is a mode under use : Stopping it !");
+        #endif
         PhysioPodMode::currentMode->stop();
     }
     //start the mode

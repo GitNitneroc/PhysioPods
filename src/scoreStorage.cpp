@@ -16,10 +16,34 @@ void ScoreStorage::init()
     * Call this to update the current score
  */
 void ScoreStorage::updateScore(String* score){
+    #ifdef isDebug
+    Serial.print("updating this score : ");
+    Serial.println(*score);
+    Serial.println("The old scores");
+    //print all scores
+    for (uint8_t i=0; i<3; i++){
+        if (scores[i] != nullptr){
+            Serial.println(*scores[i]);
+        } else {
+            Serial.println("NULL");
+        }
+    }
+    #endif
     if (scores[0] != nullptr){
         delete scores[0];
     }
     scores[0] = score;
+    #ifdef isDebug
+    Serial.println("The new scores : ");
+    //print all scores
+    for (uint8_t i=0; i<3; i++){
+        if (scores[i] != nullptr){
+            Serial.println(*scores[i]);
+        } else {
+            Serial.println("NULL");
+        }
+    }
+    #endif
 }
 
 /*
@@ -31,12 +55,32 @@ void ScoreStorage::addScore(String* score){
     #ifdef isDebug
     Serial.print("Adding this score to storage : ");
     Serial.println(*score);
+    Serial.println("The old scores");
+    //print all scores
+    for (uint8_t i=0; i<3; i++){
+        if (scores[i] != nullptr){
+            Serial.println(*scores[i]);
+        } else {
+            Serial.println("NULL");
+        }
+    }
     #endif
 
     delete scores[2];
     scores[2] = scores[1];
     scores[1] = scores[0];
     scores[0] = score;
+    #ifdef isDebug
+    Serial.println("The new scores : ");
+    //print all scores
+    for (uint8_t i=0; i<3; i++){
+        if (scores[i] != nullptr){
+            Serial.println(*scores[i]);
+        } else {
+            Serial.println("NULL");
+        }
+    }
+    #endif
 }
 
 /*
