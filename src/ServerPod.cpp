@@ -126,6 +126,7 @@ void ServerPod::startMode(PhysioPodMode* newMode){
     instance->mode->start();
 }
 
+/*Turn a pod light on/off. 0 is the server and use 255 for every pod*/
 void ServerPod::setPodLightState(uint8_t podId, bool ledState){
     //should the message be sent to another pod ?
     if (podId > 0) {

@@ -1,7 +1,7 @@
 #include "isDebug.h"
 #include "ScoreJSONHandler.h"
 #include "ESPAsyncWebServer.h"
-
+#include "modes/PhysioPodMode.h"
 
 /*
     * This is a request handler to get the scores in JSON format
@@ -21,6 +21,13 @@ bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request){
 
 void ScoreJSONHandler::handleRequest(AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
+
+    //if there is a game started, ask for a score update
+    if (PhysioPodMode::currentMode != nullptr){
+        ScoreStorage::updateScore(PhysioPodMode::currentMode->returnScore());
+    }
+
+    //return the scores
     response->print(ScoreStorage::getAllJSON());
     request->send(response);
 }

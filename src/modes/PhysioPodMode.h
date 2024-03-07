@@ -9,11 +9,11 @@
 */
 class PhysioPodMode {
 public:
-    virtual void stop() {}
+    virtual void stop();
 
     virtual ~PhysioPodMode() {}
 
-    virtual void start() {}
+    virtual void start();
     virtual void update() {}
     /*
         * This function is called when the mode is reset
@@ -22,6 +22,8 @@ public:
     virtual void reset() {}
     virtual String* returnScore() { return nullptr; }
     virtual void onPodPressed(uint8_t id) {}
+
+    static PhysioPodMode* currentMode;
 };
 
 #endif

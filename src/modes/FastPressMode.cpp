@@ -81,9 +81,18 @@ FastPressMode::FastPressMode(PhysioPodControl* control) {
 
 void FastPressMode::stop() {
     state = STOPPED;
+    //make sure each pod is off
+    ServerPod::setPodLightState(255,false);
+
+    //update the score one last time
+    ScoreStorage::updateScore(returnScore());
+
     //let's clean things up
     reset();
     esp_now_unregister_recv_cb();
+
+    //call base stop
+    PhysioPodMode::stop();
 }
 
 void FastPressMode::onSuccess(uint8_t pod) {
@@ -178,9 +187,11 @@ void FastPressMode::start() {
 
     //prepare the first interval
     updatePodToPress();
+
+    //call base start
+    PhysioPodMode::start();
 }
 
-//TODO : this is called at every score update, it could be called at the end of the game only, to save some resources.
 /*
     This function returns a JSON string with the score
 */
