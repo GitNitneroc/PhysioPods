@@ -170,7 +170,7 @@ void FastPressMode::updatePodToPress() {
     #ifdef isDebug
     Serial.println("Updating pod to press");
     #endif
-    podToPress = random(2); //TODO : get the number of pods from somewhere
+    podToPress = random(ServerPod::instance->peersNum+1);//number of peers + 1
     interval = random(minInterval, maxInterval);
     timer = millis();
     state = DURING_INTERVAL;

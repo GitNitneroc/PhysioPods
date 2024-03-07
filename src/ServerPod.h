@@ -36,6 +36,7 @@ private :
 public :
     static ServerPod* instance;
     static const uint8_t ip_addr_broadcast[6];
+    uint8_t peersNum = 0; //number of peers connected to the server
 
     ServerPod();
     void updatePod() override;

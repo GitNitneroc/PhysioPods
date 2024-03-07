@@ -17,8 +17,7 @@
 //Our control
 #include "controls/ButtonControl.h"
 
-//For debug
-#include "modes/FastPressMode.h"
+#include "messages.h"
 
 ServerPod* ServerPod::instance = nullptr;
 const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
@@ -68,7 +67,7 @@ ServerPod::ServerPod() : server(80) {
     server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
     server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
     server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
-    server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
+    server.addHandler(new ServerMacAddressHandler(&peersNum)); //Handles the server mac address request
     server.addHandler(new LEDRequestHandler(setPodLightState)); //Handles the LED control requests
     server.addHandler(new ScoreJSONHandler()); //Handles the score requests
     server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched

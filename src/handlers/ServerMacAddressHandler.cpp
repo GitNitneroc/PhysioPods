@@ -13,7 +13,7 @@
 /*
     * This is a request handler to get the server's mac address
 */
-ServerMacAddressHandler::ServerMacAddressHandler() {
+ServerMacAddressHandler::ServerMacAddressHandler(uint8_t * peersNum) : peersNum(peersNum) {
 }
 
 bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
@@ -38,21 +38,20 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("This is not a pod : No mac address provided");
         #endif
     }else{
-        //a new peed is connected !
-        peersNum ++;
+        //a new peer is connected !
+        (*peersNum)++;
 
         #ifdef isDebug
         //read the mac address
         const char* macStr = clientMac->value().c_str();
         Serial.print("ClientPod mac address : ");
         Serial.print(macStr);
-        Serial.print(" is attributed id : ");
-        Serial.println(peersNum);
+        Serial.printf(" is attributed id : %d\n", *peersNum);
         #endif
         
         //append the id to the response on a new line
         response->print("\r\n");
-        response->print(peersNum);
+        response->print(*peersNum);
     }
 
     //send the response
