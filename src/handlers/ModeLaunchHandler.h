@@ -16,6 +16,7 @@ private:
 
     void sendResponse(AsyncWebServerRequest *request, String* html);
     void (*startMode)(PhysioPodMode* mode);
+    void launchNewMode(PhysioPodMode* mode);
 
 public:
     ModeLaunchHandler(void (*startMode)(PhysioPodMode* mode), PhysioPodControl *control);

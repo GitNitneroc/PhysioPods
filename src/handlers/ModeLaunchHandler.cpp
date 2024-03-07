@@ -43,6 +43,16 @@ void ModeLaunchHandler::sendResponse(AsyncWebServerRequest *request, String* htm
     request->send(response);
 }
 
+/* Takes care of launching the mode, but makes sure the previous one is stopped before*/
+void ModeLaunchHandler::launchNewMode(PhysioPodMode* mode) {
+    //stop the current mode before starting a new one
+    if (PhysioPodMode::currentMode != nullptr){
+        PhysioPodMode::currentMode->stop();
+    }
+    //start the mode
+    startMode(mode);
+}
+
 void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
     String mode = request->getParam("mode")->value();
     if (mode == "FP") {
@@ -73,7 +83,8 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("Mode created, initializing...");
         #endif
         mode->initialize(minInterval*1000, maxInterval*1000, tries);//this is in ms
-        startMode(mode);
+
+        launchNewMode(mode);
 
         sendResponse(request, htmlSuccess);
         return;
