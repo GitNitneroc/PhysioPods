@@ -62,16 +62,6 @@ ServerPod::ServerPod() : server(80) {
     dnsServer = new DNSServer();
     dnsServer->start(53, "*", WiFi.softAPIP());
 
-    //handlers for the web server
-    //TODO : create a handler where other physioPods can send their mac addresses and register themselves to the server, and get the server mac address, this will be used for ESPNow
-    server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
-    server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
-    server.addHandler(new ModeLaunchHandler(startMode, control)); //Handles the mode launch request
-    server.addHandler(new ServerMacAddressHandler(&peersNum)); //Handles the server mac address request
-    server.addHandler(new LEDRequestHandler(setPodLightState)); //Handles the LED control requests
-    server.addHandler(new ScoreJSONHandler()); //Handles the score requests
-    server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched
-
     Serial.println("Web server starting...");
     server.begin();
 
@@ -184,5 +174,11 @@ void ServerPod::updatePod(){
     }
 
     //Update the control
-    bool state = control->checkControl();
+    if (control != nullptr){
+        bool state = control->checkControl();
+    }else{
+        #ifdef isDebug
+        Serial.println("No control to update");
+        #endif
+    }
 }

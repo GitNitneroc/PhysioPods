@@ -31,12 +31,12 @@
 class ServerPod : public PhysioPod {
 private :
     DNSServer* dnsServer = nullptr;
-    AsyncWebServer server;
     
 public :
     static ServerPod* instance;
     static const uint8_t ip_addr_broadcast[6];
     uint8_t peersNum = 0; //number of peers connected to the server
+    AsyncWebServer server;
 
     ServerPod();
     void updatePod() override;
