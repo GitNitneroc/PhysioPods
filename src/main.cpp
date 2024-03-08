@@ -47,6 +47,4 @@ void setup(){
 
 void loop(){
     pod->updatePod();
-
-    //TODO : consider a timer to go easy on the battery ?
 }

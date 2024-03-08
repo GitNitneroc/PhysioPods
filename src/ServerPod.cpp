@@ -174,7 +174,8 @@ void ServerPod::updatePod(){
         PhysioPodMode::currentMode->update();
     }
 
-    //Update the control
+    //Update the control : check if it's pressed
+    //TODO : consider waiting a bit, or a small delay to go easy on the battery ?
     if (control != nullptr){
         bool state = control->checkControl();
     }else{
