@@ -14,12 +14,6 @@ void setup(){
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
-    /* // Set WiFi to station mode and disconnect from an AP if it was previously connected.
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100); */
-   
-
     if (PhysioPod::searchOtherPhysioWiFi()){
         pod = new ClientPod();
     }else{
