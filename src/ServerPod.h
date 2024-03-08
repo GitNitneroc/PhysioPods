@@ -14,17 +14,10 @@
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
 
-//Our handlers for the web server
-#include "handlers/LEDRequestHandler.h"
-#include "handlers/CaptiveRequestHandler.h"
-#include "handlers/ServerMacAddressHandler.h"
-#include "handlers/StaticHtmlHandler.h"
-#include "handlers/ModeLaunchHandler.h"
-#include "handlers/CSSRequestHandler.h"
-#include "handlers/ScoreJSONHandler.h"
-
 //Our control
 #include "controls/ButtonControl.h"
+
+#include "modes/PhysioPodMode.h"
 
 #include "scoreStorage.h"
 
@@ -35,7 +28,7 @@ private :
 public :
     static ServerPod* instance;
     static const uint8_t ip_addr_broadcast[6];
-    uint8_t peersNum = 0; //number of peers connected to the server
+    static uint8_t peersNum; //number of peers connected to the server
     AsyncWebServer server;
 
     ServerPod();

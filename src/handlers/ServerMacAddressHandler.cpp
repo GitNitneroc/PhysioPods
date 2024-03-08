@@ -9,11 +9,15 @@
 #endif
 
 #include <esp_now.h>
+#include "ServerPod.h"
+
+//TODO : This should be renamed, it's not a simple response to a macAddress request, it's also response to a pod connection request
+//TODO : It should also include a kind of version compatibility check
 
 /*
     * This is a request handler to get the server's mac address
 */
-ServerMacAddressHandler::ServerMacAddressHandler(uint8_t * peersNum) : peersNum(peersNum) {
+ServerMacAddressHandler::ServerMacAddressHandler() {
 }
 
 bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
@@ -39,19 +43,19 @@ void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
     }else{
         //a new peer is connected !
-        (*peersNum)++;
+        (ServerPod::peersNum)++;
 
         #ifdef isDebug
         //read the mac address
         const char* macStr = clientMac->value().c_str();
         Serial.print("ClientPod mac address : ");
         Serial.print(macStr);
-        Serial.printf(" is attributed id : %d\n", *peersNum);
+        Serial.printf(" is attributed id : %d\n", ServerPod::peersNum);
         #endif
         
         //append the id to the response on a new line
         response->print("\r\n");
-        response->print(*peersNum);
+        response->print(ServerPod::peersNum);
     }
 
     //send the response

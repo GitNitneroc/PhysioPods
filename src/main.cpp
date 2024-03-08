@@ -2,6 +2,15 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
+//Our handlers for the web server
+#include "handlers/LEDRequestHandler.h"
+#include "handlers/CaptiveRequestHandler.h"
+#include "handlers/ServerMacAddressHandler.h"
+#include "handlers/StaticHtmlHandler.h"
+#include "handlers/ModeLaunchHandler.h"
+#include "handlers/CSSRequestHandler.h"
+#include "handlers/ScoreJSONHandler.h"
+
 PhysioPod* pod = nullptr;
 
 void setup(){
@@ -26,7 +35,7 @@ void setup(){
         serverPod->server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
         serverPod->server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
         serverPod->server.addHandler(new ModeLaunchHandler(serverPod->startMode, serverPod->control)); //Handles the mode launch request
-        serverPod->server.addHandler(new ServerMacAddressHandler(&serverPod->peersNum)); //Handles the server mac address request
+        serverPod->server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
         serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched */

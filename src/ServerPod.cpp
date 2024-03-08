@@ -21,6 +21,7 @@
 
 ServerPod* ServerPod::instance = nullptr;
 const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+uint8_t ServerPod::peersNum = 0;
 
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
@@ -115,7 +116,7 @@ void ServerPod::startMode(PhysioPodMode* newMode){
     PhysioPodMode::currentMode->start();
 }
 
-/*Turn a pod light on/off. 0 is the server and use 255 for every pod*/
+/*Turn a pod light on or off. Use Id 0 for the server and 255 for every pod*/
 void ServerPod::setPodLightState(uint8_t podId, bool ledState){
     //should the message be sent to another pod ?
     if (podId > 0) {

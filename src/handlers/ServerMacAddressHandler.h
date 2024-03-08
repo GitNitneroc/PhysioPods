@@ -5,10 +5,10 @@
 class ServerMacAddressHandler : public AsyncWebHandler {
 
 private:
-    uint8_t * peersNum;
+
         
 public:
-    ServerMacAddressHandler(uint8_t * peersNum);
+    ServerMacAddressHandler();
     virtual ~ServerMacAddressHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);
