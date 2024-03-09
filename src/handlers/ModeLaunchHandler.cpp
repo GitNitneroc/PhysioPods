@@ -46,7 +46,7 @@ void ModeLaunchHandler::sendResponse(AsyncWebServerRequest *request, String* htm
 /* Takes care of launching the mode, but makes sure the previous one is stopped before*/
 void ModeLaunchHandler::launchNewMode(PhysioPodMode* mode) {
     //stop the current mode before starting a new one
-    if (PhysioPodMode::currentMode != nullptr){
+    if (PhysioPodMode::currentMode != nullptr && PhysioPodMode::currentMode->isRunning()){
         #ifdef isDebug
         Serial.println("There is a mode under use : Stopping it !");
         #endif
@@ -57,8 +57,28 @@ void ModeLaunchHandler::launchNewMode(PhysioPodMode* mode) {
 }
 
 void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
-    String mode = request->getParam("mode")->value();
-    if (mode == "FP") {
+    //check if the user wants to restart the same mode
+    if (request->getParam("restart") != NULL) {
+        Serial.println("User wants to restart the current mode");
+        if (PhysioPodMode::currentMode != nullptr){
+            #ifdef isDebug
+            Serial.println("There is a mode under use : Stopping it !");
+            #endif
+            if (PhysioPodMode::currentMode->isRunning()){
+                PhysioPodMode::currentMode->stop();
+            }
+            PhysioPodMode::currentMode->start();
+            sendResponse(request, htmlSuccess);
+        } else{
+            Serial.println("No mode to restart");
+            sendResponse(request, htmlFail);
+        }
+        return;
+    }
+
+    //check if the user wants to launch a new mode
+    String modeName = request->getParam("mode")->value();
+    if (modeName == "FP") {
         Serial.println("User wants to launch Fast Press mode");
         //TODO : this could be a function in the FastPressMode class, it would return a FastPressMode object if the params are correct
         AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
@@ -81,17 +101,17 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
 
         //create the mode
-        FastPressMode* mode = new FastPressMode(control);
+        FastPressMode* newMode = new FastPressMode(control);
         #ifdef isDebug
         Serial.println("Mode created, initializing...");
         #endif
-        mode->initialize(minInterval*1000, maxInterval*1000, tries);//this is in ms
+        newMode->initialize(minInterval*1000, maxInterval*1000, tries);//this is in ms
 
-        launchNewMode(mode);
+        launchNewMode(newMode);
 
         sendResponse(request, htmlSuccess);
         return;
-    } else if (mode == "2") {
+    } else if (modeName == "2") {
         //TODO: implement mode 2
         Serial.println("Mode 2 launched");
         sendResponse(request, htmlSuccess);

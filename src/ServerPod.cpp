@@ -97,14 +97,19 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("ServerPod seems ready !");
 }
 
-/* This can be called to start the specified PhysioPodMode*/
+/* This should be called to start the specified PhysioPodMode*/
 void ServerPod::startMode(PhysioPodMode* newMode){
     //if there is a mode running, stop it
     if (PhysioPodMode::currentMode != nullptr){
+        if (PhysioPodMode::currentMode->isRunning()){
+            #ifdef isDebug
+            Serial.println("Stopping older mode...");
+            #endif
+            PhysioPodMode::currentMode->stop();
+        }
         #ifdef isDebug
-        Serial.println("Stopping older mode...");
+        Serial.println("Deleting older mode...");
         #endif
-        PhysioPodMode::currentMode->stop();
         delete PhysioPodMode::currentMode;
     }
     #ifdef isDebug

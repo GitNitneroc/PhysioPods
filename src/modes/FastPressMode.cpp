@@ -88,7 +88,6 @@ void FastPressMode::stop() {
     ScoreStorage::updateScore(returnScore());
 
     //let's clean things up
-    reset();
     esp_now_unregister_recv_cb();
 
     //call base stop

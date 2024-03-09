@@ -7,7 +7,7 @@ void PhysioPodMode::stop() {
     Serial.println("Stopping mode...");
     #endif
     running = false;
-    //currentMode = nullptr;
+    reset();
 }
 
 void PhysioPodMode::start() {
