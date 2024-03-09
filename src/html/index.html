@@ -3,43 +3,73 @@ R"||(<!DOCTYPE html>
     <head>
         <title>PhysioPods</title>
         <link rel="stylesheet" href="lit.css">
+        <script type="text/javascript">
+            function getModeInfo() {
+                fetch("/modeInfo")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.mode != null){
+                        document.getElementById("modeName").innerHTML = "Mode : "+data.mode;
+                        document.getElementById("modeStatus").innerHTML = (data.isRunning?"Running":"Stopped");
+                        document.getElementById("modeStatus").style.visibility = "visible";
+                        document.getElementById("modeLaunch").style.visibility = "visible";
+                    }else{
+                        document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
+                        document.getElementById("modeStatus").style.visibility = "hidden";
+                        document.getElementById("modeLaunch").style.visibility = "hidden";
+                    }
+                });
+            }
+        </script>
     </head>
-    <body>
+    <body onload="getModeInfo()">
         <div class="c">
             <div class="row card">
                 <h1>PhysioPods</h1>
                 <hr>
+                <div class="row">
+                    <b class="col">Home</b>
+                    <div class="col"><a href="/serverMacAddress">Mac Address</a></div>
+                    <div class="col"><a href="/modeChoice">Choose a mode</a></div>
+                    <div class="col"><a href="/results">Results</a></div>
+                    <div class="col"><a href="#">Docs</a></div>
+                </div>
+                <hr>
             </div>
-            <div class="row card">
-                <b class="col">Home</b>
-                <div class="col"><a href="/serverMacAddress">Mac Address</a></div>
-                <!--<div class="col"><a href="/score">Score</a></div>-->
-                <div class="col"><a href="/modeChoice">Choose a mode</a></div>
-                <div class="col"><a href="/results">Results</a></div>
-                <div class="col"><a href="#">Docs</a></div>
+            <div class="row card" id="modeInfo">
+            <b>Current Mode information : </b>
+                <div class='row'>
+                    <div class='4 col' id='modeName'>Mode : ...Loading...</div>
+                    <div class='4 col' id='modeStatus'>...Loading...</div>
+                    <div class="4 col" id='modeLaunch'>
+                        <button name='Restart' class="btn w-100 primary" onclick='fetch("./LED?LED=ON&id=0")'>Quick Relaunch</button>
+                    </div>
+                </div>
             </div>
-
             <form>
-                <div class="row">
-                    <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("./LED?LED=ON&id=0")'> ServerPod LED ON</button>
+                <div class="row card">
+                    <b>LED control :</b>
+                    <div class="row">
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("./LED?LED=ON&id=0")'>ServerPod LED ON</button>
+                        </div>
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("./LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
+                        </div>
                     </div>
-                    <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("./LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
+                    <div class="row">
+                        <form>
+                            <label for="podId">Control specific pood (0 to 254) : </label>
+                            <input type="number" id="podId" name="podId" value="1" min="0" max="255"><br />
+                        </form>
                     </div>
-                </div>
-                <div class="row">
-                    <form>
-                        <label for="podId">Control specific pood (0 to 254) : </label>
-                        <input type="number" id="podId" name="podId" value="1" min="0" max="255"><br />
-                    </form>
-                </div>
-                <div class="row">
-                    <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
-                    </div>
-                    <div class="6 col">
-                        <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
+                    <div class="row">
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
+                        </div>
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
+                        </div>
                     </div>
                 </div>
             </form>

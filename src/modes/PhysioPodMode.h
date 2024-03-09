@@ -8,7 +8,13 @@
     * It is used to define the basic functions that all the modes should have.
 */
 class PhysioPodMode {
+protected:
+    bool running = false;
+
 public:
+    bool isRunning() { return running; }
+    
+    virtual const char* getName() = 0;
     virtual void stop();
 
     virtual ~PhysioPodMode() {}
@@ -16,8 +22,7 @@ public:
     virtual void start();
     virtual void update() {}
     /*
-        * This function is called when the mode is reset
-        * It is used to reset the score and state of the mode
+        * This function is called when the mode is reset, start should be callable after this function
     */
     virtual void reset() {}
     virtual String* returnScore() { return nullptr; }

@@ -15,17 +15,6 @@ enum State{
     This mode is a simple game where the user has to press the button as soon as possible after the LED turns on.
 */
 class FastPressMode : public PhysioPodMode {
-public:
-    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries); 
-    void start();
-    void stop();
-    void update();
-    void reset();
-    String* returnScore();
-
-    FastPressMode(PhysioPodControl* control);
-    virtual ~FastPressMode() {}
-
 private:
     long timer;
     long interval;
@@ -45,4 +34,16 @@ private:
     void onSuccess(uint8_t pod);
     static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
     void onPodPressed(uint8_t id) override;
+
+public:
+    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries); 
+    void start();
+    void stop();
+    void update();
+    void reset();
+    String* returnScore();
+    const char* getName() override { return "FastPress"; }
+
+    FastPressMode(PhysioPodControl* control);
+    virtual ~FastPressMode() {}
 };
