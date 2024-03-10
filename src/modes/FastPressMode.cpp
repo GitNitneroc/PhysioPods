@@ -12,28 +12,6 @@ void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numbe
     reset();
 }
 
-//TODO : this could probably be moved to the PhysioPodMode class
-void FastPressMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len){
-    switch (len){
-    case sizeof(ControlMessage):{
-        ControlMessage* message = (ControlMessage*)data;
-        #ifdef isDebug
-        Serial.println("Received a control message from pod "+String(message->id));
-        #endif
-        currentMode->onPodPressed(message->id);
-        break;
-    }
-    default:
-        Serial.print("Received a message of unknown length from ");
-        for (int i = 0; i < 6; i++) {
-            Serial.print(sender_addr[i], HEX);
-            if (i<5) Serial.print(":");
-        }
-        Serial.println();
-        break;
-    }
-}
-
 void FastPressMode::onPodPressed(uint8_t id){
     #ifdef isDebug
     Serial.println("FastPressMode : pod "+String(id)+" pressed");
@@ -86,9 +64,6 @@ void FastPressMode::stop() {
 
     //update the score one last time
     ScoreStorage::updateScore(returnScore());
-
-    //let's clean things up
-    esp_now_unregister_recv_cb();
 
     //call base stop
     PhysioPodMode::stop();
@@ -189,9 +164,6 @@ void FastPressMode::start() {
 
     //make sure each pod is off
     ServerPod::setPodLightState(255,false);
-
-    //register the callback
-    esp_now_register_recv_cb(this->OnDataReceived);
 
     //prepare the first interval
     updatePodToPress();
