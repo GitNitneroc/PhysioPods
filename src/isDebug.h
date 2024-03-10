@@ -1,3 +1,3 @@
 #ifndef isDebug
-#define isDebug true
+#define isDebug
 #endif

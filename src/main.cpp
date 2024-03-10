@@ -13,6 +13,7 @@
 #include "handlers/ModeInfoHandler.h"
 
 PhysioPod* pod = nullptr;
+bool shouldBeClient = false;
 
 void setup(){
     Serial.begin(115200);
@@ -24,15 +25,17 @@ void setup(){
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
-    if (PhysioPod::searchOtherPhysioWiFi()){
+    //this is a blocking call, this could be changed to async, and we would display a LED animation
+    shouldBeClient = PhysioPod::searchOtherPhysioWiFi();
+}
+
+void createPod(){
+    if (shouldBeClient){
         pod = new ClientPod();
     }else{
         ScoreStorage::init();
         ServerPod* serverPod = new ServerPod();
         pod = serverPod;
-
-        delay(5000); //this is stupid, but it seems to be necessary to avoid a crash (NB : the crash appeared juste after commit 6e4a185)
-        //this might leave enough time for serverPod->server to be initialized on the other core before we add the handlers ?
 
         Serial.println("Adding the web handlers to the server...");
         //handlers for the web server
@@ -45,11 +48,17 @@ void setup(){
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched */
     }
-
     //make sure the light is off
     pod->setOwnLightState(false);
 }
 
 void loop(){
+    //finish the setup
+    if (pod == nullptr){
+        Serial.println("Pod is null, creating it...");
+        Serial.println("Creating the pod...");
+        createPod(); //pod should not be null anymore
+    }
+
     pod->updatePod();
 }

@@ -39,7 +39,7 @@ ServerPod::ServerPod() : server(80) {
     delay(1000); //not sure if this is necessary
 
     //initialize the WiFi hotspot
-    Serial.println("Hotsport starting...");
+    Serial.println("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
     if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
@@ -49,21 +49,21 @@ ServerPod::ServerPod() : server(80) {
 
     //set the IP address of the hotspot
     delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START
-    Serial.println("Set softAPConfig");
+    Serial.println("|-Set softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
     IPAddress NMask(255, 255, 255, 0);
     WiFi.softAPConfig(Ip, Ip, NMask);
     #ifdef isDebug
-    Serial.print("AP IP address: ");
+    Serial.print("  |-AP IP address: ");
     Serial.println(WiFi.softAPIP());
     #endif
 
     //start the DNS server
-    Serial.println("DNS server starting...");
+    Serial.println("|-DNS server starting...");
     dnsServer = new DNSServer();
     dnsServer->start(53, "*", WiFi.softAPIP());
 
-    Serial.println("Web server starting...");
+    Serial.println("|-Web server starting...");
     server.begin();
 
     // Init ESP-NOW
@@ -73,7 +73,7 @@ ServerPod::ServerPod() : server(80) {
     }
     uint32_t version = 0;
     esp_now_get_version(&version);
-    Serial.println("ESP-NOW v"+String(version)+" initialized");
+    Serial.println("|-ESP-NOW v"+String(version)+" initialized");
 
     //add broadcast mac address to the peers
     //TODO : actually check this is needed, I read somewhere that it's not necessary

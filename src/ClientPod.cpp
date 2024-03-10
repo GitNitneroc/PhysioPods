@@ -32,8 +32,9 @@ ClientPod::ClientPod() {
     control = new ButtonControl(BUTTON_PIN);
     control->initialize(onControlPressed);
 
+    Serial.println("Starting as a client");
     #ifdef isDebug
-    Serial.println("Connecting to WiFi as a client");
+    Serial.println("|-Connecting to WiFi as a client\n|");
     #endif
 
     WiFi.mode(WIFI_STA);
@@ -44,7 +45,7 @@ ClientPod::ClientPod() {
     while (WiFi.status() != WL_CONNECTED){
         delay(500);
         #ifdef isDebug
-        Serial.print(".");
+        Serial.print("-");
         #endif
         if (i++ > LIMIT_CONNECTION_ATTEMPTS){
             #ifdef isDebug
@@ -54,7 +55,7 @@ ClientPod::ClientPod() {
         }
     }
     #ifdef isDebug
-    Serial.println("Connected to WiFi");
+    Serial.println("|-Connected to WiFi");
     #endif
 
     //get the server mac address
@@ -66,7 +67,7 @@ ClientPod::ClientPod() {
         ESP.restart();
     }
     #ifdef isDebug
-    Serial.println("Connected to server");
+    Serial.println("|-Connected to server");
     #endif
     client.print("GET /serverMacAddress?mac="+WiFi.macAddress()+" HTTP/1.1\r\nConnection: close\r\n\r\n");
     while (client.connected()){
@@ -82,7 +83,7 @@ ClientPod::ClientPod() {
     //this is the response body, the server mac address and id
     String line = client.readStringUntil('\n');
     #ifdef isDebug
-    Serial.println("Server mac address : "+line);
+    Serial.println("  |-Server mac address : "+line);
     #endif
     if (WiFi.macAddress()==line){
         #ifdef isDebug
@@ -111,7 +112,7 @@ ClientPod::ClientPod() {
     }
     id = line.toInt();
     #ifdef isDebug
-    Serial.println("Pod id : "+String(id));
+    Serial.println("  |-Pod id : "+String(id));
     #endif
 
     //disconnect from the http
@@ -127,7 +128,7 @@ ClientPod::ClientPod() {
     }
     uint32_t version = 0;
     esp_now_get_version(&version);
-    Serial.println("ESP-NOW v"+String(version)+" initialized");
+    Serial.println("|-ESP-NOW v"+String(version)+" initialized");
 
     //add the server mac address to the peers
     esp_now_peer_info_t peerInfo;
@@ -139,7 +140,7 @@ ClientPod::ClientPod() {
         Serial.println("Failed to add server as peer, restarting the device");
         ESP.restart();
     }else{
-        Serial.println("Server added as peer");
+        Serial.println("  |-Server added as peer");
     }
 
     esp_now_register_recv_cb(this->OnDataReceived);
@@ -147,7 +148,7 @@ ClientPod::ClientPod() {
     //initialize the control
     control = new ButtonControl(BUTTON_PIN);
     control->initialize(onControlPressed);
-    Serial.println("Control initialized");
+    Serial.println("|-Control initialized");
 
 
     Serial.println("ClientPod seems ready !");
