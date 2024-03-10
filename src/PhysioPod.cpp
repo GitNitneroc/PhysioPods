@@ -16,9 +16,23 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
-    int n = WiFi.scanNetworks();
+
+    WiFi.scanNetworks(true);
+    bool LEDState = true;
+    int n=-2;
+    while (true){ 
+        n=WiFi.scanComplete();//-2 means it was not asked to scan, -1 means it is scanning, 0+ are the number of networks found
+        if (n>=0){
+            break;
+        }
+        setOwnLightState(LEDState);
+        LEDState = !LEDState;
+        delay(200);
+    }
+    setOwnLightState(false);
     bool found = false;
     Serial.println("Found "+String(n)+" networks");
+
     //TODO : this could help to find the best channel
     for (int i = 0; i < n; i++){
         #ifdef isDebug

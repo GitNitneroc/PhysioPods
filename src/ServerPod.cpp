@@ -48,7 +48,7 @@ ServerPod::ServerPod() : server(80) {
     }
 
     //set the IP address of the hotspot
-    delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START
+    delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START (probablement WiFi.onEvent(callbackFunc, WiFiEvent_t::SYSTEM_EVENT_AP_START))
     Serial.println("|-Set softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
     IPAddress NMask(255, 255, 255, 0);
