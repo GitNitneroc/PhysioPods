@@ -31,7 +31,7 @@ void setup(){
         ServerPod* serverPod = new ServerPod();
         pod = serverPod;
 
-        delay(0); //this is stupid, but it seems to be necessary to avoid a crash (NB : the crash appeared juste after commit 6e4a185)
+        delay(5000); //this is stupid, but it seems to be necessary to avoid a crash (NB : the crash appeared juste after commit 6e4a185)
         //this might leave enough time for serverPod->server to be initialized on the other core before we add the handlers ?
 
         Serial.println("Adding the web handlers to the server...");
