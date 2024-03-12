@@ -7,7 +7,7 @@ protected:
 
 public:
     virtual void initialize(void (*callback)()) = 0;
-    virtual void stop() = 0;
+    //virtual void stop() = 0;
     virtual bool checkControl() = 0;
 
     virtual ~PhysioPodControl() {}

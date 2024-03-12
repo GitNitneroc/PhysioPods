@@ -7,25 +7,25 @@
 
 ButtonControl::ButtonControl(byte pin){
     this->pin = pin;
-    this->checking = false;
+    //this->checking = false;
     this->state = false;
 }
 
 void ButtonControl::initialize(void (*callback)()){
-    this->checking = true;
+    //this->checking = true;
     pinMode(pin, INPUT_PULLUP);
     this->state = digitalRead(pin);
     this->lastDebounceTime = millis();
     this->onPressedCallback = callback;
 }
 
-void ButtonControl::stop(){
+/* void ButtonControl::stop(){
     this->checking = false;
-}
+} */
 
 bool ButtonControl::checkControl(){
     //Serial.println("Checking the button control");
-    if (this->checking){
+    //if (this->checking){
         if (digitalRead(pin)!=state){
             //check if enough time has passed since the last change
             if (millis() - lastDebounceTime > debounceDelay){
@@ -46,8 +46,5 @@ bool ButtonControl::checkControl(){
             #endif
         }
         return !state;
-    }
-    //what is the point of calling checkControl if the control is not checking ? 
-    //TODO : remove checking state ?
-    return false;
+    //}
 }

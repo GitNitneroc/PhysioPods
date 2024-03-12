@@ -12,11 +12,11 @@ class ButtonControl: public PhysioPodControl {
     public:
         ButtonControl(byte pin);
         void initialize(void (*callback)());
-        void stop();
+        //void stop();
         bool checkControl();
     private:
         byte pin;
-        bool checking;
+        //bool checking;
         bool state;
         ulong lastDebounceTime;
 };
