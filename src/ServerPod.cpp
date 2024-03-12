@@ -15,7 +15,11 @@
 #include <esp_now.h>
 
 //Our control
-#include "controls/ButtonControl.h"
+#ifdef USE_CAPACITIVE_TOUCH
+    #include "controls/CapacitiveTouchControl.h"
+#else
+    #include "controls/ButtonControl.h"
+#endif
 
 #include "messages.h"
 
@@ -27,8 +31,13 @@ ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
 
     //initialize the control
-    control = new ButtonControl(BUTTON_PIN);
+    #ifdef USE_CAPACITIVE_TOUCH
+        control = new CapacitiveTouchControl(BUTTON_PIN);
+    #else
+        control = new ButtonControl(BUTTON_PIN);
+    #endif
     control->initialize(onControlPressed);
+
     PhysioPodMode* mode = nullptr;
     instance = this;
 

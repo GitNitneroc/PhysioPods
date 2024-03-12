@@ -30,7 +30,7 @@ public :
 
     virtual void updatePod() = 0;
 
-    ButtonControl* control = nullptr;
+    PhysioPodControl* control = nullptr;
 
     void setId(uint8_t id) {
         this->id = id;
