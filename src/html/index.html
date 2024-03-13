@@ -13,10 +13,12 @@ R"||(<!DOCTYPE html>
                         document.getElementById("modeStatus").innerHTML = (data.isRunning?"Running":"Stopped");
                         document.getElementById("modeStatus").style.visibility = "visible";
                         document.getElementById("modeLaunch").style.visibility = "visible";
+                        document.getElementById("modeStop").style.visibility = "visible";
                     }else{
                         document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
                         document.getElementById("modeStatus").style.visibility = "hidden";
                         document.getElementById("modeLaunch").style.visibility = "hidden";
+                        document.getElementById("modeStop").style.visibility = "hidden";
                     }
                 });
             }
@@ -39,9 +41,12 @@ R"||(<!DOCTYPE html>
             <div class="row card" id="modeInfo">
             <b>Current Mode information : </b>
                 <div class='row'>
-                    <div class='4 col' id='modeName'>Mode : ...Loading...</div>
-                    <div class='4 col' id='modeStatus'>...Loading...</div>
-                    <div class="4 col" id='modeLaunch'>
+                    <div class='3 col' id='modeName'>Mode : ...Loading...</div>
+                    <div class='3 col' id='modeStatus'>...Loading...</div>
+                    <div class="3 col" id='modeStop'>
+                        <button name='stop' class="btn w-100" onclick='fetch("./modeStop")'>Stop Now</button>
+                    </div>
+                    <div class="3 col" id='modeLaunch'>
                         <button name='Restart' class="btn w-100 primary" onclick='fetch("./launchMode?restart=1")'>Quick Relaunch</button>
                     </div>
                 </div>
