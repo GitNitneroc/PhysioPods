@@ -89,9 +89,7 @@ ClientPod::ClientPod() {
         #ifdef isDebug
         Serial.println("This Pod has the same mac address as the server, restarting...");
         #endif
-        //TODO : This could theoretically happend... We can't change the mac permanently
-        // so we should add a new mac address to the eeprom and restart the device
-        // at startup it would read the mac from eeprom and use it until next restart
+        ESP.restart();
     }
     
     //parse the server mac address

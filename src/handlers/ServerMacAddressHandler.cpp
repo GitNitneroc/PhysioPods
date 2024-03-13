@@ -13,6 +13,7 @@
 
 //TODO : This should be renamed, it's not a simple response to a macAddress request, it's also response to a pod connection request
 //TODO : It should also include a kind of version compatibility check
+//TODO : it should also include a sessionId, that would be included in every message to make sure they are from the same session
 
 /*
     * This is a request handler to get the server's mac address

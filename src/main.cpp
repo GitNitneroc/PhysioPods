@@ -19,15 +19,13 @@ bool shouldBeClient = false;
 void setup(){
     Serial.begin(115200);
     #ifdef isDebug
-    //delay(7000); //My esp module Serial is messed up after upload, so I need to wait for it to boot up
     Serial.println("Booting");
     #endif
 
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
-    //this is a blocking call, this could be changed to async, and we would display a LED animation
-    shouldBeClient = PhysioPod::searchOtherPhysioWiFi();
+    shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
 }
 
 void createPod(){

@@ -11,11 +11,8 @@
 #include <esp_now.h>
 #include "modes/PhysioPodMode.h"
 
-//TODO : This should be renamed, it's not a simple response to a macAddress request, it's also response to a pod connection request
-//TODO : It should also include a kind of version compatibility check
-
 /*
-    * This is a request handler to get the server's mac address
+    * This is a request handler to get the info about the current mode (ie : is it running, and which one is it)
 */
 ModeInfoHandler::ModeInfoHandler() {
 }

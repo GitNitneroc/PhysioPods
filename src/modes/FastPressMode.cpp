@@ -95,9 +95,6 @@ void FastPressMode::onError(uint8_t pod) {
 }
 
 void FastPressMode::update() {
-    //TODO : check if the user pressed the wrong pod
-    //TODO : check if the user took too long to press the pod
-    //TODO : count the number of tries, and stop the game after a certain number of tries
     switch (state){
         case STOPPED:{
             //do nothing
