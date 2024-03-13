@@ -26,14 +26,14 @@ R"||(<!DOCTYPE html>
 							<label for="mode1"> FastPress</label>
 						</div>
 						<div class="6 col">
-							<input type="radio" id="mode2" name="mode" value="M2" onclick='show("mode2Details")' disabled>
-							<label for="mode2"> Le choix 2</label>
+							<input type="radio" id="mode2" name="mode" value="FL" onclick='show("mode2Details")'>
+							<label for="mode2"> Fairy Lights</label>
 						</div>
 					</div>
 					<div class="row">
 						<div class="6 col">
 							<input type="radio" id="mode3" name="mode" value="M3" disabled>
-							<label for="mode3"> ... genre on a des modes quoi</label>
+							<label for="mode3"> ... le mode3 n existe pas</label>
 						</div>
 					</div>
 				</form>
@@ -45,17 +45,22 @@ R"||(<!DOCTYPE html>
 						<form action="/launchMode">
 							<input type="hidden" id="mode" name="mode" value="FP">
 							<label for="minInterval">Min Interval (0 to 20):</label>
-							<input type="range" id="minInterval" name="minInterval" min="0" max="20" value="3" oninput="this.nextElementSibling.value = this.value"><output>3</output><br />
+							<input type="range" id="minInterval" name="minInterval" min="0" max="20" value="3" oninput="this.nextElementSibling.value = this.value"><output>3</output><br/>
 							<label for="maxInterval">Max Interval (added to min Interval 0 to 20):</label>
-							<input type="range" id="maxInterval" name="maxInterval" min="0" max="50" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br />
-							<label for="tries">Number of tries (1 to 255) :</label>
-							<input type="number" id="tries" name="tries" value="30" min="1" max="255"><br />
+							<input type="range" id="maxInterval" name="maxInterval" min="0" max="50" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br/>
 							<input type="submit" class="btn primary" value="Launch">
 						</form>
 					</div>
 					<div id="mode2Details" style="display:none">
 					<hr>
-						<h2>Ce Mode n&rsquo;existe m&ecirc;me pas !</h2>
+						<h2>FairyLights</h2>
+						<p>Pods will get lit one by one, there is no interaction with user.</p>
+						<form action="/launchMode">
+							<input type="hidden" id="mode" name="mode" value="FL">
+							<label for="timeByPod">Time by pod (ms):</label>
+							<input type="range" id="timeByPod" name="timeByPod" min="0" max="5000" value="100" oninput="this.nextElementSibling.value = this.value"><output>100</output><br/>
+							<input type="submit" class="btn primary" value="Launch">
+						</form>
 					</div>
 				</div>
 			</div>

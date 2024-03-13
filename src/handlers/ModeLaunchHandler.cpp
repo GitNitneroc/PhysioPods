@@ -3,6 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include "modes/PhysioPodMode.h"
 #include "modes/FastPressMode.h"
+#include "modes/FairyLightsMode.h"
 
 /*
     * This is a request handler to launch a mode.
@@ -78,6 +79,8 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
 
     //check if the user wants to launch a new mode
     String modeName = request->getParam("mode")->value();
+
+    //FASTPRESS MODE
     if (modeName == "FP") {
         Serial.println("User wants to launch Fast Press mode");
         //TODO : this could be a function in the FastPressMode class, it would return a FastPressMode object if the params are correct
@@ -111,10 +114,34 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
 
         sendResponse(request, htmlSuccess);
         return;
-    } else if (modeName == "2") {
-        //TODO: implement mode 2
-        Serial.println("Mode 2 launched");
+
+    //FAIRY LIGHTS MODE
+    } else if (modeName == "FL") {
+        Serial.println("User wants to launch FairyLightsMode mode");
+        AsyncWebParameter* timeByPod = request->getParam("timeByPod");
+        if (timeByPod == NULL) {
+            Serial.println("could not read a parameter");
+            sendResponse(request, htmlFail);
+            return;
+        }
+        //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
+        int timeByPodInt = timeByPod->value().toInt();
+
+        #ifdef isDebug
+        Serial.println("timeByPod : "+ String(timeByPodInt));
+        #endif
+
+        //create the mode
+        FairyLightsMode* newMode = new FairyLightsMode();
+        #ifdef isDebug
+        Serial.println("Mode created, initializing...");
+        #endif
+        newMode->initialize(timeByPodInt);//this is in ms
+
+        launchNewMode(newMode);
+
         sendResponse(request, htmlSuccess);
+        return;
     } else {
         Serial.println("Mode not recognized");
         sendResponse(request, htmlFail);
