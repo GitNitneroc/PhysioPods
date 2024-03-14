@@ -108,6 +108,10 @@ ServerPod::ServerPod() : server(80) {
 
 /* This should be called to start the specified PhysioPodMode*/
 void ServerPod::startMode(PhysioPodMode* newMode){
+    #ifdef isDebug
+    Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
+    Serial.println("Starting new mode...");
+    #endif
     //if there is a mode running, stop it
     if (PhysioPodMode::currentMode != nullptr){
         if (PhysioPodMode::currentMode->isRunning()){
@@ -116,19 +120,20 @@ void ServerPod::startMode(PhysioPodMode* newMode){
             #endif
             PhysioPodMode::currentMode->stop();
         }
+        //store a pointer to the current mode, and delete it later
+        PhysioPodMode *oldMode = PhysioPodMode::currentMode;
+        PhysioPodMode::currentMode = newMode;
+        PhysioPodMode::currentMode->start();
         #ifdef isDebug
         Serial.println("Deleting older mode...");
         #endif
-        delete PhysioPodMode::currentMode;
-        PhysioPodMode::currentMode = nullptr;
+        delete oldMode;
+        //This seems stupid but it looks like it's necessary : this can be called from wifi interraction, and the loop function running on the other core could trigger an update before the new mode is started
+    }else{
+        //switch to the new mode, and start it
+        PhysioPodMode::currentMode = newMode;
+        PhysioPodMode::currentMode->start();
     }
-    #ifdef isDebug
-    Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
-    Serial.println("Starting mode...");
-    #endif
-    //switch to the new mode, and start it
-    PhysioPodMode::currentMode = newMode;
-    PhysioPodMode::currentMode->start();
 }
 
 /*Turn a pod light on or off. Use Id 0 for the server and 255 for every pod*/
