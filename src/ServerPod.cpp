@@ -120,6 +120,7 @@ void ServerPod::startMode(PhysioPodMode* newMode){
         Serial.println("Deleting older mode...");
         #endif
         delete PhysioPodMode::currentMode;
+        PhysioPodMode::currentMode = nullptr;
     }
     #ifdef isDebug
     Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
