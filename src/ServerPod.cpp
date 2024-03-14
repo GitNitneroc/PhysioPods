@@ -184,7 +184,7 @@ void ServerPod::updatePod(){
     }
 
     //update the game mode if there is one started
-    if (PhysioPodMode::currentMode != nullptr){
+    if (PhysioPodMode::currentMode != nullptr && PhysioPodMode::currentMode->isRunning()){
         PhysioPodMode::currentMode->update();
     }
 
