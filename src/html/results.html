@@ -4,18 +4,39 @@ R"||(<!DOCTYPE html>
         <title>PhysioPods results</title>
         <link rel="stylesheet" href="lit.css">
         <script type="text/javascript">
+            function displayScores(data){
+                let resultDiv = document.getElementById("results");
+                resultDiv.innerHTML = "";
+                let lastMode = "";
+                let html = "";
+                data.forEach(score => {
+                    //if the mode is different than the previous one, we need to create a new table
+                    if (score.mode != lastMode) {
+                        if (lastMode != "") {//if it's not the first mode, close previous table
+                            html += "</tbody></table>";
+                        }
+                        lastMode = score.mode;
+                        html+= "<table class='w-100'>";
+                        //add the header, open body
+                        if (score.mode == "FastPress") {
+                            html += "<thead><tr><th>FastPress</th><th>Tries</th><th>Score</th><th>Errors</th><th>meanDelay</th></tr></thead><tbody>";
+                        }else if (score.mode == "FairyLights") {
+                            html += "<thead><tr><th>FairyLights</th></tr></thead><tbody>";
+                        }
+                    }
+                    //add the row to the body
+                    if (score.mode == "FastPress") {
+                        html += "<tr><td></td><td>"+score.tries+"</td><td>"+score.score+"</td><td>"+score.errors+"</td><td>"+parseInt(score.meanDelay)/1000+"sec</td></tr>";
+                    }else if (score.mode == "FairyLights") {
+                        html += "<tr><td>No data in this mode</td></tr>";
+                    }
+                });
+                resultDiv.innerHTML = html+"</tbody></table>";
+            }
             function loadScores() {
                 fetch("/score")
                 .then(response => response.json())
-                .then(data => {
-                    let table = document.getElementById("results");
-                    table.innerHTML = "<thead><tr><th>Mode</th><th>Tries</th><th>Score</th><th>Errors</th><th>meanDelay</th></tr></thead><tbody>";
-                    data.forEach(score => {
-                        table.innerHTML += "<tr><td>"+score.mode+"</td><td>"+score.tries+"</td><td>"+score.score+"</td><td>"+score.errors+"</td><td>"+parseInt(score.meanDelay)/1000+"sec</td></tr>";
-                    });
-                    table.innerHTML += "</tbody>";
-                    table.innerHTML +=response;
-                });
+                .then(data => {displayScores(data);});
             }
         </script>
     </head>
