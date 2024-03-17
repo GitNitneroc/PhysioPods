@@ -11,7 +11,7 @@
 struct LEDMessage {
     uint8_t id;
     bool state;
-    uint8_t mode; //TODO : at some point this could design the mode (flashing, rotating, etc), or color
+    uint8_t mode; //at some point this could design the mode (flashing, rotating, etc), or color
 };
 
 struct ControlMessage {

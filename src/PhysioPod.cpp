@@ -11,6 +11,11 @@
 
 //TODO : Introduce a keep-alive espnow message, sent by the server... and make the client respond to it, or just restart if no keep-alive is received for a while
 
+
+uint16_t PhysioPod::getSessionId(){
+    return sessionId;
+}
+
 bool PhysioPod::searchOtherPhysioWiFi(){
     #ifdef isDebug
     Serial.println("Scanning for other PhysioPods...");

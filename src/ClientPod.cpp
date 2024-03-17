@@ -98,12 +98,24 @@ ClientPod::ClientPod() {
         #endif
         displayError();
     }
-
-    //read id now
+    //read sessionId now
     line = client.readStringUntil('\n');
     if (line == ""){
         #ifdef isDebug
-        Serial.println("No id provided, restarting the device");
+        Serial.println("No session id provided, restarting the device");
+        #endif
+        ESP.restart();
+    }
+    sessionId = line.toInt();
+    #ifdef isDebug
+    Serial.println("  |-Session id : "+String(sessionId));
+    #endif
+
+    //read clientId now
+    line = client.readStringUntil('\n');
+    if (line == ""){
+        #ifdef isDebug
+        Serial.println("No client id provided, restarting the device");
         #endif
         ESP.restart();
     }

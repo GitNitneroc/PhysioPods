@@ -11,8 +11,6 @@
 #include <esp_now.h>
 #include "ServerPod.h"
 
-//TODO : it should also include a sessionId, that would be included in every message to make sure they are from the same session
-
 /*
     * This is a request handler to get the server's mac address
 */
@@ -42,10 +40,8 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
         //if version is older than the server's, the client should not connect
         if (clientVersion->value().toInt() != VERSION) {
-            #ifdef isDebug
             Serial.println("Incompatible version, client should not connect");
-            #endif
-            response->print("0");
+            response->print("Incompatible version\r\n");
             request->send(response);
             return;
         }
@@ -55,8 +51,11 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
     }
     
-    //print the server's mac address
+    //print the server's mac address and the session id
     response->print(WiFi.macAddress());
+    response->print("\r\n");
+    response->print(ServerPod::instance->getSessionId());
+    response->print("\r\n");
 
     //add an extra line to the response if the client provided a mac address
     AsyncWebParameter* clientMac = request->getParam("mac");
@@ -77,8 +76,8 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
         
         //append the id to the response on a new line
-        response->print("\r\n");
         response->print(ServerPod::peersNum);
+        response->print("\r\n");
     }
 
     //send the response

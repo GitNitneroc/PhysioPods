@@ -11,10 +11,10 @@
 
 #include "controls/ButtonControl.h"
 
-//TODO : il faudrait pouvoir définir le type de controle qu'on veut pour le pod, depuis le main.cpp et pas en rentrant dans le code comme ça
 class PhysioPod {
 protected :
     uint8_t id;
+    uint16_t sessionId = 0;
 
 public :
     //WIFI settings :
@@ -38,6 +38,8 @@ public :
         return id;
     }
 
+    uint16_t getSessionId();
+    
     /* This is used to set this pod light on or off*/
     static void setOwnLightState(bool state) ;
     static void setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) ;

@@ -28,6 +28,8 @@ uint8_t ServerPod::peersNum = 0;
 
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
+    //generate a random session id
+    sessionId = random(0, 65536);
 
     //initialize the control
     #ifdef USE_CAPACITIVE_TOUCH
