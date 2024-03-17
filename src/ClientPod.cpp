@@ -69,7 +69,7 @@ ClientPod::ClientPod() {
     #ifdef isDebug
     Serial.println("|-Connected to server");
     #endif
-    client.print("GET /serverMacAddress?mac="+WiFi.macAddress()+" HTTP/1.1\r\nConnection: close\r\n\r\n");
+    client.print("GET /serverRegistration?mac="+WiFi.macAddress()+"&version="+VERSION+" HTTP/1.1\r\nConnection: close\r\n\r\n");
     while (client.connected()){
         if (client.available()){
             //this is the response header, we don't need it
@@ -89,7 +89,7 @@ ClientPod::ClientPod() {
         #ifdef isDebug
         Serial.println("This Pod has the same mac address as the server, restarting...");
         #endif
-        ESP.restart();
+        displayError();
     }
     
     //parse the server mac address
@@ -97,7 +97,7 @@ ClientPod::ClientPod() {
         #ifdef isDebug
         Serial.println("Failed to parse server mac address, restarting the device");
         #endif
-        ESP.restart();
+        displayError();
     }
 
     //read id now
@@ -150,6 +150,19 @@ ClientPod::ClientPod() {
 
 
     Serial.println("ClientPod seems ready !");
+}
+
+/* This method is called when the pod is in an error state
+*  It should be used when restarting is unlikely to solve the problem
+*  It will blink the light in red
+*/
+void ClientPod::displayError(){
+    bool state = false;
+    while(true){
+        PhysioPod::setOwnLightState(state, 255,0,0);
+        state = !state;
+        delay(75);
+    }
 }
 
 void ClientPod::onControlPressed(){

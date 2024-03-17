@@ -2,14 +2,14 @@
 /*
     * This is a request handler for the captive portal.
 */
-class ServerMacAddressHandler : public AsyncWebHandler {
+class ServerRegistrationHandler : public AsyncWebHandler {
 
 private:
 
         
 public:
-    ServerMacAddressHandler();
-    virtual ~ServerMacAddressHandler() {}
+    ServerRegistrationHandler();
+    virtual ~ServerRegistrationHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);
 

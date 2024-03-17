@@ -1,5 +1,5 @@
 #include "isDebug.h"
-#include "ServerMacAddressHandler.h"
+#include "ServerRegistrationHandler.h"
 #include "ESPAsyncWebServer.h"
 
 #ifdef ESP32
@@ -11,29 +11,51 @@
 #include <esp_now.h>
 #include "ServerPod.h"
 
-//TODO : This should be renamed, it's not a simple response to a macAddress request, it's also response to a pod connection request
-//TODO : It should also include a kind of version compatibility check
 //TODO : it should also include a sessionId, that would be included in every message to make sure they are from the same session
 
 /*
     * This is a request handler to get the server's mac address
 */
-ServerMacAddressHandler::ServerMacAddressHandler() {
+ServerRegistrationHandler::ServerRegistrationHandler() {
 }
 
-bool ServerMacAddressHandler::canHandle(AsyncWebServerRequest *request){
-    if (request->url()=="/serverMacAddress") { //Remember this is hard coded in the client connection of pods too
+bool ServerRegistrationHandler::canHandle(AsyncWebServerRequest *request){
+    if (request->url()=="/serverRegistration") { //Remember this is hard coded in the client connection of pods too
         #ifdef isDebug
-        Serial.println("ServerMacAddressHandler request !");
+        Serial.println("ServerRegistrationHandler request !");
         #endif
         return true;
     }
     return false;
 }
 
-void ServerMacAddressHandler::handleRequest(AsyncWebServerRequest *request) {
+void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     //start the response
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
+    
+    //did the client provide a version ?
+    AsyncWebParameter* clientVersion = request->getParam("version");
+    if (clientVersion != NULL) {
+        #ifdef isDebug
+        Serial.print("ClientPod version : ");
+        Serial.println(clientVersion->value());
+        #endif
+        //if version is older than the server's, the client should not connect
+        if (clientVersion->value().toInt() != VERSION) {
+            #ifdef isDebug
+            Serial.println("Incompatible version, client should not connect");
+            #endif
+            response->print("0");
+            request->send(response);
+            return;
+        }
+    }else{
+        #ifdef isDebug
+        Serial.println("No version provided");
+        #endif
+    }
+    
+    //print the server's mac address
     response->print(WiFi.macAddress());
 
     //add an extra line to the response if the client provided a mac address

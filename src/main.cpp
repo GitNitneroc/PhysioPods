@@ -5,7 +5,7 @@
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
-#include "handlers/ServerMacAddressHandler.h"
+#include "handlers/ServerRegistrationHandler.h"
 #include "handlers/StaticHtmlHandler.h"
 #include "handlers/ModeLaunchHandler.h"
 #include "handlers/CSSRequestHandler.h"
@@ -19,7 +19,8 @@ bool shouldBeClient = false;
 void setup(){
     Serial.begin(115200);
     #ifdef isDebug
-    Serial.println("Booting");
+    Serial.print("Booting, version ");
+    Serial.println(VERSION);
     #endif
 
     //initialize the LED
@@ -45,7 +46,7 @@ void createPod(){
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
         serverPod->server.addHandler(new ModeLaunchHandler(serverPod->startMode, serverPod->control)); //Handles the mode launch request
-        serverPod->server.addHandler(new ServerMacAddressHandler()); //Handles the server mac address request
+        serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
         serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched */
