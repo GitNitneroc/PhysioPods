@@ -183,6 +183,7 @@ void ClientPod::onControlPressed(){
     //Create a message
     ControlMessage message;
     message.id = instance->id;
+    message.sessionId = instance->sessionId;
     message.state = true;
     //send the message, there is no callback for now...
     esp_err_t result = esp_now_send(instance->serverMac, (uint8_t *) &message, sizeof(ControlMessage));
@@ -206,6 +207,7 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
     Serial.println("-Target pod : "+String(message->id));
     Serial.println("-State : "+String(message->state));
     #endif
+    //TODO check the session id
     //check if the message is for me (255 is the broadcast id, it's for everyone)
     if (message->id == instance->id || message->id == 255){
         #ifdef isDebug

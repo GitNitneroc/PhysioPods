@@ -141,9 +141,10 @@ void ServerPod::startMode(PhysioPodMode* newMode){
 void ServerPod::setPodLightState(uint8_t podId, bool ledState){
     //should the message be sent to another pod ?
     if (podId > 0) {
-        //create the message
+        //create the LED message
         LEDMessage message;        
         message.id = podId;
+        message.sessionId = instance->sessionId;
         message.state = ledState;
         message.mode = 0;
 

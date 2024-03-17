@@ -6,16 +6,20 @@
 /*
     *The message that is used to send the state of the LED
     *id : the id of the clientpod
+    *sessionId : the session id of the pods
     *state : the state of the LED
+    *mode : the mode of the LED, for different light patterns
 */
 struct LEDMessage {
     uint8_t id;
+    uint16_t sessionId;
     bool state;
-    uint8_t mode; //at some point this could design the mode (flashing, rotating, etc), or color
+    uint8_t mode;
 };
 
 struct ControlMessage {
     uint8_t id;
+    uint16_t sessionId;
     bool state; //in case we need to send a state, but for now it's only sent once on the press
 };
 
