@@ -1,7 +1,6 @@
 #include "isDebug.h"
 #include "FastPressMode.h"
 #include "controls/PhysioPodControl.h"
-#include "../pins.h"
 #include "esp_now.h"
 #include "ServerPod.h"
 

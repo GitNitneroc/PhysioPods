@@ -9,7 +9,6 @@
 #include <ESPAsyncTCP.h>
 #endif
 
-#include "pins.h"
 #include "controls/ButtonControl.h"
 
 //TODO : il faudrait pouvoir définir le type de controle qu'on veut pour le pod, depuis le main.cpp et pas en rentrant dans le code comme ça

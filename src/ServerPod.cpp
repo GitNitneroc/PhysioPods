@@ -1,6 +1,5 @@
 #include "ServerPod.h"
 #include "isDebug.h"
-#include "pins.h"
 
 //The libraries we need
 #include <DNSServer.h>
