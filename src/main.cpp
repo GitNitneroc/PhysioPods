@@ -38,6 +38,8 @@ void createPod(){
 
         Serial.println("Adding the web handlers to the server...");
         //handlers for the web server
+        //TODO : il existe un server.serveStatic, qui pourrait être utilisé pour les fichiers statiques, et qui permet de spécifier un cache-Control
+        //Ca utilise SPIFFS, il faut voir si ça vaut le coup ou pas... On peut aussi implémenter un cache-Control nous même
         serverPod->server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
         serverPod->server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
@@ -55,7 +57,6 @@ void createPod(){
 void loop(){
     //finish the setup
     if (pod == nullptr){
-        Serial.println("Pod is null, creating it...");
         Serial.println("Creating the pod...");
         createPod(); //pod should not be null anymore
     }
