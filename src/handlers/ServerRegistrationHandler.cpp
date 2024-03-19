@@ -54,7 +54,7 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     //print the server's mac address and the session id
     response->print(WiFi.macAddress());
     response->print("\r\n");
-    response->print(ServerPod::instance->getSessionId());
+    response->print(ServerPod::getInstance()->getSessionId());
     response->print("\r\n");
 
     //add an extra line to the response if the client provided a mac address

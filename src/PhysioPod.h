@@ -15,6 +15,7 @@ class PhysioPod {
 protected :
     uint8_t id;
     uint16_t sessionId = 0;
+    static PhysioPod* instance;
 
 public :
     //WIFI settings :
@@ -26,6 +27,10 @@ public :
         * It will return true if it found a PhysioPod network, and false otherwise
     */
     static bool searchOtherPhysioWiFi();
+    
+    static PhysioPod* getInstance(){
+        return instance;
+    }
 
     virtual void updatePod() = 0;
 
@@ -39,7 +44,7 @@ public :
     }
 
     uint16_t getSessionId();
-    
+
     /* This is used to set this pod light on or off*/
     static void setOwnLightState(bool state) ;
     static void setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) ;

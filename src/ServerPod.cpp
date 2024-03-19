@@ -20,9 +20,10 @@
     #include "controls/ButtonControl.h"
 #endif
 
-#include "messages.h"
+#include "Messages.h"
+using namespace Messages;
 
-ServerPod* ServerPod::instance = nullptr;
+//ServerPod* ServerPod::instance = nullptr;
 const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 uint8_t ServerPod::peersNum = 0;
 
@@ -144,7 +145,7 @@ void ServerPod::setPodLightState(uint8_t podId, bool ledState){
         //create the LED message
         LEDMessage message;        
         message.id = podId;
-        message.sessionId = instance->sessionId;
+        message.sessionId = getInstance()->getSessionId();
         message.state = ledState;
         message.mode = 0;
 

@@ -26,10 +26,14 @@ private :
     DNSServer* dnsServer = nullptr;
     
 public :
-    static ServerPod* instance;
+    
     static const uint8_t ip_addr_broadcast[6];
     static uint8_t peersNum; //number of peers connected to the server
     AsyncWebServer server;
+
+    static ServerPod* getInstance(){
+        return (ServerPod*)instance;
+    }
 
     ServerPod();
     void updatePod() override;

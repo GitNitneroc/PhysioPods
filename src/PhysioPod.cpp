@@ -11,6 +11,7 @@
 
 //TODO : Introduce a keep-alive espnow message, sent by the server... and make the client respond to it, or just restart if no keep-alive is received for a while
 
+PhysioPod* PhysioPod::instance = nullptr;
 
 uint16_t PhysioPod::getSessionId(){
     return sessionId;

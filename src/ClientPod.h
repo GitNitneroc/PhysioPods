@@ -19,11 +19,14 @@ class ClientPod : public PhysioPod {
 private :
     uint8_t serverMac[6];
     static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
-    static ClientPod* instance;
 
 public :
     ClientPod();
     void updatePod() override;
     static void onControlPressed(); //The callback for when the control is pressed
     void displayError();
+    static ClientPod* getInstance(){
+        return (ClientPod*)instance;
+    }
+
 };

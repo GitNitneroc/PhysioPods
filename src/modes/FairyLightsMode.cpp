@@ -37,10 +37,10 @@ void FairyLightsMode::onPodPressed(uint8_t id) {
 
 void FairyLightsMode::update() {
     if (running) {
-        if (millis() - timer > timeByPod && ServerPod::instance->peersNum > 0) {
+        if (millis() - timer > timeByPod && ServerPod::getInstance()->peersNum > 0) {
             timer = millis();
             ServerPod::setPodLightState(litPod,false); //we could use 255 instead of litPod...
-            litPod = (litPod + 1) % (ServerPod::instance->peersNum+1);
+            litPod = (litPod + 1) % (ServerPod::getInstance()->peersNum+1);
             ServerPod::setPodLightState(litPod,true);
         }
     }

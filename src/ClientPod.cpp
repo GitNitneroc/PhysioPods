@@ -15,12 +15,11 @@
 //Our control
 #include "controls/ButtonControl.h"
 
-#include "messages.h"
+#include "Messages.h"
+using namespace Messages;
 
 //The number of attempts a clientpod makes to connect to the WiFi before restarting
 #define LIMIT_CONNECTION_ATTEMPTS 20 
-
-ClientPod* ClientPod::instance = nullptr;
 
 
 //TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
@@ -182,11 +181,11 @@ void ClientPod::onControlPressed(){
     #endif
     //Create a message
     ControlMessage message;
-    message.id = instance->id;
-    message.sessionId = instance->sessionId;
+    message.id = ((ClientPod*)getInstance())->id;
+    message.sessionId = instance->getSessionId();
     message.state = true;
     //send the message, there is no callback for now...
-    esp_err_t result = esp_now_send(instance->serverMac, (uint8_t *) &message, sizeof(ControlMessage));
+    esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &message, sizeof(ControlMessage));
     if (result == ESP_OK) {
         #ifdef isDebug
         Serial.println("Sent the control press message");
@@ -201,19 +200,25 @@ void ClientPod::onControlPressed(){
 
 // callback function that will be executed when data is received
 void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len) {
-    LEDMessage* message = (LEDMessage*)data;
-    #ifdef isDebug
-    Serial.println("Received a LED message");
-    Serial.println("-Target pod : "+String(message->id));
-    Serial.println("-State : "+String(message->state));
-    #endif
-    //TODO check the session id
-    //check if the message is for me (255 is the broadcast id, it's for everyone)
-    if (message->id == instance->id || message->id == 255){
-        #ifdef isDebug
-        Serial.println("-This message is for me !");
-        #endif
-        PhysioPod::setOwnLightState(message->state);
+    parsedMessage message = getMessageType(sender_addr, data, len);
+    switch (message.type){
+        case ERROR:
+            Serial.println("Error parsing the message (maybe wrong session)");
+            break;
+        case NOT_FOR_ME:
+            break;
+        case LED:{
+            LEDMessage* ledMessage = (LEDMessage*)message.messageData;
+            #ifdef isDebug
+            Serial.println("Received a LED message");
+            Serial.println("-Target pod : "+String(ledMessage->id));
+            Serial.println("-State : "+String(ledMessage->state));
+            #endif
+            PhysioPod::setOwnLightState(ledMessage->state);
+            break;
+        }
+        default:
+            break;
     }
 }
 

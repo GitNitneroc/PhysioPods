@@ -1,4 +1,5 @@
 #include "PhysioPodMode.h"
+using namespace Messages;
 
 PhysioPodMode* PhysioPodMode::currentMode = nullptr;
 
