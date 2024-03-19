@@ -37,6 +37,9 @@ namespace Messages{
         *sessionId : the session id of the pods
         *state : the state of the LED
         *mode : the mode of the LED, for different light patterns
+        *r : the red value of the LED
+        *g : the green value of the LED
+        *b : the blue value of the LED
     */
     struct LEDMessage {
         uint8_t id;

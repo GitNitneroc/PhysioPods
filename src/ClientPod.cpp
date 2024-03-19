@@ -214,7 +214,11 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             Serial.println("-Target pod : "+String(ledMessage->id));
             Serial.println("-State : "+String(ledMessage->state));
             #endif
+            #ifdef USE_NEOPIXEL
+            PhysioPod::setOwnLightState(ledMessage->state, ledMessage->r, ledMessage->g, ledMessage->b);
+            #else
             PhysioPod::setOwnLightState(ledMessage->state);
+            #endif
             break;
         }
         default:

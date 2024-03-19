@@ -6,10 +6,10 @@
 */
 class LEDRequestHandler : public AsyncWebHandler {
 private:
-    void (*setPodLightState)(uint8_t, bool);
+    void (*setPodLightState)(uint8_t, bool, uint8_t, u_int8_t, u_int8_t);
     
 public:
-    LEDRequestHandler(void (*setPodLightState)(uint8_t, bool));
+    LEDRequestHandler(void (*setPodLightState)(uint8_t, bool, uint8_t, u_int8_t, u_int8_t));
     virtual ~LEDRequestHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);

@@ -46,8 +46,7 @@ public :
     uint16_t getSessionId();
 
     /* This is used to set this pod light on or off*/
-    static void setOwnLightState(bool state) ;
-    static void setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) ;
+    static void setOwnLightState(bool state, uint8_t r=0, uint8_t g=0, uint8_t b=0) ;
 };
 
 #endif
