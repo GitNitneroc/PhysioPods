@@ -3,9 +3,14 @@ using namespace Messages;
 
 PhysioPodMode* PhysioPodMode::currentMode = nullptr;
 
+/* 
+    * this should be called by each Mode when stopping
+    * it performs the necessary cleanup
+    * it also call the reset method of the mode
+*/
 void PhysioPodMode::stop() {
     #ifdef isDebug
-    Serial.println("Stopping mode...");
+    Serial.println("PhysioPodMode : Mode is currently stopping...");
     #endif
     //let's clean things up
     esp_now_unregister_recv_cb();

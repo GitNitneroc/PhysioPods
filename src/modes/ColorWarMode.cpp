@@ -54,6 +54,13 @@ void ColorWarMode::reset() {
     resetScores();
     resetPodsColors();
     StartTimer = millis();
+    //turn off every pod
+    #ifdef isDebug
+    Serial.println("ColorWarMode : turning off "+String(podsColors.size())+" pods");
+    #endif
+    for (uint8_t i = 0; i < podsColors.size(); i++) {
+        ServerPod::setPodLightState(i, false);
+    }
 }
 
 void ColorWarMode::start() {
@@ -118,14 +125,6 @@ void ColorWarMode::update() {
 }
 
 void ColorWarMode::stop() {
-    //turn off every pod
-    #ifdef isDebug
-    Serial.println("ColorWarMode : turning off "+String(podsColors.size())+" pods");
-    #endif
-    for (uint8_t i = 0; i < podsColors.size(); i++) {
-        ServerPod::setPodLightState(i, false);
-    }
-
     PhysioPodMode::stop();
 }
 
@@ -162,3 +161,10 @@ void ColorWarMode::onPodPressed(uint8_t id) {
 ColorWarMode::ColorWarMode() {
     StartTimer = 0;
 }
+
+/* ColorWarMode::~ColorWarMode() {
+    //delete the vectors
+    colors.clear();
+    scores.clear();
+    podsColors.clear();
+} */
