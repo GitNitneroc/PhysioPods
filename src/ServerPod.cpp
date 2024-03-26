@@ -191,22 +191,23 @@ void ServerPod::onControlPressed(){
 }
 
 void ServerPod::updatePod(){
+    //TODO : do this is a separate task
     if (dnsServer != nullptr){
-        dnsServer->processNextRequest();//look for an asynchronous system rather than this one ?
+        dnsServer->processNextRequest();
     }
 
     //update the game mode if there is one started
     if (PhysioPodMode::currentMode != nullptr && PhysioPodMode::currentMode->isRunning()){
         PhysioPodMode::currentMode->update();
-    }
 
-    //Update the control : check if it's pressed
-    //TODO : consider waiting a bit, or a small delay to go easy on the battery ?
-    if (control != nullptr){
-        bool state = control->checkControl();
-    }else{
-        #ifdef isDebug
-        Serial.println("No control to update");
-        #endif
+        //also update the control
+        //We could also wait a bit, to avoid updating the control too often
+        if (control != nullptr){
+            bool state = control->checkControl();
+        }else{
+            #ifdef isDebug
+            Serial.println("No control to update");
+            #endif
+        }
     }
 }
