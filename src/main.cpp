@@ -23,7 +23,7 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
-    //initialize the LED
+    //initialize the LED //TODO : this should be done in the pod
     pinMode(LED_PIN, OUTPUT);
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call

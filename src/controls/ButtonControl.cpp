@@ -34,12 +34,12 @@ bool ButtonControl::checkControl(){
                 #ifdef isDebug
                 Serial.print("Button state changed : ");
                 Serial.println(state ? "HIGH" : "LOW");
+                #endif
                 //notify the pod that the button is pressed
                 if (state){
                     onPressedCallback();
                 }
-                #endif
-                return !state; //return true if the button is pressed
+                return !state; //return true if the current is low (INPUT_PULLUP)
             }
             #ifdef isDebug
             Serial.println("Ignored a bounce !");
