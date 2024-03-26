@@ -109,7 +109,11 @@ void ColorWarMode::update() {
             #endif
             ServerPod::setPodLightState(podId, true, newColor.r, newColor.g, newColor.b);
         }
-        //TODO : score points !
+        
+        //compute the scores :
+        for (uint8_t i = 0; i < podsColors.size(); i++) {
+            scores[podsColors[i]]++;
+        }
     }
 }
 
@@ -125,12 +129,28 @@ void ColorWarMode::stop() {
     PhysioPodMode::stop();
 }
 
+//TODO : why does this return a pointer ? probable memory leak here
 String* ColorWarMode::returnScore() {
-    String* score = new String();
+    //Convert to percentages :
+    int total = 0;
     for (uint8_t i = 0; i < nColors; i++) {
-        *score += String(scores[i]) + ",";
+        total += scores[i];
     }
+    //create the string
+    String* score =  new String("{\"mode\": \"ColorWar\", \"duration\": " + String(duration) + ", \"scores\": [");
+   
+    for (uint8_t i = 0; i < nColors; i++) {
+        char buffer[6];  // Buffer to hold the decimal string
+        float percentage = static_cast<float>(scores[i]) * 100.0f / total;
+        dtostrf(percentage, 4, 2, buffer);  // Convert to string with 2 decimal places
+        *score += buffer;  // Append to the score string
+        if (i < nColors - 1) {
+            *score += ", ";
+        }
+    }
+    *score += "]}";
     return score;
+    //{"mode": "ColorWar", "duration": 60, "scores": [70.65, 29.35]}
 }
 
 void ColorWarMode::onPodPressed(uint8_t id) {

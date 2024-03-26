@@ -22,6 +22,12 @@ R"||(<!DOCTYPE html>
                             html += "<thead><tr><th>FastPress</th><th>Tries</th><th>Score</th><th>Errors</th><th>meanDelay</th></tr></thead><tbody>";
                         }else if (score.mode == "FairyLights") {
                             html += "<thead><tr><th>FairyLights</th></tr></thead><tbody>";
+                        }else if (score.mode == "ColorWar") {
+                            html += "<thead><tr><th>ColorWar</th><th>Duration</th>";
+                            for (let i = 0; i < score.scores.length; i++) {
+                                html += "<th>Team "+(i+1)+"</th>";
+                            }
+                            html += "</tr></thead><tbody>";
                         }
                     }
                     //add the row to the body
@@ -29,6 +35,12 @@ R"||(<!DOCTYPE html>
                         html += "<tr><td></td><td>"+score.tries+"</td><td>"+score.score+"</td><td>"+score.errors+"</td><td>"+parseInt(score.meanDelay)/1000+"sec</td></tr>";
                     }else if (score.mode == "FairyLights") {
                         html += "<tr><td>No data in this mode</td></tr>";
+                    }else if (score.mode == "ColorWar") {
+                        html += "<tr><td></td><td>"+score.duration+"</td>"
+                        score.scores.forEach(teamScore => {
+                            html += "<td>"+teamScore+"%</td>";
+                        });
+                        html +="</tr>";
                     }
                 });
                 resultDiv.innerHTML = html+"</tbody></table>";
