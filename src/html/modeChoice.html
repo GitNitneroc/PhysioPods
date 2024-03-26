@@ -1,4 +1,5 @@
 R"||(<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <title>PhysioPods</title>
@@ -21,19 +22,23 @@ R"||(<!DOCTYPE html>
 			<div class="c">
 				<form>
 					<div class="row">
-						<div class="6 col">
+						<div class="4 col">
 							<input type="radio" id="mode1" name="mode" value="FP" onclick='show("mode1Details")'>
 							<label for="mode1"> FastPress</label>
 						</div>
-						<div class="6 col">
+						<div class="4 col">
 							<input type="radio" id="mode2" name="mode" value="FL" onclick='show("mode2Details")'>
 							<label for="mode2"> Fairy Lights</label>
 						</div>
+						<div class="4 col">
+							<input type="radio" id="mode3" name="mode" value="CW" onclick='show("mode3Details")'>
+							<label for="mode3"> Color War</label>
+						</div>
 					</div>
 					<div class="row">
-						<div class="6 col">
-							<input type="radio" id="mode3" name="mode" value="M3" disabled>
-							<label for="mode3"> ... le mode3 n existe pas</label>
+						<div class="4 col">
+							<input type="radio" id="mode4" name="mode" value="M4" disabled>
+							<label for="mode4"> ... le mode4 n&apos;existe pas</label>
 						</div>
 					</div>
 				</form>
@@ -61,6 +66,22 @@ R"||(<!DOCTYPE html>
 							<input type="hidden" id="mode" name="mode" value="FL">
 							<label for="timeByPod">Time by pod (ms):</label>
 							<input type="range" id="timeByPod" name="timeByPod" min="0" max="5000" value="100" oninput="this.nextElementSibling.value = this.value"><output>100</output><br/>
+							<input type="submit" class="btn primary" value="Launch">
+						</form>
+					</div>
+					<div id="mode3Details" style="display:none">
+					<hr>
+						<h2>Color War</h2>
+						<p>This can be played in multiplayer</p>
+						<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
+						<form action="/launchMode">
+							<input type="hidden" id="mode" name="mode" value="CW">
+							<label for="duration">Duration (sec):</label>
+							<input type="number" id="duration" name="duration" min="1" max="65536" value="60" oninput="this.nextElementSibling.value = this.value"><output>60</output><br/>
+							<label for="nteams">Number of teams:</label>
+							<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br/>
+							<label for="probability">Probability: each 1/100th of a sec, there is a probability a pod will change colors. At 0 the pods won&apos;t change colors by themselves</label>
+							<input type="number" id="probability" name="probability" min="0" max="1" value="0.005" step="0.005" oninput="this.nextElementSibling.value = this.value"><output>60</output><br/>
 							<input type="submit" class="btn primary" value="Launch">
 						</form>
 					</div>

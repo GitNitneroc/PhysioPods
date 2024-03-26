@@ -4,6 +4,7 @@
 #include "modes/PhysioPodMode.h"
 #include "modes/FastPressMode.h"
 #include "modes/FairyLightsMode.h"
+#include "modes/ColorWarMode.h"
 
 /*
     * This is a request handler to launch a mode.
@@ -114,9 +115,40 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
 
         sendResponse(request, htmlSuccess);
         return;
+    }else if (modeName == "CW"){
+        //COLOR WAR MODE
+        Serial.println("User wants to launch ColorWar mode");
+        AsyncWebParameter* nColorsParam = request->getParam("nteams");
+        AsyncWebParameter* durationParam = request->getParam("duration");
+        AsyncWebParameter* probabilityParam = request->getParam("probability");
+        if (nColorsParam == NULL || durationParam == NULL || probabilityParam == NULL) {
+            Serial.println("could not read a parameter");
+            sendResponse(request, htmlFail);
+            return;
+        }
+        uint8_t nColors = nColorsParam->value().toInt();
+        uint16_t duration = durationParam->value().toInt();
+        float probability = probabilityParam->value().toFloat();
+        #ifdef isDebug
+        Serial.println("nColors : "+ String(nColors));
+        Serial.println("duration : "+ String(duration));
+        Serial.println("probability : "+ String(probability));
+        #endif
 
-    //FAIRY LIGHTS MODE
+        //create the mode
+        ColorWarMode* newMode = new ColorWarMode();
+        #ifdef isDebug
+        Serial.println("Mode created, initializing...");
+        #endif
+        newMode->initialize(nColors, duration, probability);
+
+        launchNewMode(newMode);
+
+        sendResponse(request, htmlSuccess);
+        return;
+    
     } else if (modeName == "FL") {
+        //FAIRY LIGHTS MODE
         Serial.println("User wants to launch FairyLightsMode mode");
         AsyncWebParameter* timeByPod = request->getParam("timeByPod");
         if (timeByPod == NULL) {
