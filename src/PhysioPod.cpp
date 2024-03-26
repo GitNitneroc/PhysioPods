@@ -68,7 +68,10 @@ bool PhysioPod::searchOtherPhysioWiFi(){
 void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
     #ifndef USE_NEOPIXEL
         Serial.println("The neopixel is not enabled, the color will not be set");
-        return setOwnLightState(state);
+        #ifdef INVERTED_LED
+            state = !state;
+        #endif
+        return digitalWrite(LED_PIN, state);
     #endif
 
     #ifdef isDebug
