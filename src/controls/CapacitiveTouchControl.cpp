@@ -14,14 +14,19 @@ CapacitiveTouchControl::CapacitiveTouchControl(byte pin){
 
 void CapacitiveTouchControl::initialize(void (*callback)()){
     this->onPressedCallback = callback;
+    #ifndef USE_CAPACITIVE_TOUCH
+    Serial.println("You are initializing a Capacitive touch, please enable USE_CAPACITIVE_TOUCH build flag in platformio.ini");
+    #endif
 }
 
 bool CapacitiveTouchControl::checkControl(){
+    #ifdef USE_CAPACITIVE_TOUCH
     #ifdef USE_INVERTED_TOUCH
         bool newState=(touchRead(pin) > CAPACITIVE_TOUCH_THRESHOLD);
     #else
         bool newState=(touchRead(pin) < CAPACITIVE_TOUCH_THRESHOLD);
     #endif
+    
     if (state != newState){
         state = !state;
         #ifdef isDebug
@@ -33,6 +38,7 @@ bool CapacitiveTouchControl::checkControl(){
             onPressedCallback();
         }
     }
+    #endif
     return state; //return true if the button is pressed
     
 }
