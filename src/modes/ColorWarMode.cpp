@@ -72,6 +72,8 @@ void ColorWarMode::start() {
         Color randomColor = colors[random(0, nColors)];
         ServerPod::setPodLightState(i, true, randomColor.r, randomColor.g, randomColor.b);
     }
+    //create a new score
+    ScoreStorage::addScore(returnScore());
     PhysioPodMode::start();
 }
 
@@ -125,6 +127,8 @@ void ColorWarMode::update() {
 }
 
 void ColorWarMode::stop() {
+    //update the score one last time
+    ScoreStorage::updateScore(returnScore());
     PhysioPodMode::stop();
 }
 
@@ -162,9 +166,9 @@ ColorWarMode::ColorWarMode() {
     StartTimer = 0;
 }
 
-/* ColorWarMode::~ColorWarMode() {
+ColorWarMode::~ColorWarMode() {
     //delete the vectors
     colors.clear();
     scores.clear();
     podsColors.clear();
-} */
+}

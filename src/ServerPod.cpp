@@ -123,14 +123,12 @@ void ServerPod::startMode(PhysioPodMode* newMode){
             PhysioPodMode::currentMode->stop();
         }
         //store a pointer to the current mode, and delete it later
-        PhysioPodMode *oldMode = PhysioPodMode::currentMode;
-        PhysioPodMode::currentMode = newMode;
-        PhysioPodMode::currentMode->start();
         #ifdef isDebug
         Serial.println("Deleting older mode...");
         #endif
-        delete oldMode;
-        //This seems stupid but it looks like it's necessary : this can be called from wifi interraction, and the loop function running on the other core could trigger an update before the new mode is started
+        delete PhysioPodMode::currentMode;
+        PhysioPodMode::currentMode = newMode;
+        PhysioPodMode::currentMode->start();
     }else{
         //switch to the new mode, and start it
         PhysioPodMode::currentMode = newMode;
