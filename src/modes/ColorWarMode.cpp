@@ -29,12 +29,9 @@ Color ColorWarMode::hslToColor(uint16_t h, uint8_t s, uint8_t l) {
 }
 
 void ColorWarMode::generateColors() {
-    if (colors.size() != 0){
-        colors.resize(0);
-    }
     for (uint8_t i = 0; i < nColors; i++) {
         uint16_t h = 65535 / nColors * i;
-        colors.push_back(hslToColor(h, 255, 122));
+        colors[i] = hslToColor(h, 255, 122);
     }
 }
 
@@ -45,7 +42,7 @@ void ColorWarMode::resetScores() {
 }
 
 void ColorWarMode::resetPodsColors() {
-    for (uint8_t i = 0; i < podsColors.size(); i++) {
+    for (uint8_t i = 0; i < nPods; i++) {
         podsColors[i] = 0;
     }
 }
@@ -56,9 +53,9 @@ void ColorWarMode::reset() {
     StartTimer = millis();
     //turn off every pod
     #ifdef isDebug
-    Serial.println("ColorWarMode : turning off "+String(podsColors.size())+" pods");
+    Serial.println("ColorWarMode : turning off "+String(nPods)+" pods");
     #endif
-    for (uint8_t i = 0; i < podsColors.size(); i++) {
+    for (uint8_t i = 0; i < nPods; i++) {
         ServerPod::setPodLightState(i, false);
     }
 }
@@ -66,10 +63,13 @@ void ColorWarMode::reset() {
 void ColorWarMode::start() {
     StartTimer = millis();
     //the number of pods might have changed since the last time we played, so we resize it in start() rather than in initialize()
-    podsColors.resize(ServerPod::getInstance()->peersNum+1, 0);
+    //podsColors.resize(ServerPod::getInstance()->peersNum+1, 0); //this code is from when we used std::vector
+    nPods = ServerPod::getInstance()->peersNum+1;
     //turn on each pod with a random color
-    for (uint8_t i = 0; i < podsColors.size(); i++) {
-        Color randomColor = colors[random(0, nColors)];
+    for (uint8_t i = 0; i < nPods; i++) {
+        uint8_t randomColorId = random(0, nColors);
+        Color randomColor = colors[randomColorId];
+        podsColors[i] = randomColorId;
         ServerPod::setPodLightState(i, true, randomColor.r, randomColor.g, randomColor.b);
     }
     //create a new score
@@ -84,14 +84,19 @@ void ColorWarMode::initialize(uint8_t nColors, uint16_t duration, float probabil
     #ifdef isDebug
     Serial.println("ColorWarMode : initializing with " + String(nColors) + " colors, a duration of " + String(duration) + "s and a probability of " + String(probability));
     #endif
-    scores.resize(nColors, 0);
+    resetScores();
 
     generateColors();
-    /* //debug : print the colors
-    for (uint8_t i = 0; i < nColors; i++) {
-        Serial.println("rgb(" + String(colors[i].r) + ", " + String(colors[i].g) + ", " + String(colors[i].b)+")");
-    } */
-    reset();
+
+    resetPodsColors(); //not sure this is necessary, start does something like that anyway
+    StartTimer = millis();
+    #ifdef isDebug
+    Serial.println("ColorWarMode : turning off all connected pods");
+    #endif
+    //we can't use nPods now, this will only be initialized in start(), so that pod number can still change between games
+    for (uint8_t i = 0; i < ServerPod::peersNum+2; i++) { //+2 because peers does not count the server
+        ServerPod::setPodLightState(i, false);
+    }
 }
 
 void ColorWarMode::update() {
@@ -109,7 +114,7 @@ void ColorWarMode::update() {
         //test for random change
         if (random(0,10000) < probability * 10000) {
             //select a random pod and a random color
-            uint8_t podId = (0, podsColors.size());
+            uint8_t podId = random(0, nPods);
             uint8_t rancomColorId = random(0, nColors);
             Color newColor = colors[rancomColorId];
             podsColors[podId] = rancomColorId;
@@ -120,7 +125,7 @@ void ColorWarMode::update() {
         }
         
         //compute the scores :
-        for (uint8_t i = 0; i < podsColors.size(); i++) {
+        for (uint8_t i = 0; i < nPods; i++) {
             scores[podsColors[i]]++;
         }
     }
@@ -132,7 +137,6 @@ void ColorWarMode::stop() {
     PhysioPodMode::stop();
 }
 
-//TODO : why does this return a pointer ? probable memory leak here
 String* ColorWarMode::returnScore() {
     //Convert to percentages :
     int total = 0;
@@ -166,9 +170,9 @@ ColorWarMode::ColorWarMode() {
     StartTimer = 0;
 }
 
-ColorWarMode::~ColorWarMode() {
+/* ColorWarMode::~ColorWarMode() {
     //delete the vectors
     colors.clear();
     scores.clear();
     podsColors.clear();
-}
+} */
