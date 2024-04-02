@@ -9,7 +9,7 @@ R"||(<!DOCTYPE html>
                 .then(response => response.json())
                 .then(data => {
                     if (data.mode != null){
-                        document.getElementById("modeName").innerHTML = "Mode : "+data.mode;
+                        document.getElementById("modeName").innerHTML = data.mode;
                         document.getElementById("modeStatus").innerHTML = (data.isRunning?"Running":"Stopped");
                         document.getElementById("modeStatus").style.visibility = "visible";
                         document.getElementById("modeLaunch").style.visibility = "visible";

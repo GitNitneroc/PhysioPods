@@ -10,6 +10,12 @@ uint8_t hue2rgb(uint8_t p, uint8_t q, int32_t t) {
     return p;
 }
 
+//TODO : le score retourné devrait avoir la durée réelle
+//TODO : Il faudrait que la page web donne les couleurs des équipes
+//TODO : Il faudrait que le score soit avec les couleurs des équipes
+//TODO : La page score devrait avoir deux headers, un pour le mode et un pour les colonnes
+
+//TODO : Il faudrait peut-être mettre cette fonction dans un fichier utils.h
 Color ColorWarMode::hslToColor(uint16_t h, uint8_t s, uint8_t l) {
     uint8_t r, g, b;
 
@@ -144,7 +150,7 @@ String* ColorWarMode::returnScore() {
         total += scores[i];
     }
     //create the string
-    String* score =  new String("{\"mode\": \"ColorWar\", \"duration\": " + String(duration) + ", \"scores\": [");
+    String* score =  new String("{\"mode\": \"ColorWar\", \"duration\": " + String((int)(millis() - StartTimer)/1000) + ", \"scores\": [");
    
     for (uint8_t i = 0; i < nColors; i++) {
         char buffer[6];  // Buffer to hold the decimal string
