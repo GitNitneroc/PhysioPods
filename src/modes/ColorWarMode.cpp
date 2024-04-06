@@ -1,43 +1,44 @@
 #include "ColorWarMode.h"
 #include "ServerPod.h"
 
-uint8_t hue2rgb(uint8_t p, uint8_t q, int32_t t) {
-    if (t < 0) t += 65536;
-    if (t > 65536) t -= 65536;
+
+uint8_t hue2rgb(uint8_t p, uint8_t q, uint16_t t) {
+    /*Serial.println("p : " + String(p));
+    Serial.println("q : " + String(q));
+    Serial.println("t : " + String(t)); */
     if (t < 10923) return p + (q - p) * t / 10923;
     if (t < 32768) return q;
-    if (t < 54613) return p + (q - p) * (54613 - t) / 10923;
+    if (t < 43690) return p + (q - p) * (54613 - t) / 10923;
     return p;
 }
 
-//TODO : le score retourné devrait avoir la durée réelle
 //TODO : Il faudrait que la page web donne les couleurs des équipes
 //TODO : Il faudrait que le score soit avec les couleurs des équipes
 //TODO : La page score devrait avoir deux headers, un pour le mode et un pour les colonnes
 
 //TODO : Il faudrait peut-être mettre cette fonction dans un fichier utils.h
 Color ColorWarMode::hslToColor(uint16_t h, uint8_t s, uint8_t l) {
-    uint8_t r, g, b;
+    Color c;
 
     if (s == 0) {
-        r = g = b = l; // achromatic
+        c.r = c.g = c.b = l; // achromatic
     } else {
-        uint8_t q = l < 128 ? l * (256 + s) / 256 : l + s - l * s / 256;
+        uint8_t q = l < 128 ? l * (255 + s) / 255 : l + s- (l * s) / 255;
+        /* Serial.println("q : " + String(q)); */
         uint8_t p = 2 * l - q;
-        r = hue2rgb(p, q, h + 21845);
-        g = hue2rgb(p, q, h);
-        b = hue2rgb(p, q, h - 21845);
+        /* Serial.println("p : " + String(p)); */
+        c.r = hue2rgb(p, q, h + 21845);
+        c.g = hue2rgb(p, q, h);
+        c.b = hue2rgb(p, q, h - 21845);
     }
-
-    Color rgb = { r, g, b };
-    //Serial.println("rgb(" + String(rgb.r) + ", " + String(rgb.g) + ", " + String(rgb.b)+")");
-    return rgb;
+    /* Serial.println("rgb(" + String(c.r) + ", " + String(c.g) + ", " + String(c.b)+")"); */
+    return c;
 }
 
 void ColorWarMode::generateColors() {
     for (uint8_t i = 0; i < nColors; i++) {
         uint16_t h = 65535 / nColors * i;
-        colors[i] = hslToColor(h, 255, 122);
+        colors[i] = hslToColor(h, 255, 128);
     }
 }
 
