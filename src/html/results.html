@@ -4,46 +4,84 @@ R"||(<!DOCTYPE html>
         <title>PhysioPods results</title>
         <link rel="stylesheet" href="lit.css">
         <script type="text/javascript">
-            function displayScores(data){
+            function displayScores(data) {
+                //example of data : [{"mode": "ColorWar", "duration": 4, "scores": [0.00, 0.00, 0.00, 59.52, 40.48]},{"mode": "FairyLights"},{"mode": "FastPress", "tries": 0, "score": 0, "errors": 0, "meanDelay": 0}]
                 let resultDiv = document.getElementById("results");
                 resultDiv.innerHTML = "";
                 let lastMode = "";
-                let html = "";
+                let table;
+                let tbody;
                 data.forEach(score => {
-                    //if the mode is different than the previous one, we need to create a new table
                     if (score.mode != lastMode) {
-                        if (lastMode != "") {//if it's not the first mode, close previous table
-                            html += "</tbody></table>";
+                        if (lastMode != "") {
+                            table.appendChild(tbody);
+                            resultDiv.appendChild(table);
                         }
                         lastMode = score.mode;
-                        html+= "<table class='w-100'>";
-                        //add the header, open body
+                        table = document.createElement('table');
+                        table.className = 'w-100';
+                        let thead = document.createElement('thead');
+                        let tr = document.createElement('tr');
+                        let th = document.createElement('th');
                         if (score.mode == "FastPress") {
-                            html += "<thead><tr><th>FastPress</th><th>Tries</th><th>Score</th><th>Errors</th><th>meanDelay</th></tr></thead><tbody>";
-                        }else if (score.mode == "FairyLights") {
-                            html += "<thead><tr><th>FairyLights</th></tr></thead><tbody>";
-                        }else if (score.mode == "ColorWar") {
-                            html += "<thead><tr><th>ColorWar</th><th>Duration</th>";
+                            th.textContent = "FastPress";
+                            tr.appendChild(th);
+                            thead.appendChild(tr);
+                            tr = document.createElement('tr');
+                            ["Tries", "Score", "Errors", "meanDelay"].forEach(text => {
+                                let th = document.createElement('th');
+                                th.textContent = text;
+                                tr.appendChild(th);
+                            });
+                        } else if (score.mode == "FairyLights") {
+                            th.textContent = "FairyLights";
+                            tr.appendChild(th);
+                            thead.appendChild(tr);
+                        } else if (score.mode == "ColorWar") {
+                            th.textContent = "ColorWar";
+                            th.colSpan = score.scores.length + 1;
+                            tr.appendChild(th);
+                            thead.appendChild(tr);
+                            tr = document.createElement('tr');
+                            let th1 = document.createElement('th');
+                            th1.textContent = "Duration";
+                            tr.appendChild(th1);
                             for (let i = 0; i < score.scores.length; i++) {
-                                html += "<th>Team "+(i+1)+"</th>";
+                                let th = document.createElement('th');
+                                th.textContent = "Team " + (i + 1);
+                                tr.appendChild(th);
+                                th.style.backgroundColor = "hsl("+i * 360 / score.scores.length+", 100%, 50%)";
                             }
-                            html += "</tr></thead><tbody>";
                         }
+                        thead.appendChild(tr);
+                        table.appendChild(thead);
+                        tbody = document.createElement('tbody');
                     }
-                    //add the row to the body
+                    let tr = document.createElement('tr');
                     if (score.mode == "FastPress") {
-                        html += "<tr><td></td><td>"+score.tries+"</td><td>"+score.score+"</td><td>"+score.errors+"</td><td>"+parseInt(score.meanDelay)/1000+"sec</td></tr>";
-                    }else if (score.mode == "FairyLights") {
-                        html += "<tr><td>No data in this mode</td></tr>";
-                    }else if (score.mode == "ColorWar") {
-                        html += "<tr><td></td><td>"+score.duration+"</td>"
-                        score.scores.forEach(teamScore => {
-                            html += "<td>"+teamScore+"%</td>";
+                        [score.tries, score.score, score.errors, parseInt(score.meanDelay) / 1000 + "sec"].forEach(text => {
+                            let td = document.createElement('td');
+                            td.textContent = text;
+                            tr.appendChild(td);
                         });
-                        html +="</tr>";
+                    } else if (score.mode == "FairyLights") {
+                        let td = document.createElement('td');
+                        td.textContent = "No data in this mode";
+                        tr.appendChild(td);
+                    } else if (score.mode == "ColorWar") {
+                        let td = document.createElement('td');
+                        td.textContent = score.duration;
+                        tr.appendChild(td);
+                        score.scores.forEach(teamScore => {
+                            let td = document.createElement('td');
+                            td.textContent = teamScore + "%";
+                            tr.appendChild(td);
+                        });
                     }
+                    tbody.appendChild(tr);
                 });
-                resultDiv.innerHTML = html+"</tbody></table>";
+                table.appendChild(tbody);
+                resultDiv.appendChild(table);
             }
             function loadScores() {
                 fetch("/score")
