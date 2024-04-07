@@ -12,10 +12,6 @@ uint8_t hue2rgb(uint8_t p, uint8_t q, uint16_t t) {
     return p;
 }
 
-//TODO : Il faudrait que la page web donne les couleurs des équipes
-//TODO : Il faudrait que le score soit avec les couleurs des équipes
-//TODO : La page score devrait avoir deux headers, un pour le mode et un pour les colonnes
-
 //TODO : Il faudrait peut-être mettre cette fonction dans un fichier utils.h
 Color ColorWarMode::hslToColor(uint16_t h, uint8_t s, uint8_t l) {
     Color c;
