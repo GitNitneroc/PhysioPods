@@ -14,6 +14,7 @@ class CapacitiveTouchControl : public PhysioPodControl {
         byte pin;
         //bool checking;
         bool state;
+        long lastDebounceTime = 0;
 };
 
 #endif // CAPACITIVETOUCHCONTROL_H
