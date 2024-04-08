@@ -3,7 +3,7 @@
 #include "CapacitiveTouchControl.h"
 #include "isDebug.h"
 
-#define CAPACITIVE_TOUCH_THRESHOLD 100000
+#define CAPACITIVE_TOUCH_THRESHOLD 40000
 
 CapacitiveTouchControl::CapacitiveTouchControl(byte pin){
     this->pin = pin;
@@ -21,6 +21,7 @@ void CapacitiveTouchControl::initialize(void (*callback)()){
 
 bool CapacitiveTouchControl::checkControl(){
     #ifdef USE_CAPACITIVE_TOUCH
+    //Serial.println(touchRead(pin));
     #ifdef USE_INVERTED_TOUCH
         bool newState=(touchRead(pin) > CAPACITIVE_TOUCH_THRESHOLD);
     #else
