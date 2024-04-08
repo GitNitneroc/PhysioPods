@@ -14,6 +14,7 @@
 
 //Our control
 #include "controls/ButtonControl.h"
+#include "controls/CapacitiveTouchControl.h"
 #include "modes/PhysioPodMode.h"
 
 #include "Messages.h"
@@ -26,11 +27,6 @@ using namespace Messages;
 //TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
 ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
-
-    //initialize the control
-    control = new ButtonControl(BUTTON_PIN);
-    control->initialize(onControlPressed);
-    PhysioPodMode::setControl(control);
 
     Serial.println("Starting as a client");
     #ifdef isDebug
@@ -156,7 +152,11 @@ ClientPod::ClientPod() {
     esp_now_register_recv_cb(this->OnDataReceived);
 
     //initialize the control
+    #ifdef USE_CAPACITIVE_TOUCH
+    control = new CapacitiveTouchControl(BUTTON_PIN);
+    #else
     control = new ButtonControl(BUTTON_PIN);
+    #endif
     control->initialize(onControlPressed);
     Serial.println("|-Control initialized");
 
