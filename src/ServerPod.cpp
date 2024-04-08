@@ -20,6 +20,8 @@
     #include "controls/ButtonControl.h"
 #endif
 
+#include "modes/PhysioPodMode.h"
+
 #include "Messages.h"
 using namespace Messages;
 
@@ -39,6 +41,7 @@ ServerPod::ServerPod() : server(80) {
         control = new ButtonControl(BUTTON_PIN);
     #endif
     control->initialize(onControlPressed);
+    PhysioPodMode::setControl(control);
 
     PhysioPodMode* mode = nullptr;
     instance = this;
@@ -194,6 +197,14 @@ void ServerPod::updatePod(){
     //TODO : do this is a separate task
     if (dnsServer != nullptr){
         dnsServer->processNextRequest();
+    }
+
+    if (PhysioPodMode::modeConstructor != nullptr){
+        //There is a new mode to start, this is the time to do it
+        PhysioPodMode* mode = PhysioPodMode::modeConstructor();
+        PhysioPodMode::modeConstructor = nullptr;
+        Serial.println(PhysioPodMode::currentMode==nullptr?"No mode running":"Mode running");
+        startMode(mode);
     }
 
     //update the game mode if there is one started

@@ -45,7 +45,7 @@ void createPod(){
         serverPod->server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
-        serverPod->server.addHandler(new ModeLaunchHandler(serverPod->startMode, serverPod->control)); //Handles the mode launch request
+        serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request
         serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
         serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests

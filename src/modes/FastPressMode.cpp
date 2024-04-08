@@ -11,6 +11,44 @@ void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numbe
     reset();
 }
 
+FastPressModeParameters FastPressMode::parameters = {0,0,0};
+
+bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
+    
+    AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
+    AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
+    AsyncWebParameter* triesParam = request->getParam("tries");
+    if (minIntervalParam == NULL || maxIntervalParam == NULL || triesParam == NULL) {
+        Serial.println("could not read a parameter");
+        return false;
+    }
+    //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
+    //remember this is in seconds
+    long minInterval = minIntervalParam->value().toInt();
+    long maxInterval = minInterval+ maxIntervalParam->value().toInt();
+    uint8_t tries = triesParam->value().toInt();
+    #ifdef isDebug
+    Serial.println("minInterval : "+ String(minInterval));
+    Serial.println("maxInterval : "+ String(maxInterval));
+    Serial.println("tries : "+ String(tries));
+    #endif
+
+    FastPressMode::parameters = {minInterval, maxInterval, tries};
+
+    PhysioPodMode::modeConstructor = generateMode;
+
+    return true;
+}
+
+PhysioPodMode* FastPressMode::generateMode() {
+    FastPressMode* newMode = new FastPressMode();
+    #ifdef isDebug
+    Serial.println("Mode created, initializing...");
+    #endif
+    newMode->initialize(FastPressMode::parameters.minInterval*1000, FastPressMode::parameters.maxInterval*1000, FastPressMode::parameters.numberOfTries);//this is in ms
+    return newMode;
+}
+
 void FastPressMode::onPodPressed(uint8_t id){
     #ifdef isDebug
     Serial.println("FastPressMode : pod "+String(id)+" pressed");
@@ -49,8 +87,7 @@ void FastPressMode::onPodPressed(uint8_t id){
     }
 }
 
-FastPressMode::FastPressMode(PhysioPodControl* control) {
-    this->control = control;
+FastPressMode::FastPressMode() {
 }
 
 void FastPressMode::stop() {

@@ -23,6 +23,36 @@ void FairyLightsMode::reset() {
     timer = 0;//this ensures that the first update will change the light
 }
 
+FairyLightsParameters FairyLightsMode::parameters = {0};
+
+bool FairyLightsMode::testRequestParameters(AsyncWebServerRequest *request) {
+
+    AsyncWebParameter* timeByPodParam = request->getParam("timeByPod");
+    if (timeByPodParam == NULL) {
+        Serial.println("could not read a parameter");
+        return false;
+    }
+
+    int timeByPod = timeByPodParam->value().toInt();
+
+    #ifdef isDebug
+    Serial.println("timeByPod : "+ String(timeByPod));
+    #endif
+
+    FairyLightsMode::parameters = {timeByPod};
+    PhysioPodMode::modeConstructor = generateMode;
+    return true;
+}
+
+PhysioPodMode* FairyLightsMode::generateMode() {
+    FairyLightsMode* newMode = new FairyLightsMode();
+    #ifdef isDebug
+    Serial.println("Mode created, initializing...");
+    #endif
+    newMode->initialize(FairyLightsMode::parameters.timeByPod);
+    return newMode;
+}
+
 FairyLightsMode::FairyLightsMode() {
     //do nothing
 }

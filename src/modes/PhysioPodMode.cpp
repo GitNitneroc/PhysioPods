@@ -2,6 +2,12 @@
 using namespace Messages;
 
 PhysioPodMode* PhysioPodMode::currentMode = nullptr;
+PhysioPodMode* (*PhysioPodMode::modeConstructor)() = nullptr;
+PhysioPodControl *PhysioPodMode::control = nullptr;
+
+void PhysioPodMode::setControl(PhysioPodControl *control) {
+    PhysioPodMode::control = control;
+}   
 
 /* 
     * this should be called by each Mode when stopping

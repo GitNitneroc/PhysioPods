@@ -2,12 +2,19 @@
 #include <Arduino.h>
 #include "controls/PhysioPodControl.h"
 #include "scoreStorage.h"
+#include "ESPAsyncWebServer.h"
 
 enum State{
     STOPPED,
     DURING_INTERVAL,
     WAIT_FOR_PRESS,
     WAIT_FOR_RELEASE
+};
+
+struct FastPressModeParameters {
+    long minInterval;
+    long maxInterval;
+    uint8_t numberOfTries;
 };
 
 /*
@@ -26,7 +33,6 @@ private:
     uint errors;
     uint8_t podToPress;
     State state;
-    PhysioPodControl* control;
 
     void updatePodToPress();
     void onError(uint8_t pod);
@@ -34,6 +40,10 @@ private:
     void onPodPressed(uint8_t id) override;
 
 public:
+    static FastPressModeParameters parameters;
+
+    static bool testRequestParameters(AsyncWebServerRequest *request);
+    static PhysioPodMode* generateMode();
     void initialize(long minInterval, long maxInterval, uint8_t numberOfTries); 
     void start();
     void stop();
@@ -42,6 +52,6 @@ public:
     String* returnScore();
     const char* getName() override { return "FastPress"; }
 
-    FastPressMode(PhysioPodControl* control);
+    FastPressMode();
     virtual ~FastPressMode() {}
 };

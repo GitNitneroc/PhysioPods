@@ -12,14 +12,12 @@ class ModeLaunchHandler : public AsyncWebHandler {
 private:
     String* htmlSuccess;
     String* htmlFail;
-    PhysioPodControl *control;
 
     void sendResponse(AsyncWebServerRequest *request, String* html);
-    void (*startMode)(PhysioPodMode* mode);
     void launchNewMode(PhysioPodMode* mode);
 
 public:
-    ModeLaunchHandler(void (*startMode)(PhysioPodMode* mode), PhysioPodControl *control);
+    ModeLaunchHandler();
     virtual ~ModeLaunchHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);

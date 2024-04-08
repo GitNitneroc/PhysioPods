@@ -14,6 +14,7 @@
 
 //Our control
 #include "controls/ButtonControl.h"
+#include "modes/PhysioPodMode.h"
 
 #include "Messages.h"
 using namespace Messages;
@@ -29,6 +30,7 @@ ClientPod::ClientPod() {
     //initialize the control
     control = new ButtonControl(BUTTON_PIN);
     control->initialize(onControlPressed);
+    PhysioPodMode::setControl(control);
 
     Serial.println("Starting as a client");
     #ifdef isDebug

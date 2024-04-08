@@ -1,6 +1,7 @@
 #include "ColorWarMode.h"
 #include "ServerPod.h"
 
+ColorWarParameters ColorWarMode::parameters = {0,0,0};
 
 uint8_t hue2rgb(uint8_t p, uint8_t q, uint16_t t) {
     /*Serial.println("p : " + String(p));
@@ -61,6 +62,39 @@ void ColorWarMode::reset() {
     for (uint8_t i = 0; i < nPods; i++) {
         ServerPod::setPodLightState(i, false);
     }
+}
+
+bool ColorWarMode::testRequestParameters(AsyncWebServerRequest *request) {
+    AsyncWebParameter* nColorsParam = request->getParam("nteams");
+    AsyncWebParameter* durationParam = request->getParam("duration");
+    AsyncWebParameter* probabilityParam = request->getParam("probability");
+    if (nColorsParam == NULL || durationParam == NULL || probabilityParam == NULL) {
+        Serial.println("could not read a parameter");
+        return false;
+    }
+
+    uint8_t nColors = nColorsParam->value().toInt();
+    uint16_t duration = durationParam->value().toInt();
+    float probability = probabilityParam->value().toFloat();
+
+    #ifdef isDebug
+    Serial.println("nColors : "+ String(nColors));
+    Serial.println("duration : "+ String(duration));
+    Serial.println("probability : "+ String(probability));
+    #endif
+
+    ColorWarMode::parameters = parameters = {nColors, duration, probability};
+    PhysioPodMode::modeConstructor = generateMode;
+    return true;
+}
+
+PhysioPodMode* ColorWarMode::generateMode() {
+    ColorWarMode* newMode = new ColorWarMode();
+    #ifdef isDebug
+    Serial.println("Mode created, initializing...");
+    #endif
+    newMode->initialize(parameters.nColors, parameters.duration, parameters.probability);
+    return newMode;
 }
 
 void ColorWarMode::start() {

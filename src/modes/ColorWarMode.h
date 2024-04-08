@@ -1,9 +1,16 @@
 #include "PhysioPodMode.h"
+#include "ESPAsyncWebServer.h"
 
 struct Color{
     uint8_t r;
     uint8_t g;
     uint8_t b;
+};
+
+struct ColorWarParameters{
+    uint8_t nColors;
+    uint16_t duration;
+    float probability;
 };
 
 class ColorWarMode : public PhysioPodMode {
@@ -27,10 +34,14 @@ protected :
     void generateColors();
     void resetScores();
     void resetPodsColors();
+    static ColorWarParameters parameters;
 
 public:
     void initialize(uint8_t nColors, uint16_t duration, float probability); //We could add team names ?
     
+    static bool testRequestParameters(AsyncWebServerRequest *request);
+    static PhysioPodMode* generateMode();
+
     const char* getName() override { return "ColorWarMode"; }
 
     void start() override;
