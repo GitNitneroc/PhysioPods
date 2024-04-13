@@ -4,8 +4,6 @@
 #include "modes/PhysioPodMode.h"
 #include "Arduino.h"
 
-//TODO : un bouton refresh pour forcer la mise à jour des scores
-
 /*
     * This is a request handler to get the scores in JSON format
 */
