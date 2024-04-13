@@ -7,7 +7,6 @@
 #include "Messages.h"
 #include <esp_now.h>
 
-//should receive the setPodLightState method from the serverPod
 LEDRequestHandler::LEDRequestHandler() {
 }
 
