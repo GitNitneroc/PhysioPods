@@ -3,12 +3,12 @@
 #include "isDebug.h"
 #include "ESPAsyncWebServer.h"
 #include "LEDRequestHandler.h"
+#include "ServerPod.h"
 #include "Messages.h"
 #include <esp_now.h>
 
 //should receive the setPodLightState method from the serverPod
-LEDRequestHandler::LEDRequestHandler(void (*setPodLightState)(uint8_t, bool, uint8_t, u_int8_t, u_int8_t)) {
-    this->setPodLightState = setPodLightState;
+LEDRequestHandler::LEDRequestHandler() {
 }
 
 bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
@@ -59,7 +59,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     }
 
     //let the serverPod handle the request
-    setPodLightState(destId, ledState, 122,50,50);
+    ServerPod::getInstance()->setPodLightState(destId, ledState, 122,50,50);
 
     //send some response to the client
     AsyncResponseStream *response = request->beginResponseStream("text/html");

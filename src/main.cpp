@@ -2,7 +2,6 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
-
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
@@ -42,7 +41,7 @@ void createPod(){
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
         serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request
         serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
-        serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests //TODO avec le singleton ServerPod::instance passer la fonction en param n'est probablement plus nécessaire
+        serverPod->server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }

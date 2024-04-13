@@ -5,11 +5,9 @@
  * The request should be in the form of "/LED?LED=ON&id=1", the order of the parameters matters !
 */
 class LEDRequestHandler : public AsyncWebHandler {
-private:
-    void (*setPodLightState)(uint8_t, bool, uint8_t, u_int8_t, u_int8_t);
     
 public:
-    LEDRequestHandler(void (*setPodLightState)(uint8_t, bool, uint8_t, u_int8_t, u_int8_t));
+    LEDRequestHandler();
     virtual ~LEDRequestHandler() {}
 
     bool canHandle(AsyncWebServerRequest *request);
