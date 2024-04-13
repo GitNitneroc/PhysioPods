@@ -1,10 +1,14 @@
-R"||(<!DOCTYPE html> 
+<!DOCTYPE html> 
 <html>
     <head>
         <title>PhysioPods results</title>
-        <link rel="stylesheet" href="lit.css">
+        <link rel="stylesheet" href="./css/lit.css">
         <script type="text/javascript">
             function displayScores(data) {
+                if (data.length == 0) {
+                    document.getElementById("results").innerHTML = "No scores to display yet...";
+                    return;
+                }
                 //example of data : [{"mode": "ColorWar", "duration": 4, "scores": [0.00, 0.00, 0.00, 59.52, 40.48]},{"mode": "FairyLights"},{"mode": "FastPress", "tries": 0, "score": 0, "errors": 0, "meanDelay": 0}]
                 let resultDiv = document.getElementById("results");
                 resultDiv.innerHTML = "";
@@ -96,9 +100,9 @@ R"||(<!DOCTYPE html>
                 <h1>PhysioPods</h1>
                 <hr>
                 <div class="row">
-                    <div class="col"><a href="/">Home</a></div>
+                    <div class="col"><a href="/static/index.html">Home</a></div>
                     <div class="col"><a href="/serverRegistration">Mac Address</a></div>
-                    <div class="col"><a href="/modeChoice">Choose a mode</a></div>
+                    <div class="col"><a href="/static/modeChoice.html">Choose a mode</a></div>
                     <b class="col">Results</b>
                     <div class="col"><a href="#">Docs</a></div>
                 </div>
@@ -121,4 +125,3 @@ R"||(<!DOCTYPE html>
         </div>
     </body>
 </html>
-)||"

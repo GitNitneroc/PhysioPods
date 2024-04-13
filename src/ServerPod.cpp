@@ -13,6 +13,8 @@
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
 
+#include "SPIFFS.h"
+
 //Our control
 #ifdef USE_CAPACITIVE_TOUCH
     #include "controls/CapacitiveTouchControl.h"
@@ -33,6 +35,8 @@ ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
     //generate a random session id
     sessionId = random(0, 65536);
+    
+    Serial.println("Starting as a server");
 
     //initialize the control
     #ifdef USE_CAPACITIVE_TOUCH
@@ -46,9 +50,22 @@ ServerPod::ServerPod() : server(80) {
     PhysioPodMode* mode = nullptr;
     instance = this;
 
-    Serial.println("Starting as a server");
+    //start the SPIFFS
+    if(!SPIFFS.begin(true)){
+        Serial.println("An Error has occurred while mounting SPIFFS, rebooting...");
+        ESP.restart();        
+    }
+    //test a file
+    if (!SPIFFS.exists("/www/index.html")) {
+        Serial.println("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
+        ESP.restart();
+        return;
+    }    
+    #ifdef isDebug
+    Serial.println("|-SPIFFS mounted successfully");
+    #endif
 
-    //stop the WiFi client
+    //stop the WiFi client just to be sure
     WiFi.disconnect();
     delay(1000); //not sure if this is necessary
 
@@ -79,6 +96,9 @@ ServerPod::ServerPod() : server(80) {
 
     Serial.println("|-Web server starting...");
     server.begin();
+
+    server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
+    Serial.println("|-Static files server initialised...");
 
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {

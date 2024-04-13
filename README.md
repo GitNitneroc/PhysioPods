@@ -1,6 +1,9 @@
 # Début de tests autour d'un projet de physiopods
 Pour l'instant l'objectif est juste d'avoir un proof of concept, le physiopod doit être capable d'être un serveur wifi et http.
 
+## Le projet utilise SPIFFS
+Il faut donc faire un "Upload FileSystem Image", en plus de l'upload du code
+
 ## Quel ESP utiliser ?
 Pour l'instant ce n'est testé que sur ESP32-S3
 l'ESP01 ne semble pas assez puissant (tous les ESP8266 doivent donc être concernés ?).

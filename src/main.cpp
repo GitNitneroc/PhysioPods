@@ -2,13 +2,12 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
+
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
 #include "handlers/ServerRegistrationHandler.h"
-#include "handlers/StaticHtmlHandler.h"
 #include "handlers/ModeLaunchHandler.h"
-#include "handlers/CSSRequestHandler.h"
 #include "handlers/ScoreJSONHandler.h"
 #include "handlers/ModeInfoHandler.h"
 #include "handlers/ModeStopHandler.h"
@@ -23,7 +22,7 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
-    //initialize the LED //TODO : this should be done in the pod
+    //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
@@ -39,17 +38,13 @@ void createPod(){
 
         Serial.println("Adding the web handlers to the server...");
         //handlers for the web server
-        //TODO : il existe un server.serveStatic, qui pourrait être utilisé pour les fichiers statiques, et qui permet de spécifier un cache-Control
-        //Ca utilise SPIFFS, il faut voir si ça vaut le coup ou pas... On peut aussi implémenter un cache-Control nous même
-        serverPod->server.addHandler(new StaticHtmlHandler()); //Handles the static html pages requests
-        serverPod->server.addHandler(new CSSRequestHandler()); //Handles the CSS requests
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
         serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request
         serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
-        serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests
+        serverPod->server.addHandler(new LEDRequestHandler(serverPod->setPodLightState)); //Handles the LED control requests //TODO avec le singleton ServerPod::instance passer la fonction en param n'est probablement plus nécessaire
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
-        serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched */
+        serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }
     //make sure the light is off
     pod->setOwnLightState(false);

@@ -1,8 +1,8 @@
-R"||(<!DOCTYPE html> 
+<!DOCTYPE html> 
 <html>
     <head>
         <title>PhysioPods</title>
-        <link rel="stylesheet" href="lit.css">
+        <link rel="stylesheet" href="./css/lit.css">
         <script type="text/javascript">
             function getModeInfo() {
                 fetch("/modeInfo")
@@ -32,22 +32,24 @@ R"||(<!DOCTYPE html>
                 <div class="row">
                     <b class="col">Home</b>
                     <div class="col"><a href="/serverRegistration">Mac Address</a></div>
-                    <div class="col"><a href="/modeChoice">Choose a mode</a></div>
-                    <div class="col"><a href="/results">Results</a></div>
+                    <div class="col"><a href="/static/modeChoice.html">Choose a mode</a></div>
+                    <div class="col"><a href="/static/results.html">Results</a></div>
                     <div class="col"><a href="#">Docs</a></div>
                 </div>
                 <hr>
             </div>
             <div class="row card" id="modeInfo">
-            <b>Current Mode information : </b>
                 <div class='row'>
-                    <div class='3 col' id='modeName'>Mode : ...Loading...</div>
-                    <div class='3 col' id='modeStatus'>...Loading...</div>
-                    <div class="3 col" id='modeStop'>
-                        <button name='stop' class="btn w-100" onclick='fetch("./modeStop")'>Stop Now</button>
+                    <div class='6 col'><b>Current Mode information : </b></div>
+                    <div class='6 col' id='modeName'>Mode : ...Loading...</div>
+                </div>
+                <div class='row'>
+                    <div class='4 col' id='modeStatus'>...Loading...</div>
+                    <div class="4 col" id='modeStop'>
+                        <button name='stop' class="btn w-100" onclick='fetch("/modeStop")'>Stop Now</button>
                     </div>
-                    <div class="3 col" id='modeLaunch'>
-                        <button name='Restart' class="btn w-100 primary" onclick='fetch("./launchMode?restart=1")'>Quick Relaunch</button>
+                    <div class="4 col" id='modeLaunch'>
+                        <button name='Restart' class="btn w-100 primary" onclick='fetch("/launchMode?restart=1")'>Quick Relaunch</button>
                     </div>
                 </div>
             </div>
@@ -56,10 +58,10 @@ R"||(<!DOCTYPE html>
                     <b>LED control :</b>
                     <div class="row">
                         <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("./LED?LED=ON&id=0")'>ServerPod LED ON</button>
+                            <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("/LED?LED=ON&id=0")'>ServerPod LED ON</button>
                         </div>
                         <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("./LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
+                            <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("/LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
                         </div>
                     </div>
                     <div class="row">
@@ -70,10 +72,10 @@ R"||(<!DOCTYPE html>
                     </div>
                     <div class="row">
                         <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("./LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
+                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
                         </div>
                         <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("./LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
+                            <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
                         </div>
                     </div>
                 </div>
@@ -82,5 +84,3 @@ R"||(<!DOCTYPE html>
         </div>
     </body>
 </html>
-
-)||"

@@ -5,17 +5,12 @@
 #include "modes/FastPressMode.h"
 #include "modes/FairyLightsMode.h"
 #include "modes/ColorWarMode.h"
+#include "SPIFFS.h"
 
 /*
     * This is a request handler to launch a mode.
 */
 ModeLaunchHandler::ModeLaunchHandler() {
-    this->htmlSuccess = new String(
-        #include "../html/modeLaunchSuccess.html"
-    );
-    this->htmlFail = new String(
-        #include "../html/modeLaunchFail.html"
-    );
 }
 
 bool ModeLaunchHandler::canHandle(AsyncWebServerRequest *request){
@@ -34,13 +29,13 @@ bool ModeLaunchHandler::canHandle(AsyncWebServerRequest *request){
     return false;
 }
 
-/*
-    Helper function to send the response to the client.
-*/
-void ModeLaunchHandler::sendResponse(AsyncWebServerRequest *request, String* html) {
-    AsyncResponseStream *response = request->beginResponseStream("text/html");
-    response->print(*html);
-    request->send(response);
+
+void ModeLaunchHandler::sendSuccessResponse(AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/www/modeLaunchSuccess.html", String(), false);
+}
+
+void ModeLaunchHandler::sendFailResponse(AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/www/modeLaunchFail.html", String(), false);
 }
 
 void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
@@ -55,10 +50,10 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
                 PhysioPodMode::currentMode->stop();
             }
             PhysioPodMode::currentMode->start();
-            sendResponse(request, htmlSuccess);
+            sendSuccessResponse(request);
         } else{
             Serial.println("No mode to restart");
-            sendResponse(request, htmlFail);
+            sendFailResponse(request);
         }
         return;
     }
@@ -73,9 +68,9 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println(PhysioPodMode::currentMode==nullptr?"No mode running":"Mode running");
         validParams = FastPressMode::testRequestParameters(request);
         if (validParams) {
-            sendResponse(request, htmlSuccess);
+            sendSuccessResponse(request);
         } else {
-            sendResponse(request, htmlFail);
+            sendFailResponse(request);
         }
         return;
     }else if (modeName == "CW"){
@@ -83,9 +78,9 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("User wants to launch ColorWar mode");
         validParams = ColorWarMode::testRequestParameters(request);
         if (validParams) {
-            sendResponse(request, htmlSuccess);
+            sendSuccessResponse(request);
         } else {
-            sendResponse(request, htmlFail);
+            sendFailResponse(request);
         }
         return;
     
@@ -94,14 +89,14 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         Serial.println("User wants to launch FairyLightsMode mode");
         validParams = FairyLightsMode::testRequestParameters(request);
         if (validParams) {
-            sendResponse(request, htmlSuccess);
+            sendSuccessResponse(request);
         } else {
-            sendResponse(request, htmlFail);
+            sendFailResponse(request);
         }
         return;
         
     } else {
         Serial.println("Mode not recognized");
-        sendResponse(request, htmlFail);
+        sendFailResponse(request);
     }
 }

@@ -13,7 +13,8 @@ private:
     String* htmlSuccess;
     String* htmlFail;
 
-    void sendResponse(AsyncWebServerRequest *request, String* html);
+    void sendSuccessResponse(AsyncWebServerRequest *request);
+    void sendFailResponse(AsyncWebServerRequest *request);
     void launchNewMode(PhysioPodMode* mode);
 
 public:
