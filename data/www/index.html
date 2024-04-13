@@ -39,16 +39,16 @@
                 <hr>
             </div>
             <div class="row card" id="modeInfo">
+                <b>Current Mode information : </b>
                 <div class='row'>
-                    <div class='6 col'><b>Current Mode information : </b></div>
                     <div class='6 col' id='modeName'>Mode : ...Loading...</div>
+                    <div class='6 col' id='modeStatus'>...Loading...</div>
                 </div>
                 <div class='row'>
-                    <div class='4 col' id='modeStatus'>...Loading...</div>
-                    <div class="4 col" id='modeStop'>
+                    <div class="6 col" id='modeStop'>
                         <button name='stop' class="btn w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
                     </div>
-                    <div class="4 col" id='modeLaunch'>
+                    <div class="6 col" id='modeLaunch'>
                         <button name='Restart' class="btn w-100 primary" onclick='fetch("/launchMode?restart=1").then(getModeInfo())'>Quick Relaunch</button>
                     </div>
                 </div>
