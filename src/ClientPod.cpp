@@ -171,6 +171,7 @@ ClientPod::ClientPod() {
 * This sends pings to the server in a while loop
 */
 void ClientPod::PingServer(void * pvParameters){
+    //TODO : this is where the client should also check if the server responded and restart otherwise
     //this should be run in its own task
     //create the ping
     PingMessage pingMsg;
