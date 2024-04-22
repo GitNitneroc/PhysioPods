@@ -132,7 +132,32 @@ ServerPod::ServerPod() : server(80) {
     esp_now_register_recv_cb(this->OnDataReceived);
     Serial.println("ESPNow callback registered");
 
+    //Check the clients' timeouts
+    xTaskCreate(
+        CheckClientTimeouts,  /* Task function. */
+        "CheckClientTimeouts",  /* String with name of task. */
+        10000,  /* Stack size in bytes. */
+        NULL,  /* Parameter passed as input of the task */
+        1,  /* Priority of the task. */
+        NULL);  /* Task handle. */
+    Serial.println("Check clients timeouts task started");
+
     Serial.println("ServerPod seems ready !");
+}
+
+void ServerPod::CheckClientTimeouts(void * vpParameters){
+    while (true){
+        delay(PING_INTERVAL);
+        ServerPod* sp = ServerPod::getInstance();
+        for (int i = 0; i < sp->peersNum; i++){
+            sp->clientsTimers[i]++; 
+            if (sp->clientsTimers[i] >= 2){
+                Serial.print("Timeout detected for pod : ");
+                Serial.println(i+1);
+                //TODO : remove this client
+            }
+        }
+    }
 }
 
 /* This should be called to start the specified PhysioPodMode*/
@@ -207,13 +232,14 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         PingMessage* pingMsg = (PingMessage*)data;
         if (pingMsg->sessionId != getInstance()->getSessionId()){
             #ifdef isDebug
-            Serial.println("Received a control message with a wrong session id");
+            Serial.println("Received a ping with a wrong session id");
             #endif
             return;
         }
         #ifdef isDebug
         Serial.println("Received a ping message from pod "+String(pingMsg->id));
         #endif
+        ServerPod::getInstance()->clientsTimers[pingMsg->id-1]=0; //reset the timer for this client
         //send a pong message
         SendPong(pingMsg->id);
         break;

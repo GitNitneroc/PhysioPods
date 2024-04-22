@@ -27,8 +27,10 @@ private :
     static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
     static void SendPong(uint8_t podId);
     
-public :
+    static void CheckClientTimeouts(void * vpParameters);
     
+public :
+    uint8_t clientsTimers[254]; //no need for 255 since id 0 is self //TODO this should be private
     static const uint8_t ip_addr_broadcast[6];
     static uint8_t peersNum; //number of peers connected to the server
     AsyncWebServer server;

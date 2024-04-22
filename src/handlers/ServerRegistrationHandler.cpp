@@ -65,6 +65,7 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
         #endif
     }else{
         //a new peer is connected !
+        ServerPod::getInstance()->clientsTimers[ServerPod::peersNum]=0;
         (ServerPod::peersNum)++;
 
         #ifdef isDebug
