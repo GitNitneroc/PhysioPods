@@ -128,6 +128,10 @@ ServerPod::ServerPod() : server(80) {
         Serial.println("Broadcast peer added");
     }
 
+    //receive callback
+    esp_now_register_recv_cb(this->OnDataReceived);
+    Serial.println("ESPNow callback registered");
+
     Serial.println("ServerPod seems ready !");
 }
 
@@ -158,6 +162,70 @@ void ServerPod::startMode(PhysioPodMode* newMode){
         //switch to the new mode, and start it
         PhysioPodMode::currentMode = newMode;
         PhysioPodMode::currentMode->start();
+    }
+}
+
+void ServerPod::SendPong(uint8_t podId){
+    //create the pong message
+    PingMessage pongMsg;
+    pongMsg.id = podId;
+    pongMsg.sessionId = ServerPod::getInstance()->sessionId;
+    //send the message
+    esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &pongMsg, sizeof(PingMessage));
+    if (result == ESP_OK) {
+        #ifdef isDebug
+        Serial.println("PongMessage broadcasted (pod "+String(podId)+")");
+        #endif
+    } else {
+        #ifdef isDebug
+        Serial.print("Error sending the ESP-NOW message : ");
+        Serial.println(esp_err_to_name(result));
+        #endif
+    }
+}
+
+void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len){
+    switch (len){
+    case sizeof(ControlMessage):{
+        ControlMessage* message = (ControlMessage*)data;
+        if (message->sessionId != getInstance()->getSessionId()){
+            #ifdef isDebug
+            Serial.println("Received a control message with a wrong session id");
+            #endif
+            return;
+        }
+        #ifdef isDebug
+        Serial.println("Received a control message from pod "+String(message->id));
+        #endif
+        if(PhysioPodMode::currentMode != nullptr && PhysioPodMode::currentMode->isRunning()){
+            //call the current mode's press callback
+            PhysioPodMode::currentMode->onPodPressed(message->id);
+        }
+        break;
+    }
+    case sizeof(PingMessage):{
+        PingMessage* pingMsg = (PingMessage*)data;
+        if (pingMsg->sessionId != getInstance()->getSessionId()){
+            #ifdef isDebug
+            Serial.println("Received a control message with a wrong session id");
+            #endif
+            return;
+        }
+        #ifdef isDebug
+        Serial.println("Received a ping message from pod "+String(pingMsg->id));
+        #endif
+        //send a pong message
+        SendPong(pingMsg->id);
+        break;
+    }
+    default:
+        Serial.print("Received a message of unknown length from ");
+        for (int i = 0; i < 6; i++) {
+            Serial.print(sender_addr[i], HEX);
+            if (i<5) Serial.print(":");
+        }
+        Serial.println();
+        break;
     }
 }
 

@@ -24,6 +24,8 @@
 class ServerPod : public PhysioPod {
 private :
     DNSServer* dnsServer = nullptr;
+    static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
+    static void SendPong(uint8_t podId);
     
 public :
     

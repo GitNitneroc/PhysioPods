@@ -18,14 +18,16 @@ void PhysioPodMode::stop() {
     #ifdef isDebug
     Serial.println("PhysioPodMode : Mode is currently stopping...");
     #endif
-    //let's clean things up
-    esp_now_unregister_recv_cb();
+    /* //let's clean things up
+    esp_now_unregister_recv_cb(); */
 
     running = false;
     reset();
 }
 
-void PhysioPodMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len){
+
+//TODO : remove those callbacks
+/* void PhysioPodMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len){
     switch (len){
     case sizeof(ControlMessage):{
         ControlMessage* message = (ControlMessage*)data;
@@ -45,15 +47,15 @@ void PhysioPodMode::OnDataReceived(const uint8_t * sender_addr, const uint8_t *d
         Serial.println();
         break;
     }
-}
+} */
 
 
 void PhysioPodMode::start() {
     #ifdef isDebug
     Serial.println("Starting mode...");
     #endif
-    //register the callback
-    esp_now_register_recv_cb(this->OnDataReceived);
+/*     //register the callback
+    esp_now_register_recv_cb(this->OnDataReceived); */
 
     running = true;
     currentMode = this;

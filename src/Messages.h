@@ -65,8 +65,8 @@ namespace Messages{
         bool state; //in case we need to send a state, but for now it's only sent once on the press
     };
 
-    struct PingMessage{
-        uint8_t id;
+    struct PingMessage{ //the same struct is used for ping (client->server) and pong (server->client)
+        uint8_t id; //always the id of the client (sender for ping, destination for pong)
         uint16_t sessionId;
     };
 

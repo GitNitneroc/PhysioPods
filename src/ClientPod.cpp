@@ -186,7 +186,7 @@ void ClientPod::PingServer(void * pvParameters){
             #endif
         } else {
             #ifdef isDebug
-            Serial.print("Error sending the ping message : ");
+            Serial.print("Error sending the ping message: ");
             Serial.println(esp_err_to_name(result));
             #endif
         }
