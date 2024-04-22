@@ -28,5 +28,5 @@ public :
     static ClientPod* getInstance(){
         return (ClientPod*)instance;
     }
-
+    static void PingServer(void * pvParameters);
 };

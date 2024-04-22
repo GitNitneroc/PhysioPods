@@ -151,6 +151,10 @@ ClientPod::ClientPod() {
 
     esp_now_register_recv_cb(this->OnDataReceived);
 
+    //start the ping task
+    xTaskCreate(PingServer,"PingTask", 2000, NULL, 1, NULL); //TODO measure more precisely how much memory is needed
+    Serial.println("  |-Ping Task created");
+
     //initialize the control
     #ifdef USE_CAPACITIVE_TOUCH
     control = new CapacitiveTouchControl(BUTTON_PIN);
@@ -160,8 +164,33 @@ ClientPod::ClientPod() {
     control->initialize(onControlPressed);
     Serial.println("|-Control initialized");
 
-
     Serial.println("ClientPod seems ready !");
+}
+
+/*
+* This sends pings to the server in a while loop
+*/
+void ClientPod::PingServer(void * pvParameters){
+    //this should be run in its own task
+    //create the ping
+    PingMessage pingMsg;
+    pingMsg.id = ((ClientPod*)getInstance())->id;
+    pingMsg.sessionId = instance->getSessionId();
+    while (true){
+        vTaskDelay(PING_INTERVAL / portTICK_PERIOD_MS);
+        //send the ping, there is no callback
+        esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &pingMsg, sizeof(PingMessage));
+        if (result == ESP_OK) {
+            #ifdef isDebug
+            Serial.println("Sent the ping message");
+            #endif
+        } else {
+            #ifdef isDebug
+            Serial.print("Error sending the ping message : ");
+            Serial.println(esp_err_to_name(result));
+            #endif
+        }
+    }
 }
 
 /* This method is called when the pod is in an error state

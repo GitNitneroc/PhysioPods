@@ -14,6 +14,8 @@
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
+void createPod();
+
 void setup(){
     Serial.begin(115200);
     #ifdef isDebug
@@ -25,6 +27,9 @@ void setup(){
     pinMode(LED_PIN, OUTPUT);
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
+
+    Serial.println("Creating the pod...");
+    createPod(); //pod should not be nullptr anymore
 }
 
 void createPod(){
@@ -50,11 +55,6 @@ void createPod(){
 }
 
 void loop(){
-    //finish the setup
-    if (pod == nullptr){
-        Serial.println("Creating the pod...");
-        createPod(); //pod should not be null anymore
-    }
-
+    //we could add a small delay, especially if we are a client
     pod->updatePod();
 }

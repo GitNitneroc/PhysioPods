@@ -10,7 +10,9 @@ namespace Messages{
         ERROR,
         NOT_FOR_ME,
         LED,
-        CONTROL
+        CONTROL,
+        PING,
+        ID_REORG
     };
 
     /*
@@ -61,6 +63,17 @@ namespace Messages{
         uint8_t id;
         uint16_t sessionId;
         bool state; //in case we need to send a state, but for now it's only sent once on the press
+    };
+
+    struct PingMessage{
+        uint8_t id;
+        uint16_t sessionId;
+    };
+
+    struct IdReorgMessage{
+        uint8_t oldId;
+        uint8_t newId;
+        uint16_t sessionId;
     };
 }
 //constexpr size_t debugSize = sizeof(ControlMessage);
