@@ -15,6 +15,20 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             message.messageData = pingMessage;
             break;
         }
+        case sizeof(IdReorgMessage):{
+            message.type = MessageType::ID_REORG;
+            IdReorgMessage* reorgMessage = (IdReorgMessage*)data;
+            //check sessiongId
+            if (reorgMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
+                message.type = MessageType::ERROR;
+            }
+            //check oldId
+            if (reorgMessage->oldId != PhysioPod::getInstance()->getId()){
+                message.type = MessageType::NOT_FOR_ME;
+            }
+            message.messageData = reorgMessage;
+            break;
+        }
         case sizeof(ControlMessage):{
             message.type = MessageType::CONTROL;
             ControlMessage* controlMessage = (ControlMessage*)data;

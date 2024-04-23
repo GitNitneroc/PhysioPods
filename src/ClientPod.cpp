@@ -253,6 +253,21 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             #endif
             break;
         }
+        case ID_REORG:{
+            IdReorgMessage* reorgMessage = (IdReorgMessage*)message.messageData;
+            #ifdef isDebug
+            Serial.println("Received an ID reorganization message");
+            Serial.println("-Old id : "+String(reorgMessage->oldId));
+            Serial.println("-New id : "+String(reorgMessage->newId));
+            #endif
+            if (reorgMessage->oldId == ((ClientPod*)instance)->id){
+                ((ClientPod*)instance)->id = reorgMessage->newId;
+                #ifdef isDebug
+                Serial.println("This pod's id has changed");
+                #endif
+            }
+            break;
+        }
         default:
             break;
     }

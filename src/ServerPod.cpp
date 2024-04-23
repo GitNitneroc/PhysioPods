@@ -154,7 +154,21 @@ void ServerPod::CheckClientTimeouts(void * vpParameters){
             if (sp->clientsTimers[i] >= 2){
                 Serial.print("Timeout detected for pod : ");
                 Serial.println(i+1);
-                //TODO : remove this client
+                if (i<sp->peersNum-1){ //this is not the last pod
+                    //create the reorg message
+                    IdReorgMessage reorgMsg;
+                    reorgMsg.newId = i+1;
+                    reorgMsg.oldId = sp->peersNum;
+                    reorgMsg.sessionId = sp->sessionId;
+                    Serial.print("Asking pod ");
+                    Serial.print(sp->peersNum);
+                    Serial.print(" to switch to id ");
+                    Serial.println(i+1);
+                    sp->clientsTimers[i] = 0; //reset the timer for the reorged pod
+                    //send reorg message
+                    esp_now_send(ip_addr_broadcast, (uint8_t *) &reorgMsg, sizeof(IdReorgMessage));
+                }
+                sp->peersNum--;
             }
         }
     }

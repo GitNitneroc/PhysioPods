@@ -70,10 +70,11 @@ namespace Messages{
         uint16_t sessionId;
     };
 
-    struct IdReorgMessage{
+    struct IdReorgMessage{//this is used to reorganize the ids of a pod, switch him from old to newId
         uint8_t oldId;
         uint8_t newId;
         uint16_t sessionId;
+        uint32_t space; //TODO : this is to have a different size of struct, for parsing
     };
 }
 //constexpr size_t debugSize = sizeof(ControlMessage);
