@@ -164,7 +164,7 @@ void ServerPod::CheckClientTimeouts(void * vpParameters){
                     Serial.print(sp->peersNum);
                     Serial.print(" to switch to id ");
                     Serial.println(i+1);
-                    sp->clientsTimers[i] = 0; //reset the timer for the reorged pod
+                    sp->clientsTimers[i] = 0; //reset the timer for the reorg'ed pod
                     //send reorg message
                     esp_now_send(ip_addr_broadcast, (uint8_t *) &reorgMsg, sizeof(IdReorgMessage));
                 }
@@ -213,7 +213,7 @@ void ServerPod::SendPong(uint8_t podId){
     esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &pongMsg, sizeof(PingMessage));
     if (result == ESP_OK) {
         #ifdef isDebug
-        Serial.println("PongMessage broadcasted (pod "+String(podId)+")");
+        //Serial.println("PongMessage broadcasted (pod "+String(podId)+")");
         #endif
     } else {
         #ifdef isDebug
@@ -251,7 +251,7 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             return;
         }
         #ifdef isDebug
-        Serial.println("Received a ping message from pod "+String(pingMsg->id));
+        //Serial.println("Received a ping message from pod "+String(pingMsg->id));
         #endif
         ServerPod::getInstance()->clientsTimers[pingMsg->id-1]=0; //reset the timer for this client
         //send a pong message

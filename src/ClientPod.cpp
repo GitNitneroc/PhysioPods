@@ -175,10 +175,10 @@ void ClientPod::PingServer(void * pvParameters){
     //this should be run in its own task
     //create the ping
     PingMessage pingMsg;
-    pingMsg.id = ((ClientPod*)getInstance())->id;
     pingMsg.sessionId = instance->getSessionId();
     while (true){
         vTaskDelay(PING_INTERVAL / portTICK_PERIOD_MS);
+        pingMsg.id = ((ClientPod*)getInstance())->id;//the id is susceptible to change, so we need to get it every time
         //send the ping, there is no callback
         esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &pingMsg, sizeof(PingMessage));
         if (result == ESP_OK) {
