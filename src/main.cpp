@@ -28,6 +28,7 @@ void setup(){
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
+    //TODO : plutôt que lister les wifi, une connection serait probablement plus rapide
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
 
     Serial.println("Creating the pod...");
