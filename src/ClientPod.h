@@ -19,6 +19,7 @@ class ClientPod : public PhysioPod {
 private :
     uint8_t serverMac[6];
     static void OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len);
+    static uint8_t serverTimer; //this counts the number of times the server didn't send a pong
 
 public :
     ClientPod();

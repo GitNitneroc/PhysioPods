@@ -23,6 +23,8 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
+    WiFi.persistent(false); //don't save the wifi settings
+
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 

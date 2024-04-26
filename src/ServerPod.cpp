@@ -27,9 +27,34 @@
 #include "Messages.h"
 using namespace Messages;
 
+#define LIMIT_AP_START_ATTEMPTS 100 //The number of attempts a serverpod makes to start the AP before restarting
+
 //ServerPod* ServerPod::instance = nullptr;
 const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 uint8_t ServerPod::peersNum = 0;
+
+void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
+    //This is used to make sure the AP is started before we continue
+    //Serial.println("AP started");
+    ServerPod::getInstance()->APStarted = true;
+}
+/* 
+void WiFiEvent(WiFiEvent_t event){
+    //Serial.println( "[WiFi-event] event: " + event );
+    switch (event) {
+        case ARDUINO_EVENT_WIFI_AP_START :
+            Serial.println("AP started");
+            ServerPod::getInstance()->APStarted = true;
+            break;
+	    case ARDUINO_EVENT_WIFI_AP_STOP:
+            Serial.println("AP Stopped !");
+            ServerPod::getInstance()->APStarted = false;
+            break;
+        default:
+            Serial.println("Other wifiEvent");
+            break;
+    }
+} */
 
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
@@ -70,22 +95,37 @@ ServerPod::ServerPod() : server(80) {
     delay(1000); //not sure if this is necessary
 
     //initialize the WiFi hotspot
-    Serial.println("|-Hotsport starting...");
+    Serial.print("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
     if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
-        Serial.println("Failed to start the hotspot, restarting the device");
+        Serial.println("\nFailed to start the hotspot, restarting the device");
         ESP.restart();
     }
 
+    WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
+    //WiFi.onEvent(WiFiEvent);
+    uint8_t i = 0;
+    while (!APStarted ){
+        i++;
+        delay(100);
+        Serial.print(".");
+        if (i > LIMIT_AP_START_ATTEMPTS){
+            //if the hotspot failed to start, restart the device
+            Serial.println("\nFailed to start the hotspot, restarting the device");
+            ESP.restart();
+        }
+    }
+    WiFi.removeEvent(WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
+    Serial.println("\n  |-HotSpot started");
+
     //set the IP address of the hotspot
-    delay(100); //a small delay is necessary, or check for SYSTEM_EVENT_AP_START (probablement WiFi.onEvent(callbackFunc, WiFiEvent_t::SYSTEM_EVENT_AP_START))
-    Serial.println("|-Set softAPConfig");
+    Serial.println("  |-Setting softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
     IPAddress NMask(255, 255, 255, 0);
     WiFi.softAPConfig(Ip, Ip, NMask);
     #ifdef isDebug
-    Serial.print("  |-AP IP address: ");
+    Serial.print("    |-AP IP address: ");
     Serial.println(WiFi.softAPIP());
     #endif
 
@@ -112,7 +152,6 @@ ServerPod::ServerPod() : server(80) {
     //add broadcast mac address to the peers
     //TODO : actually check this is needed, I read somewhere that it's not necessary
     uint8_t broadcastMac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    
     // Register peer
     esp_now_peer_info_t peerInfo;
     memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !

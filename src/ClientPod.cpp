@@ -23,6 +23,7 @@ using namespace Messages;
 //The number of attempts a clientpod makes to connect to the WiFi before restarting
 #define LIMIT_CONNECTION_ATTEMPTS 20 
 
+uint8_t ClientPod::serverTimer = 0;
 
 //TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
 ClientPod::ClientPod() {
@@ -30,7 +31,7 @@ ClientPod::ClientPod() {
 
     Serial.println("Starting as a client");
     #ifdef isDebug
-    Serial.println("|-Connecting to WiFi as a client\n|");
+    Serial.print("|-Connecting to WiFi as a client");
     #endif
 
     WiFi.mode(WIFI_STA);
@@ -39,19 +40,19 @@ ClientPod::ClientPod() {
     WiFi.begin(ssid, password);
     uint8_t i = 0;
     while (WiFi.status() != WL_CONNECTED){
-        delay(500);
+        delay(250);
         #ifdef isDebug
-        Serial.print("-");
+        Serial.print(".");
         #endif
         if (i++ > LIMIT_CONNECTION_ATTEMPTS){
             #ifdef isDebug
-            Serial.println("Failed to connect to WiFi, restarting the device");
+            Serial.println("\nFailed to connect to WiFi, restarting the device");
             #endif
             ESP.restart();
         }
     }
     #ifdef isDebug
-    Serial.println("|-Connected to WiFi");
+    Serial.println("\n|-Connected to WiFi");
     #endif
 
     //get the server mac address
@@ -152,6 +153,7 @@ ClientPod::ClientPod() {
     esp_now_register_recv_cb(this->OnDataReceived);
 
     //start the ping task
+    serverTimer = 0;
     xTaskCreate(PingServer,"PingTask", 2000, NULL, 1, NULL); //TODO measure more precisely how much memory is needed
     Serial.println("  |-Ping Task created");
 
@@ -183,13 +185,29 @@ void ClientPod::PingServer(void * pvParameters){
         esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &pingMsg, sizeof(PingMessage));
         if (result == ESP_OK) {
             #ifdef isDebug
-            Serial.println("Sent the ping message");
+            //Serial.println("Sent the ping message");
             #endif
         } else {
             #ifdef isDebug
             Serial.print("Error sending the ping message: ");
             Serial.println(esp_err_to_name(result));
             #endif
+        }
+
+        //check if the server responded
+        serverTimer++;
+        if (serverTimer >=2){
+            uint8_t restartDelay = 2; //add a 2 sec delay to let the pod n1 restart first
+            if (getInstance()->getId() == 1){
+                restartDelay = 0;
+            }
+            #ifdef isDebug
+            Serial.print("Server didn't respond to the ping, restarting the device in ");
+            Serial.print(restartDelay);
+            Serial.println(" seconds");
+            #endif
+            delay(restartDelay*1000);//This delay is to avoid all the pods restarting at the same time
+            esp_restart();
         }
     }
 }
@@ -266,6 +284,12 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
                 Serial.println("This pod's id has changed");
                 #endif
             }
+            break;
+        }
+        case PING:{
+            //the getMessageType() used above already checked if the message was for this pod,
+            //it would be ERROR or NOT_FOR_ME otherwise
+            serverTimer = 0;//reset the server timer
             break;
         }
         default:
