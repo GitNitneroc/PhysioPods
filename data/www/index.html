@@ -22,9 +22,17 @@
                     }
                 });
             }
+
+            function getPeers() {
+                fetch("/peers")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("peers").innerHTML = data.peers+1;
+                });
+            }
         </script>
     </head>
-    <body onload="getModeInfo()">
+    <body onload="getModeInfo();getPeers()">
         <div class="c">
             <div class="row card">
                 <h1>PhysioPods</h1>
@@ -76,6 +84,17 @@
                         </div>
                         <div class="6 col">
                             <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p>Control <span id='peers'>0</span> pods :</p>
+                    </div>
+                    <div class="row">
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id=255")'>ALL ON</button>
+                        </div>
+                        <div class="6 col">
+                            <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id=255")'>ALL OFF</button>
                         </div>
                     </div>
                 </div>

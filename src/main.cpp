@@ -10,11 +10,11 @@
 #include "handlers/ScoreJSONHandler.h"
 #include "handlers/ModeInfoHandler.h"
 #include "handlers/ModeStopHandler.h"
+#include "handlers/PeersNumHandler.h"
 
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
-//TODO : add a handler to get the number of pods
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
 
 void createPod();
@@ -53,6 +53,7 @@ void createPod(){
         Serial.println("Adding the web handlers to the server...");
         //handlers for the web server
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
+        serverPod->server.addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
         serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request
         serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
