@@ -9,8 +9,6 @@
 #include <ESPAsyncTCP.h>
 #endif
 
-//TODO : Introduce a keep-alive espnow message, sent by the server... and make the client respond to it, or just restart if no keep-alive is received for a while
-
 PhysioPod* PhysioPod::instance = nullptr;
 
 uint16_t PhysioPod::getSessionId(){
@@ -82,7 +80,7 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
     bool found = false;
     Serial.println("Found "+String(n)+" networks");
 
-    //TODO : this could help to find the best channel
+    //remark : this could help to find the best channel
     for (int i = 0; i < n; i++){
         #ifdef isDebug
         Serial.print(" - "+WiFi.SSID(i));

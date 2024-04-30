@@ -74,7 +74,7 @@ namespace Messages{
         uint8_t oldId;
         uint8_t newId;
         uint16_t sessionId;
-        uint32_t space; //TODO : this is to have a different size of struct, for parsing
+        uint32_t space; //Note : this is a bit stupid, but makes us a different size of struct, for parsing purposes. Since this msg is not often used it's no big deal
     };
 }
 //constexpr size_t debugSize = sizeof(ControlMessage);
