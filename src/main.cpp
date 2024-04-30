@@ -14,6 +14,9 @@
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
+//TODO : add a handler to get the number of pods
+//TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
+
 void createPod();
 
 void setup(){
@@ -28,8 +31,12 @@ void setup(){
     //initialize the LED
     pinMode(LED_PIN, OUTPUT);
 
-    //TODO : plutôt que lister les wifi, une connection serait probablement plus rapide
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
+    if (shouldBeClient){
+        Serial.println("Server found ! Starting as a client...");
+    }else{
+        Serial.println("No server found ! Starting as a server...");
+    }
 
     Serial.println("Creating the pod...");
     createPod(); //pod should not be nullptr anymore

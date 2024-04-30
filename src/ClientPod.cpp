@@ -20,40 +20,38 @@
 #include "Messages.h"
 using namespace Messages;
 
-//The number of attempts a clientpod makes to connect to the WiFi before restarting
-#define LIMIT_CONNECTION_ATTEMPTS 20 
-
 uint8_t ClientPod::serverTimer = 0;
 
 //TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
+//This will initialize a new Client Pod. The wifi can already be connected to the PhysioPod network, or not, it will connect if needed
 ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
 
     Serial.println("Starting as a client");
-    #ifdef isDebug
-    Serial.print("|-Connecting to WiFi as a client");
-    #endif
-
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
-    WiFi.begin(ssid, password);
-    uint8_t i = 0;
-    while (WiFi.status() != WL_CONNECTED){
-        delay(250);
+    //check if we are already connected to the PhysioPod network
+    if (WiFi.status() == WL_CONNECTED && WiFi.SSID() == ssid){
         #ifdef isDebug
-        Serial.print(".");
+        Serial.println("|-Already connected to the PhysioPod network !");
         #endif
-        if (i++ > LIMIT_CONNECTION_ATTEMPTS){
+    }else{
+        WiFi.mode(WIFI_STA);
+        WiFi.disconnect();
+        delay(100);
+
+        #ifdef isDebug
+        Serial.print("|-Connecting to WiFi as a client");
+        #endif
+        if (PhysioPod::searchOtherPhysioWiFi()){
             #ifdef isDebug
-            Serial.println("\nFailed to connect to WiFi, restarting the device");
+            Serial.println("  |-Connected to WiFi");
+            #endif
+        }else{
+            #ifdef isDebug
+            Serial.println("  |-Failed to connect to WiFi, restarting the device");
             #endif
             ESP.restart();
         }
     }
-    #ifdef isDebug
-    Serial.println("\n|-Connected to WiFi");
-    #endif
 
     //get the server mac address
     WiFiClient client;

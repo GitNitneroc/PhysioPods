@@ -18,6 +18,43 @@ uint16_t PhysioPod::getSessionId(){
 }
 
 bool PhysioPod::searchOtherPhysioWiFi(){
+    //this will try to connect to the PhysioPod network and return true if it succeeded
+    //if it fails, it will return false
+    #ifdef isDebug
+    Serial.println("Trying to connect to the PhysioPod network");
+    #endif
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
+    delay(100);
+    WiFi.begin(ssid, password);
+    bool LEDState = true;
+    //limit connection time
+    unsigned long start = millis();
+    while (WiFi.status() != WL_CONNECTED && millis()-start<CONNECTION_TIMEOUT){
+        #ifdef USE_NEOPIXEL
+        setOwnLightState(LEDState, 4,75,13);
+        #else
+        setOwnLightState(LEDState);
+        #endif
+        LEDState = !LEDState;
+        delay(200);
+    }
+    setOwnLightState(false);
+    if (WiFi.status() == WL_CONNECTED){
+        /* #ifdef isDebug
+        Serial.println("Connected to the PhysioPod network !");
+        #endif */
+        return true;
+    }else{
+        /* #ifdef isDebug
+        Serial.println("Failed to connect to the PhysioPod network");
+        #endif */
+        return false;
+    }
+}
+
+/* older version of the searchOtherPhysioWiFi function, that used a wifi scan... it was too slow, but could be interesting to select the best channel
+bool PhysioPod::SearchOtherPhysioWiFi(){
     #ifdef isDebug
     Serial.println("Scanning for other PhysioPods...");
     #endif
@@ -64,6 +101,7 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     delay(100);
     return found;
 }
+*/
 
 void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
     #ifndef USE_NEOPIXEL
