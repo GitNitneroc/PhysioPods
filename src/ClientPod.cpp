@@ -22,7 +22,6 @@ using namespace Messages;
 
 uint8_t ClientPod::serverTimer = 0;
 
-//TODO : this is a bit of a mess, we should refactor this, each initialization step should be in a separate method
 //This will initialize a new Client Pod. The wifi can already be connected to the PhysioPod network, or not, it will connect if needed
 ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
@@ -171,7 +170,6 @@ ClientPod::ClientPod() {
 * This sends pings to the server in a while loop
 */
 void ClientPod::PingServer(void * pvParameters){
-    //TODO : this is where the client should also check if the server responded and restart otherwise
     //this should be run in its own task
     //create the ping
     PingMessage pingMsg;
@@ -204,7 +202,8 @@ void ClientPod::PingServer(void * pvParameters){
             Serial.print(restartDelay);
             Serial.println(" seconds");
             #endif
-            delay(restartDelay*1000);//This delay is to avoid all the pods restarting at the same time
+            delay(restartDelay*1000+PING_INTERVAL);//This delay is to avoid all the pods restarting at the same time
+            //PING_INTERVAL is added to make sure the client with id 1 has detected the timeout too
             esp_restart();
         }
     }
