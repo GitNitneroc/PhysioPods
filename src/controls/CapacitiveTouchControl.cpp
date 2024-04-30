@@ -6,6 +6,10 @@
 #define CAPACITIVE_TOUCH_THRESHOLD 40000
 #define debounceDelay 50
 
+//TODO : have a look at https://github.com/ESP32DE/esp-iot-solution-1/blob/master/documents/touch_pad_solution/touch_sensor_design_en.md#2-introduction-to-the-esp32-touch-sensor-system
+//especially esp_err_t touch_pad_filter_start(uint32_t filter_period_ms)
+//and esp_err_t touch_pad_read_filtered(touch_pad_t touch_num, uint16_t *touch_value)
+
 CapacitiveTouchControl::CapacitiveTouchControl(byte pin){
     this->pin = pin;
     //this->checking = false;
