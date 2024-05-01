@@ -9,6 +9,8 @@ ButtonControl::ButtonControl(byte pin){
     this->pin = pin;
     //this->checking = false;
     this->state = false;
+    this->lastDebounceTime = 0;
+    this->onPressedCallback = nullptr;
 }
 
 void ButtonControl::initialize(void (*callback)()){

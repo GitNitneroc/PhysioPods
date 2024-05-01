@@ -10,8 +10,8 @@
 */
 class ModeLaunchHandler : public AsyncWebHandler {
 private:
-    String* htmlSuccess;
-    String* htmlFail;
+    /* String* htmlSuccess;
+    String* htmlFail; */
 
     void sendSuccessResponse(AsyncWebServerRequest *request);
     void sendFailResponse(AsyncWebServerRequest *request);

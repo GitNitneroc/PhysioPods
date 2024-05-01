@@ -10,10 +10,10 @@
 */
 class ButtonControl: public PhysioPodControl {
     public:
-        ButtonControl(byte pin);
-        void initialize(void (*callback)());
+        explicit ButtonControl(byte pin);
+        void initialize(void (*callback)()) override;
         //void stop();
-        bool checkControl();
+        bool checkControl() override;
     private:
         byte pin;
         //bool checking;

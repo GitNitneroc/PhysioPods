@@ -88,6 +88,14 @@ void FastPressMode::onPodPressed(uint8_t id){
 }
 
 FastPressMode::FastPressMode() {
+    state = STOPPED;
+    score = 0;
+    errors = 0;
+    pressDelay = 0;
+    currentTry = 0;
+    podToPress = 0;
+    interval = 0;
+    timer = 0;
 }
 
 void FastPressMode::stop() {

@@ -176,9 +176,10 @@ void ClientPod::PingServer(void * pvParameters){
     pingMsg.sessionId = instance->getSessionId();
     while (true){
         vTaskDelay(PING_INTERVAL / portTICK_PERIOD_MS);
-        pingMsg.id = ((ClientPod*)getInstance())->id;//the id is susceptible to change, so we need to get it every time
+        pingMsg.id = static_cast<ClientPod*>(getInstance())->id;//the id is susceptible to change, so we need to get it every time
         //send the ping, there is no callback
-        esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &pingMsg, sizeof(PingMessage));
+        //esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &pingMsg, sizeof(PingMessage));
+        esp_err_t result = esp_now_send(static_cast<ClientPod*>(instance)->serverMac, reinterpret_cast<uint8_t*>(&pingMsg), sizeof(PingMessage));
         if (result == ESP_OK) {
             #ifdef isDebug
             //Serial.println("Sent the ping message");

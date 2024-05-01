@@ -5,10 +5,10 @@
 
 class CapacitiveTouchControl : public PhysioPodControl {
     public:
-        CapacitiveTouchControl(byte pin);
-        void initialize(void (*callback)());
+        explicit CapacitiveTouchControl(byte pin);
+        void initialize(void (*callback)()) override;
         //void stop();
-        bool checkControl();
+        bool checkControl() override;
 
     private:
         byte pin;
