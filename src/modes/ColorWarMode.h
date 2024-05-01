@@ -1,11 +1,6 @@
 #include "PhysioPodMode.h"
 #include "ESPAsyncWebServer.h"
-
-struct Color{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-};
+#include "ColorUtils.h"
 
 struct ColorWarParameters{
     uint8_t nColors;
@@ -22,10 +17,6 @@ protected :
     uint8_t podsColors[255];//the colors of each pod
     long scores[255];//the scores of each color
     Color colors[255];//the rgb codes of each color in the game
-    /* Older code when we used std::vector
-    std::vector<uint8_t> podsColors;//the colors of each pod
-    std::vector<long> scores;//the scores of each color
-    std::vector<Color> colors;//the rgb codes of each color in the game */
     uint16_t duration;//the duration of the game
     unsigned long StartTimer;
     unsigned long lastTest;
