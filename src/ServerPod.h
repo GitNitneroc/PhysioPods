@@ -30,7 +30,7 @@ private :
     static void CheckClientTimeouts(void * vpParameters);
 
 public :
-    uint8_t clientsTimers[254]; //no need for 255 since id 0 is self //TODO this should be private
+    uint8_t clientsTimers[254]; //no need for 255 since id 0 is self 
     static const uint8_t ip_addr_broadcast[6];
     static uint8_t peersNum; //number of peers connected to the server
     AsyncWebServer server;
