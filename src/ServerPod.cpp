@@ -64,13 +64,9 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("Starting as a server");
 
     //initialize the control
-    #ifdef USE_CAPACITIVE_TOUCH
-        control = new CapacitiveTouchControl(BUTTON_PIN);
-    #else
-        control = new ButtonControl(BUTTON_PIN);
-    #endif
+    PhysioPod::CreateControl();
     control->initialize(onControlPressed);
-    PhysioPodMode::setControl(control);
+    Serial.println("|-Control initialized");
 
     PhysioPodMode* mode = nullptr;
     instance = this;
@@ -381,6 +377,7 @@ void ServerPod::updatePod(){
         //also update the control
         //We could also wait a bit, to avoid updating the control too often
         if (control != nullptr){
+            //Serial.println("Updating control");
             bool state = control->checkControl();
         }else{
             #ifdef isDebug

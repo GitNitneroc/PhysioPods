@@ -12,11 +12,6 @@
 
 #include <esp_now.h>
 
-//Our control
-#include "controls/ButtonControl.h"
-#include "controls/CapacitiveTouchControl.h"
-#include "modes/PhysioPodMode.h"
-
 #include "Messages.h"
 using namespace Messages;
 
@@ -155,11 +150,7 @@ ClientPod::ClientPod() {
     Serial.println("  |-Ping Task created");
 
     //initialize the control
-    #ifdef USE_CAPACITIVE_TOUCH
-    control = new CapacitiveTouchControl(BUTTON_PIN);
-    #else
-    control = new ButtonControl(BUTTON_PIN);
-    #endif
+    PhysioPod::CreateControl();
     control->initialize(onControlPressed);
     Serial.println("|-Control initialized");
 

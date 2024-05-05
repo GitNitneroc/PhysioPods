@@ -9,7 +9,10 @@
 #include <ESPAsyncTCP.h>
 #endif
 
+//Our control
 #include "controls/ButtonControl.h"
+#include "controls/CapacitiveTouchControl.h"
+#include "modes/PhysioPodMode.h"
 
 class PhysioPod {
 protected :
@@ -33,6 +36,8 @@ public :
     }
 
     virtual void updatePod() = 0;
+
+    void CreateControl(); //This will create the control for the pod, but it will not call initialize on it
 
     PhysioPodControl* control = nullptr;
 

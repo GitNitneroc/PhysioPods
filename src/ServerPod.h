@@ -14,9 +14,6 @@
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
 
-//Our control
-#include "controls/ButtonControl.h"
-
 #include "modes/PhysioPodMode.h"
 
 #include "scoreStorage.h"

@@ -51,6 +51,15 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     }
 }
 
+void PhysioPod::CreateControl(){
+    #ifdef USE_CAPACITIVE_TOUCH
+        control = new CapacitiveTouchControl(BUTTON_PIN);
+    #else
+        control = new ButtonControl(BUTTON_PIN);
+    #endif
+    PhysioPodMode::setControl(control);
+}
+
 /* older version of the searchOtherPhysioWiFi function, that used a wifi scan... it was too slow, but could be interesting to select the best channel
 bool PhysioPod::SearchOtherPhysioWiFi(){
     #ifdef isDebug
