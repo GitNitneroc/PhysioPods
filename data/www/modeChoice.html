@@ -21,29 +21,15 @@
 			<div class="c">
 				<form>
 					<div class="row">
-						<div class="4 col">
-							<input type="radio" id="mode1" name="mode" value="FP" onclick='show("mode1Details")'>
-							<label for="mode1"> FastPress</label>
-						</div>
-						<div class="4 col">
-							<input type="radio" id="mode2" name="mode" value="FL" onclick='show("mode2Details")'>
-							<label for="mode2"> Fairy Lights</label>
-						</div>
-						<div class="4 col">
-							<input type="radio" id="mode3" name="mode" value="CW" onclick='show("mode3Details");displayColorWarTeams()'>
-							<label for="mode3"> Color War</label>
-						</div>
-					</div>
-					<div class="row">
-						<div class="4 col">
-							<input type="radio" id="mode4" name="mode" value="M4" disabled>
-							<label for="mode4"> ... le mode4 n&apos;existe pas</label>
-						</div>
+						<div class="col"><input type="button" class="w-100 col btn" value="Fast Press" onclick='show("mode1Details")'></div>
+						<div class="col"><input type="button" class="w-100 col btn" value="Fairy Lights" onclick='show("mode2Details")'></div>
+						<div class="col"><input type="button" class="w-100 col btn" value="Fast Press" onclick='show("mode3Details")'></div>
+						<div class="col"><input type="button" class="w-100 col btn" value="Fast Press" onclick='show("mode4Details")'></div>
 					</div>
 				</form>
 				<div id = "details">
 					<div id="mode1Details" style="display:none">
-					<hr>
+					
 						<h2>FastPress</h2>
 						<p>Press the button as fast as you can for 10 seconds</p>
 						<form action="/launchMode">
@@ -58,7 +44,6 @@
 						</form>
 					</div>
 					<div id="mode2Details" style="display:none">
-					<hr>
 						<h2>FairyLights</h2>
 						<p>Pods will get lit one by one, there is no interaction with user.</p>
 						<form action="/launchMode">
@@ -69,7 +54,6 @@
 						</form>
 					</div>
 					<div id="mode3Details" style="display:none">
-					<hr>
 						<h2>Color War</h2>
 						<p>This can be played in multiplayer</p>
 						<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
@@ -81,6 +65,16 @@
 							<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="displayColorWarTeams()"><br/>
 							<label for="probability">Probability: each 1/100th of a sec, there is a probability a pod will change colors. At 0 the pods won&apos;t change colors by themselves</label>
 							<input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005"><br/>
+							<input type="submit" class="btn primary" value="Launch">
+						</form>
+					</div>
+					<div id="mode4Details" style="display:none">
+						<h2>Chase</h2>
+						<p>Press a pod to turn on the next one. Go as fast as possible !</p>
+						<form action="/launchMode">
+							<input type="hidden" id="mode" name="mode" value="Chase">
+							<label for="cycles">Cycles :</label>
+							<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" ><br/>
 							<input type="submit" class="btn primary" value="Launch">
 						</form>
 					</div>
