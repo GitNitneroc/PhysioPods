@@ -21,10 +21,10 @@
 			<div class="c">
 				<form>
 					<div class="row">
-						<div class="col"><input type="button" class="w-100 col btn" value="Fast Press" onclick='show("mode1Details")'></div>
-						<div class="col"><input type="button" class="w-100 col btn" value="Fairy Lights" onclick='show("mode2Details")'></div>
-						<div class="col"><input type="button" class="w-100 col btn" value="Color War" onclick='show("mode3Details")'></div>
-						<div class="col"><input type="button" class="w-100 col btn" value="Chase" onclick='show("mode4Details")'></div>
+						<div class="col"><input type="button" id="1" class="w-100 col btn" value="Fast Press" onclick='show(this.id,"mode1Details")'></div>
+						<div class="col"><input type="button" id="2" class="w-100 col btn" value="Fairy Lights" onclick='show(this.id,"mode2Details")'></div>
+						<div class="col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details")'></div>
+						<div class="col"><input type="button" id="4" class="w-100 col btn" value="Chase" onclick='show(this.id,"mode4Details")'></div>
 					</div>
 				</form>
 				<div id = "details">
@@ -82,10 +82,19 @@
 			</div>
         </div>
         <script>
-            function show(id){
+            function show(buttonId, toShowId){
+				//unselect old button
+				if (window.currentSelection){
+					window.currentSelection.classList.remove("primary");
+				}
+				//select the current button
+				let button = document.getElementById(buttonId);
+				button.classList.add("primary");
+				window.currentSelection = button;
+				//show the details
                 let divs = document.getElementById("details").getElementsByTagName("div")
                 for (let i = 0; i < divs.length; i++) {
-                    if (divs[i].id == id){
+                    if (divs[i].id == toShowId){
                         divs[i].style.display = "block";
                     }else{
                         divs[i].style.display = "none";
