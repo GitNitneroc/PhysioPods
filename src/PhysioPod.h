@@ -12,6 +12,7 @@
 //Our control
 #include "controls/ButtonControl.h"
 #include "controls/CapacitiveTouchControl.h"
+#include "controls/ProximityControl.h"
 #include "modes/PhysioPodMode.h"
 
 class PhysioPod {
