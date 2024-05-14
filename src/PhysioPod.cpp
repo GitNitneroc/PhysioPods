@@ -1,6 +1,7 @@
 #include "PhysioPod.h"
 #include "isDebug.h"
 
+
 #ifdef ESP32
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -10,6 +11,10 @@
 #endif
 
 PhysioPod* PhysioPod::instance = nullptr;
+
+#ifdef USE_NEOPIXEL
+CRGB PhysioPod::leds[NUM_LEDS];
+#endif
 
 uint16_t PhysioPod::getSessionId(){
     return sessionId;
@@ -49,6 +54,17 @@ bool PhysioPod::searchOtherPhysioWiFi(){
         #endif */
         return false;
     }
+}
+
+/*
+    * This creates the led or leds for the pod
+*/
+void PhysioPod::initLEDs(){
+    #ifdef USE_NEOPIXEL
+    FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+    #else
+    pinMode(LED_PIN, OUTPUT);
+    #endif
 }
 
 void PhysioPod::CreateControl(){
@@ -114,7 +130,9 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 
 void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
     #ifndef USE_NEOPIXEL
+        #ifdef isDebug
         Serial.println("The neopixel is not enabled, the color will not be set");
+        #endif
         #ifdef INVERTED_LED
             state = !state;
         #endif
@@ -126,9 +144,19 @@ void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
     #endif
     
     if (state){
-        neopixelWrite(LED_PIN,r,g,b); // on
+        //neopixelWrite(LED_PIN,r,g,b); // on
+        for (int i = 0; i < NUM_LEDS; i++){
+            leds[i] = CRGB(r,g,b);
+        }
+        /* leds[0] = CRGB(r,g,b);
+        leds[1] = CRGB(r,g,b); */
+        FastLED.show();
     }
     else{
-        neopixelWrite(LED_PIN,0,0,0); // off
+        //neopixelWrite(LED_PIN,0,0,0); // off
+        for (int i = 0; i < NUM_LEDS; i++){
+            leds[i] = CRGB::Black;
+        }
+        FastLED.show();
     }
 }

@@ -9,10 +9,13 @@
 #include <ESPAsyncTCP.h>
 #endif
 
+#include <FastLED.h>
+
 //Our control
 #include "controls/ButtonControl.h"
 #include "controls/CapacitiveTouchControl.h"
 #include "controls/ProximityControl.h"
+
 #include "modes/PhysioPodMode.h"
 
 class PhysioPod {
@@ -20,6 +23,9 @@ protected :
     uint8_t id;
     uint16_t sessionId = 0;
     static PhysioPod* instance;
+    #ifdef USE_NEOPIXEL
+    static CRGB leds[NUM_LEDS];
+    #endif
 
 public :
     //WIFI settings :
@@ -38,6 +44,7 @@ public :
 
     virtual void updatePod() = 0;
 
+    static void initLEDs();
     void CreateControl(); //This will create the control for the pod, but it will not call initialize on it
 
     PhysioPodControl* control = nullptr;

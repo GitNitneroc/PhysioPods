@@ -26,10 +26,9 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
-    WiFi.persistent(false); //don't save the wifi settings
+    PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
 
-    //initialize the LED
-    pinMode(LED_PIN, OUTPUT);
+    WiFi.persistent(false); //don't save the wifi settings
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
     if (shouldBeClient){
