@@ -63,37 +63,46 @@
             </div>
             <form>
                 <div class="row card">
-                    <b>LED control :</b>
+                    <b>LED control :</b><br />
+                    <div class="row">  
+                        <form>
+                            <label for="lightMode">Choose a lighting mode: </label>
+                            <select id="lightMode" name="lightMode">
+                                <option value="0">Simple</option>
+                                <option value="1">Blink Fast</option>
+                                <option value="2">Blink Slow</option>
+                                <option value="3">Cycle Fast</option>
+                                <option value="4">Cycle Slow</option>
+                            </select>
+                        </form>
+                    </div>
                     <div class="row">
                         <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("/LED?LED=ON&id=0")'>ServerPod LED ON</button>
+                            <button name='LED' class="btn w-100" style='color:green' type='button' onclick='fetch("/LED?LED=ON&id=0&mode="+document.getElementById("lightMode").value)'>ServerPod LED ON</button>
                         </div>
                         <div class="6 col">
                             <button name='LED' class="btn w-100" style='color:red' type='button' onclick='fetch("/LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
                         </div>
                     </div>
                     <div class="row">
-                        <form>
-                            <label for="podId">Control specific pood (0 to 254) : </label>
-                            <input type="number" id="podId" name="podId" value="1" min="0" max="255"><br />
+                        <form class="4 col">
+                            <label for="podId">Specific pood (0 to 254) : </label>
+                            <input type="number" id="podId" name="podId" value="1" min="0" max="255">
                         </form>
-                    </div>
-                    <div class="row">
-                        <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value)'>LED ON</button>
+                    
+                        <div class="4 col">
+                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value+"&mode="+document.getElementById("lightMode").value)'>LED ON</button>
                         </div>
-                        <div class="6 col">
+                        <div class="4 col">
                             <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
                         </div>
                     </div>
                     <div class="row">
-                        <p>Control <span id='peers'>0</span> pods :</p>
-                    </div>
-                    <div class="row">
-                        <div class="6 col">
-                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id=255")'>ALL ON</button>
+                        <p class="4 col">Control <span id='peers'>0</span> pods :</p>
+                        <div class="4 col">
+                            <button name='LED' class="btn w-100" style='color:green' value='ON' type='button' onclick='fetch("/LED?LED=ON&id=255&mode="+document.getElementById("lightMode").value)'>ALL ON</button>
                         </div>
-                        <div class="6 col">
+                        <div class="4 col">
                             <button name='LED' class="btn w-100" style='color:red' value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id=255")'>ALL OFF</button>
                         </div>
                     </div>

@@ -28,11 +28,12 @@ bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
 
 void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     //this means we received a request to "/LED"
-    //the parameters are always in the same ordre : LED (ON or OFF), id (the id of the pod)
+    //the parameters are always in the same ordre : LED (ON or OFF), id (the id of the pod), lightMode
     //check if the request contains a parameter "LED"
     AsyncWebParameter* ledParam = request->getParam(0);
     bool ledState;
     uint8_t destId;
+    LightMode lightMode;
     //Read the LED parameter
     if (ledParam->name()!="LED") {
         #ifdef isDebug
@@ -57,8 +58,16 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
         destId = idParam->value().toInt();
     }
 
+    //Read the lightMode parameter, this one is optional and defaults to LightMode::SIMPLE
+    AsyncWebParameter* lightModeParam = request->getParam(2);
+    if (lightModeParam == nullptr || lightModeParam->name()!="mode") {
+        lightMode = LightMode::SIMPLE;
+    }else{
+        lightMode = static_cast<LightMode>(lightModeParam->value().toInt());
+    }
+
     //let the serverPod handle the request
-    ServerPod::getInstance()->setPodLightState(destId, ledState, CRGB::Teal);
+    ServerPod::getInstance()->setPodLightState(destId, ledState, CRGB::Teal, lightMode);
 
     //send some response to the client
     AsyncResponseStream *response = request->beginResponseStream("text/html");
