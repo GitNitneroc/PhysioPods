@@ -71,7 +71,7 @@ void FairyLightsMode::update() {
             timer = millis();
             ServerPod::setPodLightState(litPod,false); //we could use 255 instead of litPod...
             litPod = (litPod + 1) % (ServerPod::getInstance()->peersNum+1);
-            ServerPod::setPodLightState(litPod,true);
+            ServerPod::setPodLightState(litPod,true, CRGB::White);
         }
     }
 }

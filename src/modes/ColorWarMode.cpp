@@ -4,6 +4,8 @@
 
 ColorWarParameters ColorWarMode::parameters = {0,0,0};
 
+//TODO : il faudrait arrêter d'utiliser colorUtils, et passer en full FastLEds
+
 void ColorWarMode::generateColors() {
     for (uint8_t i = 0; i < nColors; i++) {
         uint16_t h = 65535 / nColors * i;
@@ -79,7 +81,7 @@ void ColorWarMode::start() {
         uint8_t randomColorId = random(0, nColors);
         Color randomColor = colors[randomColorId];
         podsColors[i] = randomColorId;
-        ServerPod::setPodLightState(i, true, randomColor.r, randomColor.g, randomColor.b);
+        ServerPod::setPodLightState(i, true, CRGB(randomColor.r, randomColor.g, randomColor.b));
     }
     //create a new score
     ScoreStorage::addScore(returnScore());
@@ -130,7 +132,7 @@ void ColorWarMode::update() {
             #ifdef isDebug
             Serial.println("ColorWarMode : random change to color n"+String(rancomColorId)+" for pod n"+String(podId));
             #endif
-            ServerPod::setPodLightState(podId, true, newColor.r, newColor.g, newColor.b);
+            ServerPod::setPodLightState(podId, true, CRGB(newColor.r, newColor.g, newColor.b));
         }
         
         //compute the scores :
@@ -172,7 +174,7 @@ String* ColorWarMode::returnScore() {
 void ColorWarMode::onPodPressed(uint8_t id) {
     //cycle the color
     podsColors[id] = (podsColors[id] + 1) % nColors;
-    ServerPod::setPodLightState(id, true, colors[podsColors[id]].r, colors[podsColors[id]].g, colors[podsColors[id]].b);
+    ServerPod::setPodLightState(id, true, CRGB(colors[podsColors[id]].r, colors[podsColors[id]].g, colors[podsColors[id]].b));
 }
 
 ColorWarMode::ColorWarMode() {

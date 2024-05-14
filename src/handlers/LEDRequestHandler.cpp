@@ -58,7 +58,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     }
 
     //let the serverPod handle the request
-    ServerPod::getInstance()->setPodLightState(destId, ledState, 122,50,50);
+    ServerPod::getInstance()->setPodLightState(destId, ledState, CRGB::Teal);
 
     //send some response to the client
     AsyncResponseStream *response = request->beginResponseStream("text/html");

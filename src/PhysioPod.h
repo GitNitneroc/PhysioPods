@@ -18,6 +18,15 @@
 
 #include "modes/PhysioPodMode.h"
 
+enum LightMode {
+    SIMPLE, //just on
+    BLINK_FAST,
+    BLINK_SLOW,
+    CYCLE_FAST,
+    CYCLE_SLOW,
+};
+//TODO : add other modes, like pulsating, etc
+
 class PhysioPod {
 protected :
     uint8_t id;
@@ -25,7 +34,13 @@ protected :
     static PhysioPod* instance;
     #ifdef USE_NEOPIXEL
     static CRGB leds[NUM_LEDS];
+    static TaskHandle_t ledTask;
     #endif
+
+    //some Led tasks :
+    static void FastCycleLeds(void* param);
+    static void SlowCycleLeds(void* param);
+    static void CycleLeds(CRGB color, long delayTime);
 
 public :
     //WIFI settings :
@@ -59,7 +74,7 @@ public :
     uint16_t getSessionId();
 
     /* This is used to set this pod light on or off*/
-    static void setOwnLightState(bool state, uint8_t r=0, uint8_t g=0, uint8_t b=0) ;
+    static void setOwnLightState(bool state, CRGB color = CRGB::Black, LightMode mode = LightMode::SIMPLE); ;
 };
 
 #endif

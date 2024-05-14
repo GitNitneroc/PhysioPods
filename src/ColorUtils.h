@@ -2,6 +2,7 @@
 #ifndef COLORUTILS_H
 #define COLORUTILS_H
 
+//TODO : ce fichier ne sert plus à rien, fastLED a déjà une fonction pour convertir du HSL en RGB
 
 struct Color{
     uint8_t r;

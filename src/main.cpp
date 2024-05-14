@@ -60,7 +60,8 @@ void createPod(){
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }
-    //make sure the light is off
+    //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
+    pod->setOwnLightState(true, CRGB::Green, LightMode::SIMPLE);
     pod->setOwnLightState(false);
 }
 

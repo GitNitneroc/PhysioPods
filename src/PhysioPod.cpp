@@ -13,7 +13,9 @@
 PhysioPod* PhysioPod::instance = nullptr;
 
 #ifdef USE_NEOPIXEL
+//initialize the static members for the leds
 CRGB PhysioPod::leds[NUM_LEDS];
+TaskHandle_t PhysioPod::ledTask = NULL;
 #endif
 
 uint16_t PhysioPod::getSessionId(){
@@ -31,16 +33,12 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     delay(100);
     WiFi.begin(ssid, password);
     bool LEDState = true;
+
     //limit connection time
     unsigned long start = millis();
+    setOwnLightState(true, CRGB::Green, LightMode::CYCLE_FAST);
     while (WiFi.status() != WL_CONNECTED && millis()-start<CONNECTION_TIMEOUT){
-        #ifdef USE_NEOPIXEL
-        setOwnLightState(LEDState, 4,75,13);
-        #else
-        setOwnLightState(LEDState);
-        #endif
-        LEDState = !LEDState;
-        delay(200);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     setOwnLightState(false);
     if (WiFi.status() == WL_CONNECTED){
@@ -128,7 +126,7 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 }
 */
 
-void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
+void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     #ifndef USE_NEOPIXEL
         #ifdef isDebug
         Serial.println("The neopixel is not enabled, the color will not be set");
@@ -140,23 +138,71 @@ void PhysioPod::setOwnLightState(bool state, uint8_t r, uint8_t g, uint8_t b) {
     #endif
 
     #ifdef isDebug
-        Serial.println("Setting the rgb led to "+String(state));
+        Serial.printf("Setting the rgb led to state %d, with color : %d,%d,%d. Mode = %d\n", state, color.r, color.g, color.b, mode);
     #endif
+
+    //we are using neopixels
+    //kill the ledTask if it was running
+    if (ledTask != NULL){
+        vTaskDelete(ledTask);
+        ledTask = NULL;
+        #ifdef isDebug
+        Serial.println("Killed the ledTask");
+        #endif
+    }
+
+    //clear the leds
+    FastLED.clear(true);
     
     if (state){
-        //neopixelWrite(LED_PIN,r,g,b); // on
-        for (int i = 0; i < NUM_LEDS; i++){
-            leds[i] = CRGB(r,g,b);
+        switch (mode){
+        case LightMode::SIMPLE:
+            for (int i = 0; i < NUM_LEDS; i++){
+                leds[i] = color;
+            }
+            FastLED.show();
+            break;
+        case LightMode::BLINK_FAST:
+            break;
+        case LightMode::BLINK_SLOW:
+            break;
+        case LightMode::CYCLE_FAST:
+            //create the cycle task
+            xTaskCreate(PhysioPod::FastCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            break;
+        case LightMode::CYCLE_SLOW:
+            //create the cycle task
+            xTaskCreate(PhysioPod::SlowCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            break;
+        default:
+            break;
         }
-        /* leds[0] = CRGB(r,g,b);
-        leds[1] = CRGB(r,g,b); */
-        FastLED.show();
     }
     else{
-        //neopixelWrite(LED_PIN,0,0,0); // off
-        for (int i = 0; i < NUM_LEDS; i++){
-            leds[i] = CRGB::Black;
-        }
+        //the leds have been cleared
+        //the ledTask is not running
         FastLED.show();
+    }
+}
+
+void PhysioPod::FastCycleLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::CycleLeds(color, 20);
+}
+
+void PhysioPod::SlowCycleLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::CycleLeds(color, 100);
+}
+
+void PhysioPod::CycleLeds(CRGB color, long delayTime){
+    uint8_t i = 0;
+    while(true){
+        i = (i+1)%(NUM_LEDS);
+        PhysioPod::leds[i] = color;
+        FastLED.show();
+        //Serial.println("Cycle is showing the leds");
+        vTaskDelay(delayTime / portTICK_PERIOD_MS);
+        PhysioPod::leds[i] = CRGB::Black;
     }
 }

@@ -305,7 +305,7 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
 }
 
 /*Turn a pod light on or off. Use Id 0 for the server and 255 for every pod*/
-void ServerPod::setPodLightState(uint8_t podId, bool ledState, uint8_t r, uint8_t g, uint8_t b){
+void ServerPod::setPodLightState(uint8_t podId, bool ledState, CRGB color, LightMode mode){
     //should the message be sent to another pod ?
     if (podId > 0) {
         //create the LED message
@@ -313,10 +313,10 @@ void ServerPod::setPodLightState(uint8_t podId, bool ledState, uint8_t r, uint8_
         message.id = podId;
         message.sessionId = getInstance()->getSessionId();
         message.state = ledState;
-        message.mode = 0;
-        message.r = r;
-        message.g = g;
-        message.b = b;
+        message.mode = mode;
+        message.r = color.r;
+        message.g = color.g;
+        message.b = color.b;
 
         //send the message
         esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
@@ -335,14 +335,14 @@ void ServerPod::setPodLightState(uint8_t podId, bool ledState, uint8_t r, uint8_
             #ifdef isDebug
             Serial.println("The ServerPod is one of the targets");
             #endif
-            ServerPod::setOwnLightState(ledState, r, g, b);
+            ServerPod::setOwnLightState(ledState, color,mode);
         }
     } else {
         //the serverPod is the only target
         #ifdef isDebug
         Serial.println("The serverPod is the target");
         #endif
-        ServerPod::setOwnLightState(ledState, r, g, b);
+        ServerPod::setOwnLightState(ledState, color, mode);
     }
 }
 

@@ -208,7 +208,7 @@ void ClientPod::PingServer(void * pvParameters){
 void ClientPod::displayError(){
     bool state = false;
     while(true){
-        PhysioPod::setOwnLightState(state, 255,0,0);
+        PhysioPod::setOwnLightState(state, CRGB::Red);
         state = !state;
         delay(75);
     }
@@ -254,7 +254,7 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             Serial.println("-State : "+String(ledMessage->state));
             #endif
             #ifdef USE_NEOPIXEL
-            PhysioPod::setOwnLightState(ledMessage->state, ledMessage->r, ledMessage->g, ledMessage->b);
+            PhysioPod::setOwnLightState(ledMessage->state, CRGB(ledMessage->r, ledMessage->g, ledMessage->b));
             #else
             PhysioPod::setOwnLightState(ledMessage->state);
             #endif
