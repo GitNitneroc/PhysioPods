@@ -23,13 +23,12 @@
 					<div class="row">
 						<div class="col"><input type="button" id="1" class="w-100 col btn" value="Fast Press" onclick='show(this.id,"mode1Details")'></div>
 						<div class="col"><input type="button" id="2" class="w-100 col btn" value="Fairy Lights" onclick='show(this.id,"mode2Details")'></div>
-						<div class="col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details")'></div>
+						<div class="col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details");displayColorWarTeams();'></div>
 						<div class="col"><input type="button" id="4" class="w-100 col btn" value="Chase" onclick='show(this.id,"mode4Details")'></div>
 					</div>
 				</form>
 				<div id = "details">
 					<div id="mode1Details" style="display:none">
-					
 						<h2>FastPress</h2>
 						<p>Press the button as fast as you can for 10 seconds</p>
 						<form action="/launchMode">
