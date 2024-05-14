@@ -157,14 +157,16 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     if (state){
         switch (mode){
         case LightMode::SIMPLE:
-            for (int i = 0; i < NUM_LEDS; i++){
-                leds[i] = color;
-            }
-            FastLED.show();
+            FastLED.showColor(color);
+            //FastLED.show();
             break;
         case LightMode::BLINK_FAST:
+            //create the blink task
+            xTaskCreate(PhysioPod::FastBlinkLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
         case LightMode::BLINK_SLOW:
+            //create the blink task
+            xTaskCreate(PhysioPod::SlowBlinkLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
         case LightMode::CYCLE_FAST:
             //create the cycle task
@@ -204,5 +206,27 @@ void PhysioPod::CycleLeds(CRGB color, long delayTime){
         //Serial.println("Cycle is showing the leds");
         vTaskDelay(delayTime / portTICK_PERIOD_MS);
         PhysioPod::leds[i] = CRGB::Black;
+    }
+}
+
+void PhysioPod::FastBlinkLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::BlinkLeds(color, 200);
+}
+
+void PhysioPod::SlowBlinkLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::BlinkLeds(color, 500);
+}
+
+void PhysioPod::BlinkLeds(CRGB color, long delayTime){
+    uint8_t i = 0;
+    while(true){
+        FastLED.showColor(color);
+        //Serial.println("Cycle is showing the leds");
+        vTaskDelay(delayTime / portTICK_PERIOD_MS);
+        FastLED.clear(true);
+        FastLED.show();
+        vTaskDelay(delayTime / portTICK_PERIOD_MS);
     }
 }

@@ -41,6 +41,9 @@ protected :
     static void FastCycleLeds(void* param);
     static void SlowCycleLeds(void* param);
     static void CycleLeds(CRGB color, long delayTime);
+    static void FastBlinkLeds(void* param);
+    static void SlowBlinkLeds(void* param);
+    static void BlinkLeds(CRGB color, long delayTime);
 
 public :
     //WIFI settings :
