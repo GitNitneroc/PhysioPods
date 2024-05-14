@@ -77,7 +77,7 @@ public :
     uint16_t getSessionId();
 
     /* This is used to set this pod light on or off*/
-    static void setOwnLightState(bool state, CRGB color = CRGB::Black, LightMode mode = LightMode::SIMPLE); ;
+    static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE); ;
 };
 
 #endif
