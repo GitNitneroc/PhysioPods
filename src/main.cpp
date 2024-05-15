@@ -12,6 +12,8 @@
 #include "handlers/ModeStopHandler.h"
 #include "handlers/PeersNumHandler.h"
 
+//#include <FastLED.h>
+
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
@@ -27,6 +29,10 @@ void setup(){
     #endif
 
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
+    //some color correction can be done here if needed on your setup (include FastLED.h to use this) :
+    //FastLED.setCorrection(TypicalLEDStrip);
+    //FastLED.setTemperature( Tungsten100W );
+    //FastLED.setBrightness(200); //uint8_t value for scale
 
     WiFi.persistent(false); //don't save the wifi settings
 
