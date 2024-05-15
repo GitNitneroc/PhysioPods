@@ -1,15 +1,14 @@
 #include "ColorWarMode.h"
 #include "ServerPod.h"
-#include "ColorUtils.h"
 
 ColorWarParameters ColorWarMode::parameters = {0,0,0};
 
-//TODO : il faudrait arrêter d'utiliser colorUtils, et passer en full FastLEds
-
 void ColorWarMode::generateColors() {
     for (uint8_t i = 0; i < nColors; i++) {
-        uint16_t h = 65535 / nColors * i;
-        colors[i] = ColorUtils::hslToColor(h, 255, 128);
+        uint8_t h = 255 / nColors * i;
+        CRGB color;
+        hsv2rgb_rainbow(CHSV(h, 255, 128), color);
+        colors[i] = color;
     }
 }
 
@@ -79,7 +78,7 @@ void ColorWarMode::start() {
     //turn on each pod with a random color
     for (uint8_t i = 0; i < nPods; i++) {
         uint8_t randomColorId = random(0, nColors);
-        Color randomColor = colors[randomColorId];
+        CRGB randomColor = colors[randomColorId];
         podsColors[i] = randomColorId;
         ServerPod::setPodLightState(i, true, CRGB(randomColor.r, randomColor.g, randomColor.b));
     }
@@ -127,7 +126,7 @@ void ColorWarMode::update() {
             //select a random pod and a random color
             uint8_t podId = random(0, nPods);
             uint8_t rancomColorId = random(0, nColors);
-            Color newColor = colors[rancomColorId];
+            CRGB newColor = colors[rancomColorId];
             podsColors[podId] = rancomColorId;
             #ifdef isDebug
             Serial.println("ColorWarMode : random change to color n"+String(rancomColorId)+" for pod n"+String(podId));

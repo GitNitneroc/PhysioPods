@@ -1,6 +1,6 @@
 #include "PhysioPodMode.h"
 #include "ESPAsyncWebServer.h"
-#include "ColorUtils.h"
+#include <FastLED.h>
 
 struct ColorWarParameters{
     uint8_t nColors;
@@ -16,7 +16,7 @@ protected :
     //this is initialized with the biggest possible number of pods/colors (ie teams)
     uint8_t podsColors[255];//the colors of each pod
     long scores[255];//the scores of each color
-    Color colors[255];//the rgb codes of each color in the game
+    CRGB colors[255];//the rgb codes of each color in the game
     uint16_t duration;//the duration of the game
     unsigned long StartTimer;
     unsigned long lastTest;
@@ -42,7 +42,7 @@ public:
     String* returnScore() override;
     void onPodPressed(uint8_t id) override;
 
-    static Color hslToColor(uint16_t h, uint8_t s, uint8_t l);
+    //static Color hslToColor(uint16_t h, uint8_t s, uint8_t l);
 
     ColorWarMode();
 };
