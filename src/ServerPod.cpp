@@ -129,10 +129,10 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("|-DNS server starting...");
     dnsServer = new DNSServer();
     dnsServer->start(53, "*", WiFi.softAPIP());
+    xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
     Serial.println("|-Web server starting...");
     server.begin();
-
     server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
     Serial.println("|-Static files server initialised...");
 
@@ -178,6 +178,17 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("Check clients timeouts task started");
 
     Serial.println("ServerPod seems ready !");
+}
+
+/*
+    * This is the loop taking care of the DNS requests
+*/
+void ServerPod::DNSLoop(void * vpParameters){
+    ServerPod* sp = ServerPod::getInstance();
+    while(sp->dnsServer != nullptr){
+        sp->dnsServer->processNextRequest();
+        vTaskDelay(200 / portTICK_PERIOD_MS);
+    }
 }
 
 void ServerPod::CheckClientTimeouts(void * vpParameters){
@@ -357,11 +368,7 @@ void ServerPod::onControlPressed(){
 }
 
 void ServerPod::updatePod(){
-    //TODO : do this is a separate task
-    if (dnsServer != nullptr){
-        dnsServer->processNextRequest();
-    }
-
+    //check if there is a new mode to start
     if (PhysioPodMode::modeConstructor != nullptr){
         //There is a new mode to start, this is the time to do it
         PhysioPodMode* mode = PhysioPodMode::modeConstructor();

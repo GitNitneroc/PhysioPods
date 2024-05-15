@@ -25,6 +25,7 @@ private :
     static void SendPong(uint8_t podId);
     static void OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info);
     static void CheckClientTimeouts(void * vpParameters);
+    static void DNSLoop(void * vpParameters);
 
 public :
     uint8_t clientsTimers[254]; //no need for 255 since id 0 is self 
