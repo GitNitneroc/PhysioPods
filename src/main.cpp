@@ -68,6 +68,7 @@ void createPod(){
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
     pod->setOwnLightState(true, CRGB::Green, LightMode::SIMPLE);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     pod->setOwnLightState(false);
 }
 
