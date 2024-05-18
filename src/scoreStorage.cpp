@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "isDebug.h"
 #include "scoreStorage.h"
 
 String* ScoreStorage::scores[3] = {nullptr, nullptr, nullptr};

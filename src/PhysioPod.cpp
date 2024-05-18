@@ -1,6 +1,4 @@
 #include "PhysioPod.h"
-#include "isDebug.h"
-
 
 #ifdef ESP32
 #include <WiFi.h>

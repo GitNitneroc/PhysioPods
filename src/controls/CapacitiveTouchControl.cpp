@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 #include "CapacitiveTouchControl.h"
-#include "isDebug.h"
 
 #define CAPACITIVE_TOUCH_THRESHOLD 40000
 #define debounceDelay 50

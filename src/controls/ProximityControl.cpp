@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 #include "ProximityControl.h"
-#include "isDebug.h"
 
 #define debounceDelay 50
 

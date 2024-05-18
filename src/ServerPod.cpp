@@ -1,5 +1,4 @@
 #include "ServerPod.h"
-#include "isDebug.h"
 
 //The libraries we need
 #include <DNSServer.h>
@@ -38,6 +37,7 @@ void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
     //Serial.println("AP started");
     ServerPod::getInstance()->APStarted = true;
 }
+
 /* 
 void WiFiEvent(WiFiEvent_t event){
     //Serial.println( "[WiFi-event] event: " + event );

@@ -1,4 +1,3 @@
-#include "isDebug.h" //this file is used to define the isDebug variable
 #include "ServerPod.h"
 #include "ClientPod.h"
 

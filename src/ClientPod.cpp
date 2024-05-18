@@ -1,5 +1,4 @@
 #include "ClientPod.h"
-#include "isDebug.h"
 
 //The libraries we need
 #ifdef ESP32
