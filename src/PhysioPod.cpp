@@ -124,6 +124,8 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 }
 */
 
+
+//TODO on the S3 mini the onboard led doesn't blink, why ??
 void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     #ifndef USE_NEOPIXEL
         #ifdef isDebug
