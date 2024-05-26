@@ -14,6 +14,8 @@ void FairyLightsMode::start() {
 void FairyLightsMode::stop() {
     running = false;
     ServerPod::setPodLightState(litPod,false);
+    //update the score one last time
+    ScoreStorage::updateScore(returnScore());
     reset();
 }
 
