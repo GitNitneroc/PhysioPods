@@ -70,8 +70,9 @@
 					<div id="mode4Details" style="display:none">
 						<h2>Chase</h2>
 						<p>Press a pod to turn on the next one. Go as fast as possible !</p>
-						<form action="/launchMode">
+						<form action="/launchMode" onsubmit="validateCycle()">
 							<input type="hidden" id="mode" name="mode" value="Chase">
+							<input type="hidden" id="cycleInput" name="cycle" value="">
 							<label for="cycles">Cycles :</label>
 							<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" ><br/>
 							<p>Click on those buttons to create your cycle:</p>
@@ -85,6 +86,22 @@
 			</div>
         </div>
         <script>
+			function validateCycle(){
+				let chaseCycleDiv = document.getElementById("ChaseCycle");
+				let cycleInput = document.getElementById("cycleInput");
+				let cycle = [];
+				//check if there is a cycle
+				if (chaseCycleDiv.children.length == 0){
+					alert("You need to create a cycle");
+					return false;
+				}
+				//create the cycle input
+				for (let i = 0; i < chaseCycleDiv.children.length; i++) {
+					cycle.push(chaseCycleDiv.children[i].value);
+				}
+				cycleInput.value = cycle.join(",");
+			}
+
 			async function createChaseUI(){
 				let nPods = await getNumPods();
 				createChaseButtons(nPods);
@@ -114,7 +131,9 @@
 			function createChaseButtons(nPods){
 				let chaseButtonsDiv = document.getElementById("ChaseButtons");
 				chaseButtonsDiv.style.display = "block";
-				emptyChaseCycle();
+				while (chaseButtonsDiv.firstChild) {
+					chaseButtonsDiv.removeChild(chaseButtonsDiv.firstChild);
+				}
 				for (let i = 0; i < nPods; i++) {
 					let newPod = document.createElement("input");
 					newPod.type = "button";
@@ -131,22 +150,24 @@
 			function createChaseCycle(nPods){
 				let chaseCycleDiv = document.getElementById("ChaseCycle");
 				chaseCycleDiv.style.display = "block";
-				while (chaseCycleDiv.firstChild) {
-					chaseCycleDiv.removeChild(chaseCycleDiv.firstChild);
-				}
+				emptyChaseCycle();
 				for (let i = 0; i < nPods; i++) {
 					let newPod = document.createElement("input");
 					addPodToChaseCycle(i);
 				}
 			}
 
-			function getNumPods(){
+			async function getNumPods(){
 				let nPods = 1;
-				fetch("/peers")
+				return fetch("/peers")
                 .then(response => response.json())
                 .then(data => {
                     nPods += data.peers;
-                }).catch(error => console.error(error))
+					return nPods;
+                }).catch(error => {
+					console.error(error)
+					return undefined;
+				})
 			}
 
             function show(buttonId, toShowId){
