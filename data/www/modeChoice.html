@@ -95,6 +95,10 @@
 					alert("You need to create a cycle");
 					return false;
 				}
+				if(chaseCycleDiv.children.length >=512){
+					alert("This cycle is too long, please reduce it to 512 pods or less");
+					return false;
+				}
 				//create the cycle input
 				for (let i = 0; i < chaseCycleDiv.children.length; i++) {
 					cycle.push(chaseCycleDiv.children[i].value);

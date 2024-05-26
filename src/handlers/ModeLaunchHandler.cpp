@@ -1,9 +1,12 @@
 #include "ModeLaunchHandler.h"
 #include "ESPAsyncWebServer.h"
+
 #include "modes/PhysioPodMode.h"
 #include "modes/FastPressMode.h"
 #include "modes/FairyLightsMode.h"
 #include "modes/ColorWarMode.h"
+#include "modes/ChaseMode.h"
+
 #include "SPIFFS.h"
 
 /*
@@ -87,6 +90,16 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
         //FAIRY LIGHTS MODE
         Serial.println("User wants to launch FairyLightsMode mode");
         validParams = FairyLightsMode::testRequestParameters(request);
+        if (validParams) {
+            sendSuccessResponse(request);
+        } else {
+            sendFailResponse(request);
+        }
+        return;
+    }else if (modeName=="Chase"){
+        //CHASE MODE
+        Serial.println("User wants to launch Chase mode");
+        validParams = ChaseMode::testRequestParameters(request);
         if (validParams) {
             sendSuccessResponse(request);
         } else {

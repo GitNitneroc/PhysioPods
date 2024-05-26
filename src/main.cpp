@@ -17,6 +17,8 @@ PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
+//TODO : il serait bien d'avoir un autre mode d'allumage qui s'éteint tout seul après un certain temps, genre un Flash
+//TODO : les scores du ChaseMode ne s'affichent pas, mais ils semblent bien sauvés. Il faudrait les afficher
 
 void createPod();
 
