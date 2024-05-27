@@ -37,6 +37,14 @@
                                 th.textContent = text;
                                 tr.appendChild(th);
                             });
+                        } else if (score.mode == "Chase") {
+                            th.textContent = "Chase";
+                            tr.appendChild(th);
+                            thead.appendChild(tr);
+                            tr = document.createElement('tr');
+                            let th1 = document.createElement('th');
+                            th1.textContent = "Duration";
+                            tr.appendChild(th1);
                         } else if (score.mode == "FairyLights") {
                             th.textContent = "FairyLights";
                             tr.appendChild(th);
@@ -68,6 +76,10 @@
                             td.textContent = text;
                             tr.appendChild(td);
                         });
+                    }else if (score.mode == "Chase"){
+                        let td = document.createElement('td');
+                        td.textContent = score.duration+"sec";
+                        tr.appendChild(td);
                     } else if (score.mode == "FairyLights") {
                         let td = document.createElement('td');
                         td.textContent = "No data in this mode";
