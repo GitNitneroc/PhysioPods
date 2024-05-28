@@ -27,7 +27,6 @@ enum LightMode {
     PULSE_SHORT, //short pulse then turns off
     PULSE_LONG //long pulse then turns off
 };
-//TODO : add other modes, like pulsating, etc
 
 class PhysioPod {
 protected :
