@@ -133,7 +133,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
 
         } else {
             //the wrong pod was pressed
-            //TODO : display a Flash error on the pod
+            ServerPod::setPodLightState(id,true, CRGB::Red, LightMode::PULSE_SHORT);
         }
     }
 }

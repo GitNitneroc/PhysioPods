@@ -132,7 +132,8 @@ void FastPressMode::onSuccess(uint8_t pod) {
 }
 
 void FastPressMode::onError(uint8_t pod) {
-    //TODO : display an error on all pods or something like that ?
+    //display a short error on the pod
+    ServerPod::setPodLightState(pod, true, CRGB::Red, LightMode::PULSE_SHORT);
     errors++;
     score--;
 }
@@ -149,7 +150,7 @@ void FastPressMode::update() {
                 Serial.println("FastPressMode interval over");
                 #endif
                 //the interval is over, we should light the pod
-                ServerPod::setPodLightState(podToPress,true);
+                ServerPod::setPodLightState(podToPress,true, CRGB::Green, LightMode::SIMPLE);
                 timer = millis();
                 state = WAIT_FOR_PRESS;
             }
