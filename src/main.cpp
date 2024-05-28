@@ -17,8 +17,6 @@ PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
-//TODO : il serait bien d'avoir un autre mode d'allumage qui s'éteint tout seul après un certain temps, genre un Flash
-//TODO : les scores du ChaseMode ne s'affichent pas, mais ils semblent bien sauvés. Il faudrait les afficher
 
 void createPod();
 
@@ -68,9 +66,7 @@ void createPod(){
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
-    pod->setOwnLightState(true, CRGB::Green, LightMode::SIMPLE);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    pod->setOwnLightState(false);
+    pod->setOwnLightState(true, CRGB::Green, LightMode::PULSE_LONG); //Note : Pulse reverts to off state after the pulse
 }
 
 void loop(){

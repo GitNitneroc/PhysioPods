@@ -24,6 +24,8 @@ enum LightMode {
     BLINK_SLOW,
     CYCLE_FAST,
     CYCLE_SLOW,
+    PULSE_SHORT, //short pulse then turns off
+    PULSE_LONG //long pulse then turns off
 };
 //TODO : add other modes, like pulsating, etc
 
@@ -44,6 +46,10 @@ protected :
     static void FastBlinkLeds(void* param);
     static void SlowBlinkLeds(void* param);
     static void BlinkLeds(CRGB color, long delayTime);
+    static void ShortPulseLeds(void* param); 
+    static void LongPulseLeds(void* param); 
+    static void PulseLeds(CRGB color, long delayTime);
+
 
 public :
     //WIFI settings :

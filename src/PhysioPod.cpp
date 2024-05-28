@@ -124,8 +124,6 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 }
 */
 
-
-//TODO on the S3 mini the onboard led doesn't blink, why ??
 void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     #ifndef USE_NEOPIXEL
         #ifdef isDebug
@@ -176,6 +174,14 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
             //create the cycle task
             xTaskCreate(PhysioPod::SlowCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
+        case LightMode::PULSE_SHORT:
+            //create the pulse task
+            xTaskCreate(PhysioPod::ShortPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            break;
+        case LightMode::PULSE_LONG:
+            //create the pulse task
+            xTaskCreate(PhysioPod::LongPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            break;
         default:
             break;
         }
@@ -185,6 +191,30 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
         //the ledTask is not running
         FastLED.show();
     }
+}
+
+void PhysioPod::ShortPulseLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::PulseLeds(color, 20);
+}
+
+void PhysioPod::LongPulseLeds(void* param){
+    CRGB color = *(static_cast<CRGB*>(param));
+    PhysioPod::PulseLeds(color, 200);
+}
+
+void PhysioPod::PulseLeds(CRGB color, long delayTime){
+    uint8_t i = 0;
+    FastLED.showColor(color);
+    vTaskDelay(delayTime / portTICK_PERIOD_MS);
+    FastLED.clear(true);
+    FastLED.show();
+    #ifdef isDebug
+    Serial.println("Pulse has ended, leds off now");
+    #endif
+    //kill the ledTask
+    PhysioPod::ledTask = NULL;
+    vTaskDelete(nullptr);
 }
 
 void PhysioPod::FastCycleLeds(void* param){
@@ -199,6 +229,7 @@ void PhysioPod::SlowCycleLeds(void* param){
 
 void PhysioPod::CycleLeds(CRGB color, long delayTime){
     uint8_t i = 0;
+    //TODO : this only supports USE_NEOPIXEL
     while(true){
         i = (i+1)%(NUM_LEDS);
         PhysioPod::leds[i] = color;
