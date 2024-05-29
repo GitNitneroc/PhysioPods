@@ -105,7 +105,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
         if (id == cycle[currentStep]) {
             //the right pod was pressed
             currentStep++;
-            ServerPod::setPodLightState(id,true, CRGB::Green, LightMode::PULSE_SHORT); //light the pod green for a short time to indicate success, it will turn off automatically
+            ServerPod::setPodLightState(id,true, CRGB::Green, LightMode::PULSE_ON_OFF_SHORT); //light the pod green for a short time to indicate success, it will turn off automatically
             #ifdef isDebug
             Serial.println("Pod "+String(id)+" pressed, go to step id "+String(currentStep)+" (len="+String(cycleLength)+")");
             #endif
@@ -132,7 +132,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
 
         } else {
             //the wrong pod was pressed
-            ServerPod::setPodLightState(id,true, CRGB::Red, LightMode::PULSE_SHORT);
+            ServerPod::setPodLightState(id,true, CRGB::Red, LightMode::PULSE_ON_OFF_SHORT);
         }
     }
 }

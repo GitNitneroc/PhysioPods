@@ -133,7 +133,7 @@ void FastPressMode::onSuccess(uint8_t pod) {
 
 void FastPressMode::onError(uint8_t pod) {
     //display a short error on the pod
-    ServerPod::setPodLightState(pod, true, CRGB::Red, LightMode::PULSE_SHORT);
+    ServerPod::setPodLightState(pod, true, CRGB::Red, LightMode::PULSE_ON_OFF_SHORT);
     errors++;
     score--;
 }

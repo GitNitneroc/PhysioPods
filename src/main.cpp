@@ -66,7 +66,7 @@ void createPod(){
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
-    pod->setOwnLightState(true, CRGB::Green, LightMode::PULSE_LONG); //Note : Pulse reverts to off state after the pulse
+    pod->setOwnLightState(true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG); //Note : Pulse reverts to off state after the pulse
 }
 
 void loop(){

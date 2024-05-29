@@ -174,11 +174,11 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
             //create the cycle task
             xTaskCreate(PhysioPod::SlowCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
-        case LightMode::PULSE_SHORT:
+        case LightMode::PULSE_ON_OFF_SHORT:
             //create the pulse task
             xTaskCreate(PhysioPod::ShortPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
-        case LightMode::PULSE_LONG:
+        case LightMode::PULSE_ON_OFF_LONG:
             //create the pulse task
             xTaskCreate(PhysioPod::LongPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
             break;
