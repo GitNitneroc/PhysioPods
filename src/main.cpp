@@ -17,6 +17,7 @@ PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
+//TODO : Il faudrait une façon de changer le ssid et le mot de passe du wifi depuis l'interface web
 
 void createPod();
 
