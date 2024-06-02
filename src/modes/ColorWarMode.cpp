@@ -115,6 +115,7 @@ void ColorWarMode::update() {
         #ifdef isDebug
         Serial.println("ColorWarMode : time's up");
         #endif
+        ServerPod::setPodLightState(255, true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG); //end of game
         stop();
     }
 

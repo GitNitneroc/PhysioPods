@@ -126,6 +126,7 @@ void FastPressMode::onSuccess(uint8_t pod) {
         #ifdef isDebug
         Serial.println("FastPressMode : game over after "+String(currentTry)+" tries !");
         #endif
+        ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);
         //the game is over
         stop();
     }

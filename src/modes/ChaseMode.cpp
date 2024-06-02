@@ -122,7 +122,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
                     #ifdef isDebug
                         Serial.println("All cycles completed ! Let's stop ChaseMode");
                     #endif
-
+                    ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);//end of game
                     stop();
                     return;
                 }
