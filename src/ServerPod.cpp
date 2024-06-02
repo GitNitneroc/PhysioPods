@@ -187,7 +187,7 @@ void ServerPod::DNSLoop(void * vpParameters){
     ServerPod* sp = ServerPod::getInstance();
     while(sp->dnsServer != nullptr){
         sp->dnsServer->processNextRequest();
-        vTaskDelay(200 / portTICK_PERIOD_MS);
+        vTaskDelay(20 / portTICK_PERIOD_MS);
     }
 }
 
