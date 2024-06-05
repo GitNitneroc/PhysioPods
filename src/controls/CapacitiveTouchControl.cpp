@@ -2,7 +2,9 @@
 #include "PhysioPodControl.h"
 #include "CapacitiveTouchControl.h"
 
+#ifndef CAPACITIVE_TOUCH_THRESHOLD
 #define CAPACITIVE_TOUCH_THRESHOLD 40000
+#endif
 #define debounceDelay 50
 
 //TODO : have a look at https://github.com/ESP32DE/esp-iot-solution-1/blob/master/documents/touch_pad_solution/touch_sensor_design_en.md#2-introduction-to-the-esp32-touch-sensor-system
