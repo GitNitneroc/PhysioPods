@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PhysioPods</title>
+        <link rel="stylesheet" href="./css/lit.css">
+    </head>
+    <body> 
+        <div class="c">
+			<div class="row card">
+				<h1>PhysioPods</h1>
+				<hr>
+				<div class="row">
+					<div class="col"><a href="/static/index.html">Home</a></div>
+					<div class="col"><a href="/serverRegistration">Mac Address</a></div>
+                    <div class="col"><a href="/static/modeChoice.html">Choose a mode</a></div>
+                    <div class="col"><a href="/static/results.html">Results</a></div>
+					<b class="col">Parameters</b>
+				</div>
+				<hr>
+			</div>
+        </div>
+		<div class="c">
+			<div class="row card" id="Warning" style="display:none">
+				<b>Warning</b>
+				<p>This page contains important settings, and should not be used when a mode is under use.</p>
+				<button name='stop' id='modeStop' class="btn w-100 primary" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+				<!-- <div class="12 col" id='modeStop'>
+					
+				</div> -->
+			</div>
+			<div id="Parameters" style="display:none">
+				<div class="row card" id="WiFiParams" >
+					<b>WiFi</b>
+					<form action="/ssid">
+						<label for="ssid">WiFi Name:</label>
+						<input type="text" id="ssid" name="ssid" value="PhysioPods" required>
+						<input type="submit" id='ssidSubmit' class="btn primary" value="Set">
+					</form>
+					<p>This can be useful if you want to separate pods: pods on different WiFi won't link.</p><p>Changing the password is not supported : if lost, your pods would be unusable.</p>
+				</div>
+				<div class="row card">
+					<b>Update</b>
+					<p>Use this link to update the software. This will only update the pod that is blinking fast. Other pods should be updated one by one in the same way.</p>
+					<a href="/update">OTA update</a>
+				</div>
+			</div>
+		</div>
+        <script>
+			function isValidSSID(str) { return /^[a-zA-Z0-9()_-]{1,32}$/g.test(str); }
+
+			/* document.getElementById('ssid').addEventListener('input', function (event) {
+                document.getElementById('ssidSubmit').disabled = !isValidSSID(event.target.value);
+				//TODO : change color too
+            }); */
+
+			var PodsLighted = 0;
+			getModeInfo();
+
+
+			window.onbeforeunload = function(event) {
+				if (PodsLighted == 1){
+					stopPods();
+				}
+			};
+
+			async function lightPods(){
+				await fetch("/LED?LED=ON&id=255&mode=4");
+				fetch("/LED?LED=ON&id=0&mode=3");
+			}
+
+			function stopPods(){
+				fetch("/LED?LED=OFF&id=255");
+			}
+
+			function getModeInfo() {
+				fetch("/modeInfo")
+				.then(response => response.json())
+				.then(data => {
+					if (data.isRunning){
+						document.getElementById("Warning").style.display = "block";
+						document.getElementById("Parameters").style.display = "none";
+					}else{
+						lightPods();
+						PodsLighted = 1;
+						document.getElementById("Warning").style.display = "none";
+						document.getElementById("Parameters").style.display = "block";
+					}
+				});
+			}
+        </script>
+    </body>
+</html>
