@@ -14,6 +14,8 @@
 #include "Messages.h"
 using namespace Messages;
 
+#include <Preferences.h>
+
 uint8_t ClientPod::serverTimer = 0;
 
 //This will initialize a new Client Pod. The wifi can already be connected to the PhysioPod network, or not, it will connect if needed
@@ -280,6 +282,20 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             //the getMessageType() used above already checked if the message was for this pod,
             //it would be ERROR or NOT_FOR_ME otherwise
             serverTimer = 0;//reset the server timer
+            break;
+        }
+        case SSID:{
+            SSIDMessage* ssidMessage = (SSIDMessage*)message.messageData;
+            #ifdef isDebug
+            Serial.println("Received an SSID message");
+            Serial.println("-SSID : "+String(ssidMessage->ssid));
+            #endif
+            //update the ssid in the preferences
+            Preferences preferences;
+            preferences.begin("PhysioPod", false);
+            preferences.putUInt("ssid", ssidMessage->ssid);
+            preferences.end();
+            //we could restart here, but let's just wait for the ping timeout
             break;
         }
         default:

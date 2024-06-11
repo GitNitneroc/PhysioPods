@@ -45,6 +45,8 @@ public :
     static void onControlPressed(); //The callback for when the control is pressed
     static void setPodLightState(uint8_t podId, bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE);
 
+    static void broadcastMessage(const void* message);
+
     //to please cppcheck :
     ServerPod(const ServerPod&) = delete;
     ServerPod& operator=(const ServerPod&) = delete;

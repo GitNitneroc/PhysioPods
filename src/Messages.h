@@ -12,7 +12,8 @@ namespace Messages{
         LED,
         CONTROL,
         PING,
-        ID_REORG
+        ID_REORG,
+        SSID
     };
 
     /*
@@ -32,6 +33,11 @@ namespace Messages{
         *len : the length of the data
     */
     parsedMessage getMessageType(const uint8_t * sender_addr, const uint8_t *data, int len);
+
+    struct SSIDMessage{
+        uint16_t sessionId;
+        uint64_t ssid;
+    };
 
     /*
         *The message that is used to send the state of the LED

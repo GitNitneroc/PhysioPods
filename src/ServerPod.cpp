@@ -180,6 +180,20 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("ServerPod seems ready !");
 }
 
+void ServerPod::broadcastMessage(const void* message){
+    esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) message, sizeof(message));
+    if (result == ESP_OK) {
+        #ifdef isDebug
+        Serial.println("Message broadcasted");
+        #endif
+    } else {
+        #ifdef isDebug
+        Serial.print("Error sending the ESP-NOW message : ");
+        Serial.println(esp_err_to_name(result));
+        #endif
+    }
+}
+
 /*
     * This is the loop taking care of the DNS requests
 */

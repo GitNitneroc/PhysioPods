@@ -12,6 +12,8 @@
 #include "handlers/PeersNumHandler.h"
 
 //#include <FastLED.h>
+#include <Preferences.h>
+
 
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
@@ -28,6 +30,12 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
+    Preferences preferences;    
+    preferences.begin("PhysioPod", false);
+    #ifdef isDebug
+    Serial.println("Preferences opened.");
+    #endif
+
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
     //some color correction can be done here if needed on your setup (include FastLED.h to use this) :
     //FastLED.setCorrection(TypicalLEDStrip);
@@ -42,6 +50,10 @@ void setup(){
     }else{
         Serial.println("No server found ! Starting as a server...");
     }
+    preferences.end();
+    #ifdef isDebug
+    Serial.println("Preferences closed.");
+    #endif
 
     Serial.println("Creating the pod...");
     createPod(); //pod should not be nullptr anymore
