@@ -24,54 +24,59 @@
 				<b>Warning</b>
 				<p>This page contains important settings, and should not be used when a mode is under use.</p>
 				<button name='stop' id='modeStop' class="btn w-100 primary" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
-				<!-- <div class="12 col" id='modeStop'>
-					
-				</div> -->
 			</div>
 			<div id="Parameters" style="display:none">
 				<div class="row card" id="WiFiParams" >
 					<b>WiFi</b>
+					<p>You can change the WiFi ssid here. This can be useful if you want to separate pods: pods on different WiFi won't link.</p>
 					<form action="/ssid">
-						<label for="ssid">WiFi Name:</label>
-						<input type="text" id="ssid" name="ssid" value="PhysioPods" required>
-						<input type="submit" id='ssidSubmit' class="btn primary" value="Set">
+						<label id="ssidLabel" for="ssid">New WiFi: PhysioPods1</label><br>
+						<input type="number" id="ssid" name="ssid" min="1" value="1" required>
+						<input type="submit" id='ssidSubmit' class="btn primary" value="Set" disabled>
 					</form>
-					<p>This can be useful if you want to separate pods: pods on different WiFi won't link.</p><p>Changing the password is not supported : if lost, your pods would be unusable.</p>
+					<p>Changing the password is not supported : if lost, your pods would be unusable.</p>
 				</div>
 				<div class="row card">
 					<b>Update</b>
-					<p>Use this link to update the software. This will only update the pod that is blinking fast. Other pods should be updated one by one in the same way.</p>
+					<p>Use this link to update the software. This will only update the pod that is cycling fast. Other pods should be updated one by one, in the same way.</p>
 					<a href="/update">OTA update</a>
 				</div>
 			</div>
 		</div>
         <script>
-			function isValidSSID(str) { return /^[a-zA-Z0-9()_-]{1,32}$/g.test(str); }
-
-			/* document.getElementById('ssid').addEventListener('input', function (event) {
-                document.getElementById('ssidSubmit').disabled = !isValidSSID(event.target.value);
-				//TODO : change color too
-            }); */
+			//function isValidSSID(str) { return /^[a-zA-Z0-9()_-]{1,32}$/g.test(str); }
 
 			var PodsLighted = 0;
+			var ssidInput = document.getElementById('ssid');
+			var ssidLabel = document.getElementById('ssidLabel');
 			getModeInfo();
 
-
-			window.onbeforeunload = function(event) {
+			//turn off the pods when leaving the page
+			window.onunload = async function(event) {
 				if (PodsLighted == 1){
-					stopPods();
+					navigator.sendBeacon("/LED?LED=OFF&id=255");
 				}
 			};
 
+			//light the pods to show we can change params
 			async function lightPods(){
 				await fetch("/LED?LED=ON&id=255&mode=4");
 				fetch("/LED?LED=ON&id=0&mode=3");
 			}
 
-			function stopPods(){
-				fetch("/LED?LED=OFF&id=255");
-			}
+			ssidInput.addEventListener('input', function (event) {
+				var ssidNumber = event.target.value;
+				if (ssidNumber) {
+					document.getElementById('ssidSubmit').disabled = false;
+					var ssidName = 'PhysioPods' + ssidNumber;
+					ssidLabel.textContent = 'New WiFi: ' + ssidName;
+				} else {
+					document.getElementById('ssidSubmit').disabled = true;
+					ssidLabel.textContent = 'New WiFi: PhysioPods';
+				}
+			});
 
+			//make sure we can't change params while a mode is running
 			function getModeInfo() {
 				fetch("/modeInfo")
 				.then(response => response.json())
@@ -80,7 +85,7 @@
 						document.getElementById("Warning").style.display = "block";
 						document.getElementById("Parameters").style.display = "none";
 					}else{
-						lightPods();
+						lightPods();//light the pods to show we can change params
 						PodsLighted = 1;
 						document.getElementById("Warning").style.display = "none";
 						document.getElementById("Parameters").style.display = "block";
