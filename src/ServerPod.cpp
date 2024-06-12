@@ -13,6 +13,8 @@
 #include <esp_now.h>
 
 #include "SPIFFS.h"
+//OTA
+#include <AsyncElegantOTA.h>
 
 //Our control
 #ifdef USE_CAPACITIVE_TOUCH
@@ -135,6 +137,10 @@ ServerPod::ServerPod() : server(80) {
     dnsServer = new DNSServer();
     dnsServer->start(53, "*", WiFi.softAPIP());
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
+
+    // Start ElegantOTA
+    AsyncElegantOTA.begin(&server);
+    Serial.println("|-ElegantOTA started");
 
     Serial.println("|-Web server starting...");
     server.begin();
