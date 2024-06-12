@@ -40,23 +40,40 @@ void SSIDHandler::handleRequest(AsyncWebServerRequest *request) {
     }else{
         //get the ssid
         int ssid = ssidParam->value().toInt();
+        if (ssid < 0 || ssid > 255){
+            response->print("Invalid ssid value");
+            Serial.println("Invalid ssid value");
+            request->send(response);
+            return;
+        }
         //change the ssid in eeprom
+        #ifdef isDebug
+        Serial.print("Changing preferences ssid to ");
+        Serial.println(ssid);
+        #endif
         Preferences preferences;    
         preferences.begin("PhysioPod", false);
         preferences.putUInt("ssid", ssid);
         preferences.end();
 
         //send the ssid to the pods
-        Messages::SSIDMessage ssidMessage;
+        Messages::SSIDMessage ssidMessage ;//= {ServerPod::getInstance()->getSessionId(), (uint8_t)ssid};
         ssidMessage.sessionId = ServerPod::getInstance()->getSessionId();
-        ssidMessage.ssid = ssid;
-        ServerPod::broadcastMessage(&ssidMessage);
+        ssidMessage.ssid = (uint8_t)ssid;
+        esp_now_send(ServerPod::ip_addr_broadcast, (uint8_t*)&ssidMessage, sizeof(Messages::SSIDMessage));
+        #ifdef isDebug
+        Serial.println("SSID sent to the pods");
+        #endif
         
         //send the response
         response->print("Changing ssid to ");
         response->print(ssidParam->value());
         response->print("The pods will now restart to apply the changes.");
         request->send(response);
+
+        #ifdef isDebug
+        Serial.println("Restarting the pod...");
+        #endif
         //restart the pod
         esp_restart();
     }

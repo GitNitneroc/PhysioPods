@@ -23,6 +23,7 @@ ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
 
     Serial.println("Starting as a client");
+    String ssid = PhysioPod::getSSIDFromPreferences(); 
     //check if we are already connected to the PhysioPod network
     if (WiFi.status() == WL_CONNECTED && WiFi.SSID() == ssid){
         #ifdef isDebug
@@ -241,6 +242,7 @@ void ClientPod::onControlPressed(){
 // callback function that will be executed when data is received
 void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len) {
     parsedMessage message = getMessageType(sender_addr, data, len);
+    //Serial.println(len);
     switch (message.type){
         case ERROR:
             Serial.println("Error parsing the message (maybe wrong session)");
@@ -296,6 +298,7 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             preferences.putUInt("ssid", ssidMessage->ssid);
             preferences.end();
             //we could restart here, but let's just wait for the ping timeout
+            setOwnLightState(true, CRGB::Green, LightMode::BLINK_SLOW);
             break;
         }
         default:

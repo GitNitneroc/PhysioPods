@@ -6,7 +6,7 @@
 //they are parsed based on their length and then casted to the appropriate struct
 namespace Messages{
 
-    enum MessageType {
+    enum MessageType : uint8_t {
         ERROR,
         NOT_FOR_ME,
         LED,
@@ -35,8 +35,11 @@ namespace Messages{
     parsedMessage getMessageType(const uint8_t * sender_addr, const uint8_t *data, int len);
 
     struct SSIDMessage{
+        const MessageType type = MessageType::SSID;
         uint16_t sessionId;
-        uint64_t ssid;
+        uint8_t ssid;
+
+        /* SSIDMessage(uint16_t sessionId, uint8_t ssid): sessionId(sessionId), ssid(ssid){} */
     };
 
     /*
@@ -50,6 +53,7 @@ namespace Messages{
         *b : the blue value of the LED
     */
     struct LEDMessage {
+        const MessageType type = MessageType::LED;
         uint8_t id;
         uint16_t sessionId;
         bool state;
@@ -66,21 +70,23 @@ namespace Messages{
         *state : the state of the control
     */
     struct ControlMessage {
+        const MessageType type = MessageType::CONTROL;
         uint8_t id;
         uint16_t sessionId;
         bool state; //in case we need to send a state, but for now it's only sent once on the press
     };
 
     struct PingMessage{ //the same struct is used for ping (client->server) and pong (server->client)
+        const MessageType type = MessageType::PING;
         uint8_t id; //always the id of the client (sender for ping, destination for pong)
         uint16_t sessionId;
     };
 
     struct IdReorgMessage{//this is used to reorganize the ids of a pod, switch him from old to newId
+        const MessageType type = MessageType::ID_REORG;
         uint8_t oldId;
         uint8_t newId;
         uint16_t sessionId;
-        uint32_t space; //Note : this is a bit stupid, but makes us a different size of struct, for parsing purposes. Since this msg is not often used it's no big deal
     };
 }
 //constexpr size_t debugSize = sizeof(ControlMessage);

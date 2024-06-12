@@ -10,10 +10,7 @@
 #include "handlers/ModeInfoHandler.h"
 #include "handlers/ModeStopHandler.h"
 #include "handlers/PeersNumHandler.h"
-
-//#include <FastLED.h>
-#include <Preferences.h>
-
+#include "handlers/SSIDHandler.h"
 
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
@@ -30,12 +27,6 @@ void setup(){
     Serial.println(VERSION);
     #endif
 
-    Preferences preferences;    
-    preferences.begin("PhysioPod", false);
-    #ifdef isDebug
-    Serial.println("Preferences opened.");
-    #endif
-
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
     //some color correction can be done here if needed on your setup (include FastLED.h to use this) :
     //FastLED.setCorrection(TypicalLEDStrip);
@@ -50,10 +41,6 @@ void setup(){
     }else{
         Serial.println("No server found ! Starting as a server...");
     }
-    preferences.end();
-    #ifdef isDebug
-    Serial.println("Preferences closed.");
-    #endif
 
     Serial.println("Creating the pod...");
     createPod(); //pod should not be nullptr anymore
@@ -76,6 +63,7 @@ void createPod(){
         serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
         serverPod->server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
+        serverPod->server.addHandler(new SSIDHandler()); //Handles the ssid change request
         serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start

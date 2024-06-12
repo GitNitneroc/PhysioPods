@@ -90,6 +90,11 @@ ServerPod::ServerPod() : server(80) {
     WiFi.disconnect();
     delay(1000); //not sure if this is necessary
 
+    #ifdef isDebug
+    Serial.print("|-SSID : ");
+    #endif
+    String ssid = getSSIDFromPreferences();
+
     //initialize the WiFi hotspot
     Serial.print("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
@@ -180,8 +185,18 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("ServerPod seems ready !");
 }
 
-void ServerPod::broadcastMessage(const void* message){
+/* void ServerPod::broadcastMessage(const void* message){
     esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) message, sizeof(message));
+    //for debug purposes convert to SSIDMessage
+    SSIDMessage* msg = (SSIDMessage*)message;
+    Serial.print("Broadcasting message of type ");
+    Serial.print(msg->type);
+    Serial.print(" with sessionId ");
+    Serial.println(msg->sessionId);
+    Serial.print("SSID : ");
+    Serial.println(msg->ssid);
+    
+    //Serial.println(sizeof(message));
     if (result == ESP_OK) {
         #ifdef isDebug
         Serial.println("Message broadcasted");
@@ -192,7 +207,7 @@ void ServerPod::broadcastMessage(const void* message){
         Serial.println(esp_err_to_name(result));
         #endif
     }
-}
+} */
 
 /*
     * This is the loop taking care of the DNS requests

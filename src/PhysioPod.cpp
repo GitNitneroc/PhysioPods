@@ -10,6 +10,8 @@
 
 PhysioPod* PhysioPod::instance = nullptr;
 
+#include <Preferences.h>
+
 #ifdef USE_NEOPIXEL
 //initialize the static members for the leds
 CRGB PhysioPod::leds[NUM_LEDS];
@@ -18,6 +20,19 @@ TaskHandle_t PhysioPod::ledTask = NULL;
 
 uint16_t PhysioPod::getSessionId(){
     return sessionId;
+}
+
+String PhysioPod::getSSIDFromPreferences(){
+    Preferences preferences;    
+    preferences.begin("PhysioPod", true);
+    uint ssidNum = preferences.getUInt("ssid", 1);
+    preferences.end();
+    String ssid = "PhysioPods";
+    ssid.concat(ssidNum);
+    #ifdef isDebug
+    Serial.println("Read ssid from preferences : "+ssid);
+    #endif
+    return ssid;
 }
 
 bool PhysioPod::searchOtherPhysioWiFi(){
@@ -29,6 +44,10 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
+
+    //get the ssid from the preferences
+    char ssid[32];
+    strcpy(ssid, getSSIDFromPreferences().c_str());
     WiFi.begin(ssid, password);
     bool LEDState = true;
 

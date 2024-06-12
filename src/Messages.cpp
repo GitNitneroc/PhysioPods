@@ -2,13 +2,14 @@
 #include "PhysioPod.h"
 using namespace Messages;
 
-
-//HACK : parsing the message is based on its length, which already shows limits in the design. Some msgs are made longer to avoid conflicts
 parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_t *data, int len){
     parsedMessage message;
-    switch (len){
-        case sizeof(PingMessage):{
+    //the first byte of the message is the type
+    MessageType type = (MessageType)data[0];
+    switch (type){
+        case MessageType::PING:{
             message.type = MessageType::PING;
+            Serial.println("Ping message received");
             PingMessage* pingMessage = (PingMessage*)data;
             //check sessiongId
             if (pingMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
@@ -17,7 +18,8 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             message.messageData = pingMessage;
             break;
         }
-        case sizeof(ControlMessage):{
+        case MessageType::CONTROL:{
+            Serial.println("Control message received");
             message.type = MessageType::CONTROL;
             ControlMessage* controlMessage = (ControlMessage*)data;
             //check sessionId
@@ -31,7 +33,8 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             message.messageData = controlMessage;
             break;
         }
-        case sizeof(IdReorgMessage):{
+        case MessageType::ID_REORG:{
+            Serial.println("IdReorg message received");
             message.type = MessageType::ID_REORG;
             IdReorgMessage* reorgMessage = (IdReorgMessage*)data;
             //check sessiongId
@@ -46,7 +49,8 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             break;
         }
         
-        case sizeof(LEDMessage):{
+        case MessageType::LED:{
+            Serial.println("LED message received");
             message.type = MessageType::LED;
             LEDMessage* ledMessage = (LEDMessage*)data;
             //check sessionId
@@ -60,17 +64,20 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             message.messageData = ledMessage;
             break;
         }
-        case sizeof(SSIDMessage):{
+        case MessageType::SSID:{
             message.type = MessageType::SSID;
+            Serial.println("SSID message received");
             SSIDMessage* ssidMessage = (SSIDMessage*)data;
             //check sessionId
             if (ssidMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
                 message.type = MessageType::ERROR;
             }
+            //all SSID messages are for everyone, so no need to check the id
             message.messageData = ssidMessage;
             break;
         }
         default:
+            Serial.println("Unknown message received");
             message.type = MessageType::ERROR;
             break;
     }
