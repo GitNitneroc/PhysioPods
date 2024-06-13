@@ -15,6 +15,7 @@
 #include "controls/ButtonControl.h"
 #include "controls/CapacitiveTouchControl.h"
 #include "controls/ProximityControl.h"
+#include "controls/PiezoControl.h"
 
 #include "modes/PhysioPodMode.h"
 #include "LightModes.h"

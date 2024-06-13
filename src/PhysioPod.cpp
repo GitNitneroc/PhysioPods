@@ -87,6 +87,8 @@ void PhysioPod::CreateControl(){
         control = new CapacitiveTouchControl(BUTTON_PIN);
     #elif defined(USE_PROXIMITY)
         control = new ProximityControl(BUTTON_PIN);
+    #elif defined(USE_PIEZO)
+        control = new PiezoControl(BUTTON_PIN);
     #else
         control = new ButtonControl(BUTTON_PIN);
     #endif
