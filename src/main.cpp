@@ -16,7 +16,6 @@ PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
-//TODO : Il faudrait une façon de changer le ssid et le mot de passe du wifi depuis l'interface web
 
 void createPod();
 
@@ -25,6 +24,7 @@ void setup(){
     #ifdef isDebug
     Serial.print("Booting, version ");
     Serial.println(VERSION);
+    Serial.println("compiled " __DATE__ " " __TIME__ );
     #endif
 
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
@@ -54,7 +54,9 @@ void createPod(){
         ServerPod* serverPod = new ServerPod();
         pod = serverPod;
 
+
         Serial.println("Adding the web handlers to the server...");
+        //TODO : this should be done in the ServerPod constructor
         //handlers for the web server
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
@@ -64,7 +66,7 @@ void createPod(){
         serverPod->server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
         serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
         serverPod->server.addHandler(new SSIDHandler()); //Handles the ssid change request
-        serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html 
+        //serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html 
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
     pod->setOwnLightState(true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG); //Note : Pulse reverts to off state after the pulse

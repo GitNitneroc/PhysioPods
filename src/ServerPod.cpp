@@ -11,22 +11,18 @@
 #endif
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
+#include <esp_wifi.h>
 
 #include "SPIFFS.h"
 //OTA
 #include <AsyncElegantOTA.h>
 
-//Our control
-#ifdef USE_CAPACITIVE_TOUCH
-    #include "controls/CapacitiveTouchControl.h"
-#else
-    #include "controls/ButtonControl.h"
-#endif
-
 #include "modes/PhysioPodMode.h"
 
 #include "Messages.h"
 using namespace Messages;
+
+#define MAX_CLIENTS 4 //The maximum number of clients that can connect to the server
 
 #define LIMIT_AP_START_ATTEMPTS 100 //The number of attempts a serverpod makes to start the AP before restarting
 
@@ -36,28 +32,10 @@ uint8_t ServerPod::peersNum = 0;
 
 void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
     //This is used to make sure the AP is started before we continue
-    //Serial.println("AP started");
     ServerPod::getInstance()->APStarted = true;
 }
 
-/* 
-void WiFiEvent(WiFiEvent_t event){
-    //Serial.println( "[WiFi-event] event: " + event );
-    switch (event) {
-        case ARDUINO_EVENT_WIFI_AP_START :
-            Serial.println("AP started");
-            ServerPod::getInstance()->APStarted = true;
-            break;
-	    case ARDUINO_EVENT_WIFI_AP_STOP:
-            Serial.println("AP Stopped !");
-            ServerPod::getInstance()->APStarted = false;
-            break;
-        default:
-            Serial.println("Other wifiEvent");
-            break;
-    }
-} */
-
+//TODO reorganize the constructor, it's too long
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
     //generate a random session id
@@ -100,14 +78,23 @@ ServerPod::ServerPod() : server(80) {
     //initialize the WiFi hotspot
     Serial.print("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
-    if(!WiFi.softAP(ssid,password,1,0,255)){//SSID, password, channel, hidden, max connection
+    if(!WiFi.softAP(ssid,password,1,0,MAX_CLIENTS)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
         Serial.println("\nFailed to start the hotspot, restarting the device");
         ESP.restart();
     }
 
     WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
-    //WiFi.onEvent(WiFiEvent);
+
+    /* // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
+	esp_wifi_stop();
+	esp_wifi_deinit();
+	wifi_init_config_t my_config = WIFI_INIT_CONFIG_DEFAULT();
+	my_config.ampdu_rx_enable = false;
+	esp_wifi_init(&my_config);
+	esp_wifi_start(); */
+	//vTaskDelay(100 / portTICK_PERIOD_MS);  // Add a small delay
+
     uint8_t i = 0;
     while (!APStarted ){
         i++;
@@ -125,6 +112,8 @@ ServerPod::ServerPod() : server(80) {
     //set the IP address of the hotspot
     Serial.println("  |-Setting softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
+    //this is the URL to access the server from the hotspot
+    #define LOCAL_IP_URL "http://192.168.1.1/static/index.html"
     IPAddress NMask(255, 255, 255, 0);
     WiFi.softAPConfig(Ip, Ip, NMask);
     #ifdef isDebug
@@ -132,9 +121,45 @@ ServerPod::ServerPod() : server(80) {
     Serial.println(WiFi.softAPIP());
     #endif
 
+    //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
+    // Required
+    server.on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
+    server.on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
+
+    // Background responses: Probably not all are Required, but some are. Others might speed things up?
+    // A Tier (commonly used by modern systems)
+    server.on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // android captive portal redirect
+    server.on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // microsoft redirect
+    server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });  // apple call home
+    server.on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });	   // firefox captive portal call home
+    server.on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
+    server.on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
+
+    // B Tier (uncommon)
+    //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
+    //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
+    //  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
+    //  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(LOCAL_IP_URL);});
+
+    // return 404 to webpage icon
+    server.on("/favicon.ico", [](AsyncWebServerRequest *request) { request->send(404); });	// webpage icon
+
+    // the catch all
+	server.onNotFound([](AsyncWebServerRequest *request) {
+		request->redirect(LOCAL_IP_URL);
+		Serial.print("server.onNotFound ");
+		Serial.print(request->host());	// This gives some insight into whatever was being requested on the serial monitor
+		Serial.print(" ");
+		Serial.print(request->url());
+		Serial.print(" sent redirect to ");
+        Serial.print( LOCAL_IP_URL);
+        Serial.println();
+	});
+
     //start the DNS server
     Serial.println("|-DNS server starting...");
     dnsServer = new DNSServer();
+    dnsServer->setTTL(3600);
     dnsServer->start(53, "*", WiFi.softAPIP());
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
