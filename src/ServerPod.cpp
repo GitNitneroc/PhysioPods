@@ -11,7 +11,7 @@
 #endif
 #include "ESPAsyncWebServer.h"
 #include <esp_now.h>
-//#include <esp_wifi.h>
+#include <esp_wifi.h>
 
 #include "SPIFFS.h"
 //OTA
@@ -86,15 +86,13 @@ ServerPod::ServerPod() : server(80) {
 
     WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
 
-    /* this didn't change anything... except the fact that the hotspot lost its parameters... it also needs <esp_wifi.h> to work
     // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
 	esp_wifi_stop();
 	esp_wifi_deinit();
 	wifi_init_config_t my_config = WIFI_INIT_CONFIG_DEFAULT();
 	my_config.ampdu_rx_enable = false;
 	esp_wifi_init(&my_config);
-	esp_wifi_start(); */
-	//vTaskDelay(100 / portTICK_PERIOD_MS);  // Add a small delay
+	esp_wifi_start();
 
     uint8_t i = 0;
     while (!APStarted ){

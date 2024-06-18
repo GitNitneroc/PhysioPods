@@ -33,7 +33,7 @@ void setup(){
     //FastLED.setTemperature( Tungsten100W );
     //FastLED.setBrightness(200); //uint8_t value for scale
 
-    WiFi.persistent(false); //don't save the wifi settings
+    //WiFi.persistent(false); //we have to use the default persistent mode, because we use esp_wifi.h functions
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
     if (shouldBeClient){
