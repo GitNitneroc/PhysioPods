@@ -25,9 +25,8 @@ void PiezoControl::initialize(void (*callback)()){
 
 bool PiezoControl::checkControl(){
     bool newState = analogRead(pin)> PIEZO_THRESHOLD;
-    //TODO : remove this debug
-    Serial.print(">piezzo:");
-    Serial.println(analogRead(pin));
+    /* Serial.print(">piezzo:");
+    Serial.println(analogRead(pin)); */
     if (newState!=state){
         //check if enough time has passed since the last change
         if (millis() - lastDebounceTime > debounceDelay){
@@ -38,7 +37,7 @@ bool PiezoControl::checkControl(){
             Serial.println(state ? "HIGH" : "LOW");
             #endif
             //notify the pod that the button is pressed
-            if (state){
+            if (!state){
                 onPressedCallback();
             }
         }

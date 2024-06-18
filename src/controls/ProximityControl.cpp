@@ -31,7 +31,7 @@ bool ProximityControl::checkControl(){
             Serial.println(state ? "HIGH" : "LOW");
             #endif
             //notify the pod that the button is pressed
-            if (state){
+            if (!state){
                 onPressedCallback();
             }
             return !state; //return true if the current is low (INPUT_PULLUP)
