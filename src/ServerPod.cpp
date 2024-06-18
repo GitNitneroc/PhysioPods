@@ -15,7 +15,7 @@
 
 #include "SPIFFS.h"
 //OTA
-#include <AsyncElegantOTA.h>
+#include <ElegantOTA.h>
 
 #include "modes/PhysioPodMode.h"
 
@@ -163,7 +163,7 @@ ServerPod::ServerPod() : server(80) {
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
     // Start ElegantOTA
-    AsyncElegantOTA.begin(&server);
+    ElegantOTA.begin(&server);
     Serial.println("|-ElegantOTA started");
 
     Serial.println("|-Web server starting...");
