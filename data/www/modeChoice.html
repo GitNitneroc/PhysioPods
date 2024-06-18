@@ -105,7 +105,7 @@
 				}
 				//create the cycle input
 				for (let i = 0; i < chaseCycleDiv.children.length; i++) {
-					cycle.push(chaseCycleDiv.children[i].value+"-"+chaseCycleDiv.children[i].colorId);
+					cycle.push(chaseCycleDiv.children[i].podId+"-"+chaseCycleDiv.children[i].colorId);
 				}
 				cycleInput.value = cycle.join(",");
 			}
@@ -167,7 +167,8 @@
 				newPod.type = "button";
 				newPod.classList.add(...["col","2","btn"]);
 				newPod.style.backgroundColor = "hsl("+window.chaseColor * 360 / 7+", 100%, 50%)";
-				newPod.value = podId ;
+				newPod.value = podId+1 ;
+				newPod.podId = podId;
 				newPod.colorId = window.chaseColor;
 				newPod.style.margin = "5px";
 				newPod.onclick = function(){
@@ -193,11 +194,12 @@
 					let newPod = document.createElement("input");
 					newPod.type = "button";
 					newPod.classList.add(...["col","2","btn"]);
-					newPod.value = i ;
+					newPod.value = "Pod "+(i+1) ;
+					newPod.podId = i;
 					newPod.style.margin = "5px";
 					newPod.style.backgroundColor = "hsl("+window.chaseColor * 360 / 7+", 100%, 50%)";
 					newPod.onclick = function(){
-						addPodToChaseCycle(this.value);
+						addPodToChaseCycle(this.podId);
 					}
 					chaseButtonsDiv.appendChild(newPod);
 				}
