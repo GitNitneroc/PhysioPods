@@ -16,6 +16,14 @@ Nous avons souhaité proposer une alternative avec des objectifs qui nous semble
 ## Comment créer mes propres pods
 On y travaille... Il va falloir acheter des composants (liste à venir), les assembler (instructions à venir) et les placer dans un boîtier (fichiers à imprimer à venir).
 
+Listes des composants :
+- ESP :
+- Module de charge : TP4056
+- Batterie :
+- Interrupteur 2 positions :
+- Ring Led : 
+- Capteur Piezo : 
+
 ## Comment ça marche ?
 Les Physiopods reposent sur des ESP32. De nombreuses options doivent être possibles, mais les tests ont surtout été faits sur des [ESP32-S3](https://www.espressif.com/en/products/socs/esp32-s3). Ces composants sont capables de créer un réseau wifi, ce qui permet à tous les pods de se connecter entre eux, mais aussi à l'utilisateur de se connecter. Il est alors redirigé vers l'interface utilisateur, qui va lui permettre d'interragir avec les pods (par exemple pour lancer une partie, ou pour consulter les scores).
 
