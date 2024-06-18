@@ -2,13 +2,14 @@
 #include "ServerPod.h"
 
 
-void ChaseMode::initialize(int cycles, uint8_t* cycle, int cycleLength) {
+void ChaseMode::initialize(int cycles, uint8_t* cycle, uint8_t* colors, int cycleLength) {
     this->cycles = cycles;
     this->currentStep = 0;
     this->cycleLength = cycleLength;
-    //copy the cycle array
-    for (int i = 0; i < cycles; i++) {
+    //copy the arrays
+    for (int i = 0; i < cycleLength; i++) {
         this->cycle[i] = cycle[i];
+        this->colors[i] = colors[i];
     }
     reset();
 }
@@ -18,7 +19,16 @@ void ChaseMode::start() {
     reset();
     startTimer = millis();
     //light the first pod
-    ServerPod::setPodLightState(cycle[currentStep],true, CRGB::Green, LightMode::CYCLE_FAST);
+    lightCurrentPod();
+}
+
+void ChaseMode::lightCurrentPod(){
+    //compute color
+    uint8_t h = 255 / 7* colors[this->currentStep];
+    CRGB color;
+    hsv2rgb_rainbow(CHSV(h, 255, 255), color);
+    //actually light the pod
+    ServerPod::setPodLightState(this->cycle[this->currentStep],true, color, LightMode::CYCLE_FAST);
 }
 
 void ChaseMode::stop() {
@@ -62,7 +72,12 @@ bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
     int start = 0;
     while (i <= cycleString.length()) {
         if (i == cycleString.length() || cycleString[i] == ',') {
-            parameters.cycle[j] = cycleString.substring(start, i).toInt();
+            String pair = cycleString.substring(start, i);
+            int delimiterPos = pair.indexOf('-');
+            parameters.cycle[j] = pair.substring(0, delimiterPos).toInt();
+            Serial.print("cycle "+String(j)+" : "+String(parameters.cycle[j]));
+            parameters.colors[j] = pair.substring(delimiterPos + 1).toInt();
+            Serial.println(" color "+String(parameters.colors[j]));
             j++;
             start = i + 1;
         }
@@ -86,7 +101,7 @@ PhysioPodMode* ChaseMode::generateMode() {
     #ifdef isDebug
     Serial.println("Mode created, initializing...");
     #endif
-    newMode->initialize(ChaseMode::parameters.cycles, ChaseMode::parameters.cycle, ChaseMode::parameters.cycleLength);
+    newMode->initialize(ChaseMode::parameters.cycles, ChaseMode::parameters.cycle, ChaseMode::parameters.colors, ChaseMode::parameters.cycleLength);
     return newMode;
 }
 
@@ -107,7 +122,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
             currentStep++;
             ServerPod::setPodLightState(id,true, CRGB::Green, LightMode::PULSE_ON_OFF_SHORT); //light the pod green for a short time to indicate success, it will turn off automatically
             #ifdef isDebug
-            Serial.println("Pod "+String(id)+" pressed, go to step id "+String(currentStep)+" (len="+String(cycleLength)+")");
+            Serial.println("Pod "+String(id)+" pressed, go to step id "+String(currentStep)+"(pod "+String(cycle[currentStep])+",color "+String(colors[currentStep])+") (len="+String(cycleLength)+")");
             #endif
             
             if (currentStep >= cycleLength) {
@@ -127,8 +142,8 @@ void ChaseMode::onPodPressed(uint8_t id) {
                     return;
                 }
             }
-            //light the next pod
-            ServerPod::setPodLightState(this->cycle[this->currentStep],true, CRGB::Teal, LightMode::CYCLE_FAST);
+            //light the new pod
+            lightCurrentPod();
 
         } else {
             //the wrong pod was pressed

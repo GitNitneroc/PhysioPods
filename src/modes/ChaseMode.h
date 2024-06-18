@@ -5,6 +5,7 @@
 struct ChaseParameters{
     int cycles;
     uint8_t cycle[512];
+    uint8_t colors[512]; //those colors are in range 0-7 and should be converted on the HSV scale
     int cycleLength;
 }; 
 
@@ -16,10 +17,13 @@ protected :
     int8_t cycles;
     int cycleLength;
     uint8_t cycle[512];
-    static ChaseParameters parameters;   
+    uint8_t colors[512];
+    static ChaseParameters parameters;
+
+    void lightCurrentPod();
     
 public:
-    void initialize(int cycles, uint8_t* cycle, int cycleLength);
+    void initialize(int cycles, uint8_t* cycle, uint8_t* colors, int cycleLength);
 
     static bool testRequestParameters(AsyncWebServerRequest *request);
     static PhysioPodMode* generateMode();
