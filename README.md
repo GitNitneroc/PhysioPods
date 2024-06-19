@@ -14,19 +14,15 @@ Nous avons souhaité proposer une alternative avec des objectifs qui nous semble
 - Polyvalent : les pods doivent pouvoir être posés au sol, fixés avec des sangles ou des ventouses pour permettre des usages différents. De même, le code est prévu pour qu'il soit assez facile d'ajouter d'autres contrôleurs (passer d'un bouton à un capteur capacitif, à un capteur de proximité ou encore à un capteur piezo)
 
 ## Comment créer mes propres pods
-On y travaille... Il va falloir acheter des composants (liste à venir), les assembler (instructions à venir) et les placer dans un boîtier (fichiers à imprimer à venir).
+On y travaille...
 
-Listes des composants :
-- ESP :
-- Module de charge : TP4056
-- Batterie :
-- Interrupteur 2 positions :
-- Ring Led : 
-- Capteur Piezo :
+Vous pouvez utiliser la [Feuille de route des différents composants](https://lite.framacalc.org/qh2ci1g483-a8e7) pour visualiser les différents composants nécessaires à la fabrication de vos Pods. Entrez la quantité de Pod désirée et vous obtiendrez un aperçu du coùt de fabrication ainsi que les quantités à acheter.
 
-[Feuille de route des différents composants](https://lite.framacalc.org/qh2ci1g483-a8e7)
+Pour acheter les différents composants, voici une [Liste d'achat AliExpress](https://www.aliexpress.com/p/wishlist/shareReflux.html?groupId=afP5eqgDhE6RQVqTO1i1rTBBvAYjB%2Fnj%2Bz6Nbt9ddoo%3D). Pensez à bien vérifier les caractéristiques des différents produits (valeur de résistance, nombre de led sur le ring, etc) selon les valeurs indiquées sur la feuille de route vue précédemment.
 
-[Liste d'achat AliExpress](https://www.aliexpress.com/p/wishlist/shareReflux.html?groupId=afP5eqgDhE6RQVqTO1i1rTBBvAYjB%2Fnj%2Bz6Nbt9ddoo%3D)
+Impression du boitier
+
+Instructions de montage du boitier Pod
 
 ## Comment ça marche ?
 Les Physiopods reposent sur des ESP32. De nombreuses options doivent être possibles, mais les tests ont surtout été faits sur des [ESP32-S3](https://www.espressif.com/en/products/socs/esp32-s3). Ces composants sont capables de créer un réseau wifi, ce qui permet à tous les pods de se connecter entre eux, mais aussi à l'utilisateur de se connecter. Il est alors redirigé vers l'interface utilisateur, qui va lui permettre d'interragir avec les pods (par exemple pour lancer une partie, ou pour consulter les scores).
