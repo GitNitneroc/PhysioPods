@@ -24,7 +24,7 @@ Listes des composants :
 - Ring Led : 
 - Capteur Piezo :
 
-Feuille de route des différents composants : https://lite.framacalc.org/qh2ci1g483-a8e7
+[Feuille de route des différents composants](https://lite.framacalc.org/qh2ci1g483-a8e7)
 
 [Liste d'achat AliExpress](https://www.aliexpress.com/p/wishlist/shareReflux.html?groupId=afP5eqgDhE6RQVqTO1i1rTBBvAYjB%2Fnj%2Bz6Nbt9ddoo%3D)
 
