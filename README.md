@@ -25,7 +25,8 @@ Listes des composants :
 - Capteur Piezo :
 
 Feuille de route des différents composants : https://lite.framacalc.org/qh2ci1g483-a8e7
-Liste d'achat AliExpress : https://www.aliexpress.com/p/wishlist/shareReflux.html?groupId=afP5eqgDhE6RQVqTO1i1rTBBvAYjB%2Fnj%2Bz6Nbt9ddoo%3D
+
+[Liste d'achat AliExpress](https://www.aliexpress.com/p/wishlist/shareReflux.html?groupId=afP5eqgDhE6RQVqTO1i1rTBBvAYjB%2Fnj%2Bz6Nbt9ddoo%3D)
 
 ## Comment ça marche ?
 Les Physiopods reposent sur des ESP32. De nombreuses options doivent être possibles, mais les tests ont surtout été faits sur des [ESP32-S3](https://www.espressif.com/en/products/socs/esp32-s3). Ces composants sont capables de créer un réseau wifi, ce qui permet à tous les pods de se connecter entre eux, mais aussi à l'utilisateur de se connecter. Il est alors redirigé vers l'interface utilisateur, qui va lui permettre d'interragir avec les pods (par exemple pour lancer une partie, ou pour consulter les scores).
