@@ -130,6 +130,7 @@ ServerPod::ServerPod() : server(80) {
     server.on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // android captive portal redirect
     server.on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // microsoft redirect
     server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });  // apple call home
+    server.on("/library/test/success.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // legacy apple call home
     server.on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });	   // firefox captive portal call home
     server.on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
     server.on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
