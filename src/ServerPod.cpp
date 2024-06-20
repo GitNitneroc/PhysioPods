@@ -135,6 +135,8 @@ ServerPod::ServerPod() : server(80) {
     server.on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
     server.on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
 
+    server.on("/generate204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });
+
     // B Tier (uncommon)
     //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
     //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
