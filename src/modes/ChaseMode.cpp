@@ -109,6 +109,7 @@ ChaseMode::ChaseMode() {
     startTimer = 0;
     currentStep = 0;
     currentCycle = 0;
+    cycleLength = 0;
 }
 
 String* ChaseMode::returnScore() {

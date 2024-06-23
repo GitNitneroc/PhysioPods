@@ -180,6 +180,7 @@ void ColorWarMode::onPodPressed(uint8_t id) {
 ColorWarMode::ColorWarMode() {
     StartTimer = 0;
     lastTest = 0;
+    probability = 0;
     //fill the arrays with 0
     std::fill_n(scores, 255, 0);
     std::fill_n(podsColors, 255, 0);

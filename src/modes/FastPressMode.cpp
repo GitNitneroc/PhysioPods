@@ -95,6 +95,7 @@ FastPressMode::FastPressMode() {
     podToPress = 0;
     interval = 0;
     timer = 0;
+    numberOfTries = 0;
 }
 
 void FastPressMode::stop() {
