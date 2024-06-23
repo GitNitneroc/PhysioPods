@@ -146,6 +146,12 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 */
 
 void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
+
+    //debug : show the available memory
+    #ifdef isDebug
+    Serial.print(">Available memory:");
+    Serial.println(ESP.getFreeHeap());
+    #endif
     #ifndef USE_NEOPIXEL
         #ifdef isDebug
         Serial.println("The neopixel is not enabled, the color will not be set");
@@ -163,28 +169,26 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     //we are using neopixels
     //kill the ledTask if it was running
     if (ledTask != NULL){
-        /* #ifdef isDebug
+        #ifdef isDebug
         Serial.println("|-There is a ledTask running, killing it now");
-        #endif */
+        #endif
         vTaskDelete(ledTask);
         ledTask = NULL;
-        /* #ifdef isDebug
+        #ifdef isDebug
         Serial.println("|-Killed the ledTask");
-        #endif */
+        #endif
     }
 
     //clear the leds
     FastLED.clear(true);
 
-    CRGB* colorCopy = new CRGB(color);
-    color; //we need to copy the color, because the color is a reference, and we will use it in the task
-    
     if (state){
+        CRGB* colorCopy = new CRGB(color);//we need to copy the color, because the color is a reference, and we will use it in the task
         switch (mode){
         case LightMode::SIMPLE:
             //Serial.println("Setting the leds to a simple color");
             FastLED.showColor(*colorCopy);
-            //FastLED.show();
+            delete colorCopy; //in simple mode there is no task, so we can delete the colorCopy
             break;
         case LightMode::BLINK_FAST:
             //Serial.println("Setting the leds to blink fast");
@@ -199,7 +203,7 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
             xTaskCreate(PhysioPod::SlowBlinkLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::CYCLE_FAST:
-            //Serial.println("Setting the leds to cycle fast");
+            Serial.println("Setting the leds to cycle fast");
             //create the cycle task
             xTaskCreate(PhysioPod::FastCycleLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
@@ -226,7 +230,7 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     else{
         //the leds have been cleared
         //the ledTask is not running
-        //Serial.println("|-The leds have been cleared");
+        Serial.println("|-The leds have been cleared");
         FastLED.show();
     }
 }
