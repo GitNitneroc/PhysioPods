@@ -157,70 +157,89 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
     #endif
 
     #ifdef isDebug
-        Serial.printf("Setting the rgb led to state %d, with color : %d,%d,%d. Mode = %d\n", state, color.r, color.g, color.b, mode);
+    Serial.printf("-Setting the rgb led to state %d, with color : %d,%d,%d. Mode = %d\n", state, color.r, color.g, color.b, mode);
     #endif
 
     //we are using neopixels
     //kill the ledTask if it was running
     if (ledTask != NULL){
+        /* #ifdef isDebug
+        Serial.println("|-There is a ledTask running, killing it now");
+        #endif */
         vTaskDelete(ledTask);
         ledTask = NULL;
-        #ifdef isDebug
-        Serial.println("Killed the ledTask");
-        #endif
+        /* #ifdef isDebug
+        Serial.println("|-Killed the ledTask");
+        #endif */
     }
 
     //clear the leds
     FastLED.clear(true);
+
+    CRGB* colorCopy = new CRGB(color);
+    color; //we need to copy the color, because the color is a reference, and we will use it in the task
     
     if (state){
         switch (mode){
         case LightMode::SIMPLE:
-            FastLED.showColor(color);
+            //Serial.println("Setting the leds to a simple color");
+            FastLED.showColor(*colorCopy);
             //FastLED.show();
             break;
         case LightMode::BLINK_FAST:
+            //Serial.println("Setting the leds to blink fast");
+            //print the colorCopy
+            //Serial.printf("Color : %d,%d,%d\n", colorCopy->r, colorCopy->g, colorCopy->b);
             //create the blink task
-            xTaskCreate(PhysioPod::FastBlinkLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::FastBlinkLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::BLINK_SLOW:
+            //Serial.println("Setting the leds to blink slow");
             //create the blink task
-            xTaskCreate(PhysioPod::SlowBlinkLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::SlowBlinkLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::CYCLE_FAST:
+            //Serial.println("Setting the leds to cycle fast");
             //create the cycle task
-            xTaskCreate(PhysioPod::FastCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::FastCycleLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::CYCLE_SLOW:
+            //Serial.println("Setting the leds to cycle slow");
             //create the cycle task
-            xTaskCreate(PhysioPod::SlowCycleLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::SlowCycleLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::PULSE_ON_OFF_SHORT:
+            //Serial.println("Setting the leds to pulse short");
             //create the pulse task
-            xTaskCreate(PhysioPod::ShortPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::ShortPulseLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         case LightMode::PULSE_ON_OFF_LONG:
+            //Serial.println("Setting the leds to pulse long");
             //create the pulse task
-            xTaskCreate(PhysioPod::LongPulseLeds, "ledTask", 2048, (void *) &color, 2, &ledTask);
+            xTaskCreate(PhysioPod::LongPulseLeds, "ledTask", 2048, (void *) colorCopy, 2, &ledTask);
             break;
         default:
+            Serial.println("ERROR : The light mode is not recognized !");
             break;
         }
     }
     else{
         //the leds have been cleared
         //the ledTask is not running
+        //Serial.println("|-The leds have been cleared");
         FastLED.show();
     }
 }
 
 void PhysioPod::ShortPulseLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
     PhysioPod::PulseLeds(color, 20);
 }
 
 void PhysioPod::LongPulseLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
     PhysioPod::PulseLeds(color, 200);
 }
 
@@ -240,11 +259,13 @@ void PhysioPod::PulseLeds(CRGB color, long delayTime){
 
 void PhysioPod::FastCycleLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
     PhysioPod::CycleLeds(color, 20);
 }
 
 void PhysioPod::SlowCycleLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
     PhysioPod::CycleLeds(color, 100);
 }
 
@@ -263,22 +284,30 @@ void PhysioPod::CycleLeds(CRGB color, long delayTime){
 
 void PhysioPod::FastBlinkLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
+    Serial.println("FastBlinkLeds");
     PhysioPod::BlinkLeds(color, 200);
 }
 
 void PhysioPod::SlowBlinkLeds(void* param){
     CRGB color = *(static_cast<CRGB*>(param));
+    delete static_cast<CRGB*>(param);
     PhysioPod::BlinkLeds(color, 500);
 }
 
 void PhysioPod::BlinkLeds(CRGB color, long delayTime){
-    uint8_t i = 0;
+    Serial.println("BlinkLeds");
+    //print the color
+    Serial.printf("Color : %d,%d,%d\n", color.r, color.g, color.b);
     while(true){
+        Serial.println("BlinkLeds on");
+        //print the color
+        Serial.printf("Color : %d,%d,%d\n", color.r, color.g, color.b);
         FastLED.showColor(color);
-        //Serial.println("Cycle is showing the leds");
         vTaskDelay(delayTime / portTICK_PERIOD_MS);
         FastLED.clear(true);
         FastLED.show();
+        Serial.println("BlinkLeds off");
         vTaskDelay(delayTime / portTICK_PERIOD_MS);
     }
 }
