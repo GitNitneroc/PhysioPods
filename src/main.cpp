@@ -25,6 +25,8 @@ void setup(){
     Serial.print("Booting, version ");
     Serial.println(VERSION);
     Serial.println("compiled " __DATE__ " " __TIME__ );
+    Serial.print("Executing on core ");
+    Serial.println(xPortGetCoreID());
     #endif
 
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
@@ -53,7 +55,6 @@ void createPod(){
         ScoreStorage::init();
         ServerPod* serverPod = new ServerPod();
         pod = serverPod;
-
 
         Serial.println("Adding the web handlers to the server...");
         //TODO : this should be done in the ServerPod constructor
