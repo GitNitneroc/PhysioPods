@@ -275,6 +275,9 @@ void PhysioPod::SlowCycleLeds(void* param){
 }
 
 void PhysioPod::CycleLeds(CRGB color, long delayTime){
+    Serial.println("CycleLeds");
+    Serial.print("Executing on core ");
+    Serial.println(xPortGetCoreID());
     uint8_t i = 0;
     //TODO : this only supports USE_NEOPIXEL
     while(true){
@@ -302,8 +305,10 @@ void PhysioPod::SlowBlinkLeds(void* param){
 
 void PhysioPod::BlinkLeds(CRGB color, long delayTime){
     Serial.println("BlinkLeds");
+    Serial.print("Executing on core ");
+    Serial.println(xPortGetCoreID());
     //print the color
-    Serial.printf("Color : %d,%d,%d\n", color.r, color.g, color.b);
+    //Serial.printf("Color : %d,%d,%d\n", color.r, color.g, color.b);
     while(true){
         Serial.println("BlinkLeds on");
         //print the color
