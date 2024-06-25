@@ -224,6 +224,7 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
             break;
         default:
             Serial.println("ERROR : The light mode is not recognized !");
+            delete colorCopy;
             break;
         }
     }
