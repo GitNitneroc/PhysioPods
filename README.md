@@ -24,6 +24,8 @@ Pour acheter les différents composants, voici une [Liste d'achat AliExpress](ht
 
 ### Instructions de montage du boitier Pod
 
+**NE PAS PREPARER LES ESP AVEC LEURS HEADERS AVANT QUE CE NE SOIT DEMANDE !!**
+
 **Préparation de l'anneau de Leds :**
 - Préparer 3 fils de 10 cm : un noir pour la masse, un rouge pour le positif et un coloré pour la data DI _(vert dans notre exemple)_ ;
 - Dénuder les extrémités et les étamer ;
