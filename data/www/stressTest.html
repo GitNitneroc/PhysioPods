@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PhysioPods</title>
+        <link rel="stylesheet" href="./css/lit.css">
+    </head>
+    <body> 
+        <div class="c">
+			<div class="row card">
+				<h1>Stress Tests</h1>
+				<hr>
+				<div class="row">
+					<div class="col"><a href="/static/index.html">Home</a></div>
+					<div class="col"><a href="/serverRegistration">Mac Address</a></div>
+                    <div class="col"><a href="/static/modeChoice.html">Choose a mode</a></div>
+                    <div class="col"><a href="/static/results.html">Results</a></div>
+					<div class="col"><a href="/static/parameters.html">Parameters</a></div>
+				</div>
+				<hr>
+			</div>
+        </div>
+		<div class="c">
+			<form>
+                <div>
+                    <label><input type="checkbox" name="leds" value="leds" checked>LEDS ON/OFF</label>
+                </div>
+                <div>
+                    <label><input type="checkbox" name="html" value="html" checked>Pages statiques</label>
+                </div>
+				<div>
+                    <label><input type="checkbox" name="dynamic" value="dynamic" checked>Pages dynamiques (MAC, modeInfo, peers)</label>
+                </div>
+                <div>
+                    <label><input type="checkbox" name="modes" value="modes" checked>Arrête/Relance le dernier mode</label>
+                </div>
+				<div>
+                    <label for="rangeSlider">Requêtes par minute :</label>
+                    <input type="range" id="freq" name="freq" min="0" max="1000" value="60" oninput="this.nextElementSibling.value = this.value"  style="width: 100%;">
+					<output>60</output>
+                </div>
+                <button type="button" onclick="startStressTest()">GO !</button>
+            </form>
+			
+		</div>
+        <script>
+			var htmlOptions = ["index.html", "modeChoice.html", "results.html", "parameters.html"];
+			var dynamicOptions = ["serverRegistration", "modeInfo", "peers"];	
+			var stressing = false;
+			var leds = true;
+			var html = true;
+			var dynamic = true;
+			var modes = true;
+
+			async function startStressTest() {
+				var freq = document.getElementById("freq").value;
+				
+				//change the button text and onclick to stopStressTest
+				document.getElementsByTagName("button")[0].innerText = "STOP !";
+				document.getElementsByTagName("button")[0].setAttribute("onclick", "stopStressTest()");
+
+				stressing = true;
+				while (stressing){
+					leds = document.getElementsByName("leds")[0].checked;
+					html = document.getElementsByName("html")[0].checked;
+					dynamic = document.getElementsByName("dynamic")[0].checked;
+					modes = document.getElementsByName("modes")[0].checked;
+					await waitAndRunStressTest();
+				}
+			}
+
+			async function waitAndRunStressTest(){
+				var freq = document.getElementById("freq").value;
+				await new Promise(r => setTimeout(r, 60000/freq));
+				console.log("running stress test");
+				runStressTest();
+			}
+
+			function runStressTest(){
+				//pick leds html or modes randomly if they are checked
+				var options = [];
+				if (leds) {
+					options.push("led");
+				}
+				if (html) {
+					options.push("html");
+				}
+				if (dynamic) {
+					options.push("dynamic");
+				}	
+				if (modes) {
+					options.push("mode");
+				}
+				var option = options[Math.floor(Math.random() * options.length)];
+				if (option == "led") {
+					//id should be random : 0 or 255
+					let id = Math.floor(Math.random() * 2) * 255;
+					let mode = Math.floor(Math.random() * 7);
+					let state = (Math.floor(Math.random() * 2) == 0) ? "ON" : "OFF";
+					fetch("/LED?LED="+state+"&id="+id+"&mode="+mode);
+				} else if (option == "html") {
+					fetch("/static/"+htmlOptions[Math.floor(Math.random() * htmlOptions.length)]);
+				} else if (option == "dynamic") {
+					fetch("/"+dynamicOptions[Math.floor(Math.random() * dynamicOptions.length)]);
+				} else if (option == "mode") {
+					if (Math.floor(Math.random() * 2) == 0) {
+						fetch("/modeStop");
+					} else {
+						fetch("/launchMode?restart=1");
+					}
+					fetch("/modeStop");
+				}
+			}
+
+			function stopStressTest() {
+				//change the button text and onclick to startStressTest
+				document.getElementsByTagName("button")[0].innerText = "GO !";
+				document.getElementsByTagName("button")[0].setAttribute("onclick", "startStressTest()");
+			}
+			
+        </script>
+    </body>
+</html>
