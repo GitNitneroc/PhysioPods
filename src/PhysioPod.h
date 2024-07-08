@@ -25,26 +25,24 @@ protected :
     uint8_t id;
     uint16_t sessionId = 0;
     static PhysioPod* instance;
+
+    //TODO remove the USE_NEOPIXEL define
     #ifdef USE_NEOPIXEL
-    static CRGB leds[NUM_LEDS];
-    static TaskHandle_t ledTask;
+    static TaskHandle_t ledTask; //TODO : is this needed ?
     #endif
-
-    //some Led tasks :
-    static void FastCycleLeds(void* param);
-    static void SlowCycleLeds(void* param);
-    static void CycleLeds(CRGB color, long delayTime);
-    static void FastBlinkLeds(void* param);
-    static void SlowBlinkLeds(void* param);
-    static void BlinkLeds(CRGB color, long delayTime);
-    static void ShortPulseLeds(void* param); 
-    static void LongPulseLeds(void* param); 
-    static void PulseLeds(CRGB color, long delayTime);
-
 
 public :
     //WIFI settings :
     static constexpr const char* password = "0123456789";
+
+    //light settings
+    //TODO : plutôt que tout avoir en static, on peut utiliser le singleton instance
+    static CRGB leds[NUM_LEDS];
+    static LightMode lightMode;
+    static bool lightState;
+    static CRGB lightColor;
+    static bool lightChanged; //this is used by SetOwnLightState to signify something in the light has changed
+
     /*
         * This function is called to search for other PhysioPods
         * It will scan for WiFi networks and look for the PhysioPod network
@@ -75,7 +73,10 @@ public :
     uint16_t getSessionId();
 
     /* This is used to set this pod light on or off*/
-    static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE); ;
+    static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE);
+
+    /* This will turn on/off and animate lights */
+    static void manageOwnLight(void *param);
 };
 
 #endif
