@@ -91,7 +91,7 @@ void PhysioPod::initLEDs(){
     #ifdef isDebug
     Serial.println("Creating the light manager Task");
     #endif
-    xTaskCreate(PhysioPod::manageOwnLight, "ledTask", 2048, NULL , 2, &ledTask);
+    xTaskCreatePinnedToCore(PhysioPod::manageOwnLight, "ledTask", 2048, NULL , 2, &ledTask, 0);
 }
 
 
@@ -147,7 +147,7 @@ void PhysioPod::manageOwnLight(void* vParameters){
         case LightMode::BLINK_SLOW:
             if (PhysioPod::lightState){
                 unsigned long time = millis();
-                bool microState = true;
+                bool microState = false;
                 while(!PhysioPod::lightChanged){
                     if (millis()-time>500){
                         //blink
@@ -201,7 +201,7 @@ void PhysioPod::manageOwnLight(void* vParameters){
                         Serial.println("Exiting Cycle LED mode!");
                         break;
                     }
-                    if (millis()-time>200){ //change led
+                    if (millis()-time>150){ //change led
                         time = millis();
                         i = (i+1)%(NUM_LEDS);
                         PhysioPod::leds[i] = PhysioPod::lightColor;
@@ -218,8 +218,9 @@ void PhysioPod::manageOwnLight(void* vParameters){
             if (PhysioPod::lightState){
                 unsigned long time = millis();
                 Serial.println("Pulse LED mode");
-                fill_solid(PhysioPod::leds, NUM_LEDS, PhysioPod::lightColor);
-                FastLED.show();
+                FastLED.showColor(PhysioPod::lightColor);
+                //fill_solid(PhysioPod::leds, NUM_LEDS, PhysioPod::lightColor);
+                //FastLED.show();
                 while (true){
                     if (millis()-time>20){
                         time = millis();
@@ -242,8 +243,9 @@ void PhysioPod::manageOwnLight(void* vParameters){
             if (PhysioPod::lightState){
                 unsigned long time = millis();
                 Serial.println("Pulse LED mode");
-                fill_solid(PhysioPod::leds, NUM_LEDS, PhysioPod::lightColor);
-                FastLED.show();
+                FastLED.showColor(PhysioPod::lightColor);
+                //fill_solid(const_cast<CRGB*>(PhysioPod::leds), NUM_LEDS, PhysioPod::lightColor);
+                //FastLED.show();
                 while (true){
                     if (millis()-time>300){
                         time = millis();
