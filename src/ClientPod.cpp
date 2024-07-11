@@ -258,11 +258,7 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             Serial.println("-Color : "+String(ledMessage->r)+","+String(ledMessage->g)+","+String(ledMessage->b));
             Serial.println("-Mode : "+String(ledMessage->mode));
             #endif
-            #ifdef USE_NEOPIXEL
             PhysioPod::setOwnLightState(ledMessage->state, CRGB(ledMessage->r, ledMessage->g, ledMessage->b), static_cast<LightMode>(ledMessage->mode));
-            #else
-            PhysioPod::setOwnLightState(ledMessage->state);
-            #endif
             break;
         }
         case ID_REORG:{

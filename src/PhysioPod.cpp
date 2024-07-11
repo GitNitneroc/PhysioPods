@@ -71,11 +71,7 @@ bool PhysioPod::searchOtherPhysioWiFi(){
 }
 
 void PhysioPod::initLEDs(){
-    #ifdef USE_NEOPIXEL
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
-    #else
-    pinMode(LED_PIN, OUTPUT);
-    #endif
 
     //create the ledTask
     #ifdef isDebug
