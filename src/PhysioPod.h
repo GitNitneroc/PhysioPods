@@ -26,22 +26,19 @@ protected :
     uint16_t sessionId = 0;
     static PhysioPod* instance;
 
-    //TODO remove the USE_NEOPIXEL define
-    #ifdef USE_NEOPIXEL
-    static TaskHandle_t ledTask; //TODO : is this needed ?
-    #endif
 
 public :
     //WIFI settings :
     static constexpr const char* password = "0123456789";
 
-    //light settings
-    //TODO : plutôt que tout avoir en static, on peut utiliser le singleton instance
-    static CRGB leds[NUM_LEDS];
+    //light settings : 
+    //this stays static, as the PhysioPod is not created at the start, it's only initialised when the pod is created as client or server
+    static CRGB leds[NUM_LEDS]; 
     static LightMode lightMode;
     static bool lightState;
     static CRGB lightColor;
     static bool lightChanged; //this is used by SetOwnLightState to signify something in the light has changed
+    
 
     /*
         * This function is called to search for other PhysioPods

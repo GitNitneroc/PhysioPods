@@ -9,20 +9,13 @@
 #endif
 
 PhysioPod* PhysioPod::instance = nullptr;
-
-#include <Preferences.h>
-
-#ifdef USE_NEOPIXEL
-//initialize the static members for the leds
 CRGB PhysioPod::leds[NUM_LEDS];
-TaskHandle_t PhysioPod::ledTask = NULL;
-#endif
-
 CRGB PhysioPod::lightColor = CRGB::Black;
 LightMode PhysioPod::lightMode = LightMode::SIMPLE;
 bool PhysioPod::lightState = false;
 bool PhysioPod::lightChanged = false;
 
+#include <Preferences.h>
 
 uint16_t PhysioPod::getSessionId(){
     return sessionId;
@@ -77,9 +70,6 @@ bool PhysioPod::searchOtherPhysioWiFi(){
     }
 }
 
-/*
-    * This creates the led or leds for the pod
-*/
 void PhysioPod::initLEDs(){
     #ifdef USE_NEOPIXEL
     FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
@@ -91,7 +81,7 @@ void PhysioPod::initLEDs(){
     #ifdef isDebug
     Serial.println("Creating the light manager Task");
     #endif
-    xTaskCreatePinnedToCore(PhysioPod::manageOwnLight, "ledTask", 2048, NULL , 2, &ledTask, 0);
+    xTaskCreatePinnedToCore(PhysioPod::manageOwnLight, "ledTask", 2048, NULL , 2, NULL, 0);
 }
 
 
@@ -273,7 +263,6 @@ void PhysioPod::manageOwnLight(void* vParameters){
         Serial.println(xPortGetCoreID()); */
     }
 }
-
 void PhysioPod::CreateControl(){
     #ifdef USE_CAPACITIVE_TOUCH
         control = new CapacitiveTouchControl(BUTTON_PIN);
@@ -338,14 +327,14 @@ bool PhysioPod::SearchOtherPhysioWiFi(){
 */
 
 void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
-    #ifdef isDebug
+    /* #ifdef isDebug
     Serial.print(">Available memory:");
     Serial.println(ESP.getFreeHeap());
     Serial.printf("-Setting the rgb led to state %d, with color : %d,%d,%d. Mode = %d\n", state, color.r, color.g, color.b, mode);
-    #endif
+    #endif */
 
-    PhysioPod::lightState = state;
-    PhysioPod::lightColor = color;
-    PhysioPod::lightMode = mode;
-    PhysioPod::lightChanged = true;
+    lightState = state;
+    lightColor = color;
+    lightMode = mode;
+    lightChanged = true;
 }
