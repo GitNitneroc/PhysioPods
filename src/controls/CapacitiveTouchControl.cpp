@@ -16,6 +16,7 @@ CapacitiveTouchControl::CapacitiveTouchControl(byte pin){
     //this->checking = false;
     this->state = false;
     this->onPressedCallback = nullptr;
+    Serial.println('CapacitiveTouchControl created');
 }
 
 void CapacitiveTouchControl::initialize(void (*callback)()){

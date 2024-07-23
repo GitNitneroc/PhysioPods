@@ -14,6 +14,7 @@ PiezoControl::PiezoControl(byte pin){
     this->state = false;
     this->lastDebounceTime = 0;
     this->onPressedCallback = nullptr;
+    Serial.println('PiezoControl created');
 }
 
 void PiezoControl::initialize(void (*callback)()){
