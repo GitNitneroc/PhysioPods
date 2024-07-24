@@ -15,6 +15,12 @@
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
+//TODO : changer BUTTON_PIN en control pin
+//TODO : mode leurres dans fastPress
+//TODO : lightmode rainbow
+//TODO : physioPodMode aller/retour...
+
+
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
 
 void createPod();
