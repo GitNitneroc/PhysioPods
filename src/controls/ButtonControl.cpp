@@ -10,7 +10,7 @@ ButtonControl::ButtonControl(byte pin){
     this->state = false;
     this->lastDebounceTime = 0;
     this->onPressedCallback = nullptr;
-    Serial.println('ButtonControl created');
+    Serial.println("ButtonControl created");
 }
 
 void ButtonControl::initialize(void (*callback)()){

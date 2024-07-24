@@ -14,7 +14,7 @@ PiezoControl::PiezoControl(byte pin){
     this->state = false;
     this->lastDebounceTime = 0;
     this->onPressedCallback = nullptr;
-    Serial.println('PiezoControl created');
+    Serial.println("PiezoControl created");
 }
 
 void PiezoControl::initialize(void (*callback)()){
@@ -25,6 +25,7 @@ void PiezoControl::initialize(void (*callback)()){
 
 
 bool PiezoControl::checkControl(){
+    Serial.printf(">piezzo:%d\n", analogRead(pin));
     bool newState = analogRead(pin)> PIEZO_THRESHOLD;
     /* Serial.print(">piezzo:");
     Serial.println(analogRead(pin)); */
