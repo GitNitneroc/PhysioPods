@@ -262,16 +262,16 @@ void PhysioPod::manageOwnLight(void* vParameters){
 void PhysioPod::CreateControl(){
     #ifdef USE_CAPACITIVE_TOUCH
         Serial.println("Creating a Capacitive touch control");
-        control = new CapacitiveTouchControl(BUTTON_PIN);
+        control = new CapacitiveTouchControl(CONTROL_PIN);
     #elif defined(USE_PROXIMITY)
         Serial.println("Creating a Proximity control");
-        control = new ProximityControl(BUTTON_PIN);
+        control = new ProximityControl(CONTROL_PIN);
     #elif defined(USE_PIEZO)
         Serial.println("Creating a Piezo control");
-        control = new PiezoControl(BUTTON_PIN);
+        control = new PiezoControl(CONTROL_PIN);
     #else
         Serial.println("Creating a Button control");
-        control = new ButtonControl(BUTTON_PIN);
+        control = new ButtonControl(CONTROL_PIN);
     #endif
     PhysioPodMode::setControl(control);
 }
