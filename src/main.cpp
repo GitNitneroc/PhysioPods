@@ -63,7 +63,7 @@ void createPod(){
         pod = serverPod;
 
         Serial.println("Adding the web handlers to the server...");
-        //TODO : this should be done in the ServerPod constructor
+        //TODO : this could be done in the ServerPod constructor
         //handlers for the web server
         serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
@@ -76,7 +76,7 @@ void createPod(){
         //serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html 
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
-    pod->setOwnLightState(true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG); //Note : Pulse reverts to off state after the pulse
+    pod->setOwnLightState(true, (shouldBeClient? CRGB::Blue : CRGB::Green) , LightMode::PULSE_ON_OFF_LONG); //Note : Pulse reverts to off state after the pulse
 }
 
 void loop(){
