@@ -18,6 +18,7 @@ bool shouldBeClient = false;
 //TODO : mode leurres dans fastPress
 //TODO : lightmode rainbow
 //TODO : physioPodMode aller/retour...
+//TODO : date et heure de compilation dans le mac address
 
 
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()

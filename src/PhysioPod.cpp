@@ -200,6 +200,58 @@ void PhysioPod::manageOwnLight(void* vParameters){
                 vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
             }
             break;
+        case LightMode::CYCLE_RAINBOW_FAST:
+            if (PhysioPod::lightState){
+                    uint8_t i = 0;
+                    unsigned long time = millis();
+                    //generate a rainbow
+                    CRGB rainbow[NUM_LEDS]; 
+                    fill_rainbow(rainbow, NUM_LEDS, 0, 255/NUM_LEDS);
+                    while(true){
+                        if (PhysioPod::lightChanged){
+                            Serial.println("Exiting Cycle LED mode!");
+                            break;
+                        }
+                        if (millis()-time>30){ //change led
+                            //Serial.println("next led");
+                            time = millis();
+                            i = (i+1)%(NUM_LEDS);
+                            PhysioPod::leds[i] = rainbow[i];
+                            FastLED.show();
+                            PhysioPod::leds[i] = CRGB::Black;
+                        }
+                        vTaskDelay(10 / portTICK_PERIOD_MS);
+                    }
+                }else{
+                    vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
+                }
+                break;
+        case LightMode::CYCLE_RAINBOW_SLOW:
+            if (PhysioPod::lightState){
+                uint8_t i = 0;
+                unsigned long time = millis();
+                //generate a rainbow
+                CRGB rainbow[NUM_LEDS]; 
+                fill_rainbow(rainbow, NUM_LEDS, 0, 255/NUM_LEDS);
+                while(true){
+                    if (PhysioPod::lightChanged){
+                        Serial.println("Exiting Cycle LED mode!");
+                        break;
+                    }
+                    if (millis()-time>150){ //change led
+                        //Serial.println("next led");
+                        time = millis();
+                        i = (i+1)%(NUM_LEDS);
+                        PhysioPod::leds[i] = rainbow[i];
+                        FastLED.show();
+                        PhysioPod::leds[i] = CRGB::Black;
+                    }
+                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                }
+            }else{
+                vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
+            }
+            break;
         case LightMode::PULSE_ON_OFF_SHORT :     
             if (PhysioPod::lightState){
                 unsigned long time = millis();
