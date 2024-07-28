@@ -13,12 +13,10 @@ Nous avons souhaité proposer une alternative avec des objectifs qui nous semble
 - Interface web : pour éviter de multiplier les boutons, le gros de l'interface est proposée sur un site web hébergé par les pods. On peut y choisir un mode de jeu, consulter des résultats ou régler des paramètres.
 - Polyvalent : les pods doivent pouvoir être posés au sol, fixés avec des sangles ou des ventouses pour permettre des usages différents. De même, le code est prévu pour qu'il soit assez facile d'ajouter d'autres contrôleurs (passer d'un bouton à un capteur capacitif, à un capteur de proximité ou encore à un capteur piezo)
 
+## Utilisation
+Le [Wiki](../../wiki) décrit davantage l'utilisation, mais le principe général est qu'il faut allumer un premier pod et attendre quelques secondes. Celui-ci devient le pod principal : on voit d'abord la lumière tourner sur le pod (recherche du wifi), puis faire une petit flash vert : ceci indique que le pod a créé un réseau wifi et attend des connexions. Les autres pods qui s'allumeront se relieront maintenant à celui-ci. Vous pouvez aussi vous connecter au réseau wifi créé. Il s'appelle PhysioPod0, et le mot de passe est "0123456789", en vous connectant, vous serez redirigé vers une page web, c'est là que vous pourrez interragir avec les pods, par exemple pour lancer un mode de jeu ou consulter les résultats.
+
 ## Créer ses propres pods
 Le processus est décrit dans le [Wiki](../../wiki)
 
-## Comment ça marche ?
-Les Physiopods reposent sur des ESP32. De nombreuses options doivent être possibles, mais les tests ont surtout été faits sur des [ESP32-S3](https://www.espressif.com/en/products/socs/esp32-s3). Ces composants sont capables de créer un réseau wifi, ce qui permet à tous les pods de se connecter entre eux, mais aussi à l'utilisateur de se connecter. Il est alors redirigé vers l'interface utilisateur, qui va lui permettre d'interragir avec les pods (par exemple pour lancer une partie, ou pour consulter les scores).
 
-### Architecture générale
-Tous les pods sont interchangeables, mais le premier pod allumé va prendre un rôle différent et sera désigné comme ServerPod : c'est lui qui va créer le réseau wifi et c'est lui qui centralisera tout. Les autres pods seront des ClientPod et ne feront que recevoir des ordres du ServerPod (par exemple pour qu'il s'allume en vert clignotant), ou pour envoyer des informations au ServerPod (par exemple pour dire qu'il a été activé par le joueur).
-![description générale](docs/Overview.png)
