@@ -25,11 +25,11 @@ void PiezoControl::initialize(void (*callback)()){
 
 
 bool PiezoControl::checkControl(){
-    Serial.printf(">piezzo:%d\n", analogRead(pin));
     bool newState = analogRead(pin)> PIEZO_THRESHOLD;
     /* Serial.print(">piezzo:");
     Serial.println(analogRead(pin)); */
     if (newState!=state){
+        Serial.printf(">piezzo:%d\n", analogRead(pin));    
         //check if enough time has passed since the last change
         if (millis() - lastDebounceTime > debounceDelay){
             lastDebounceTime = millis();

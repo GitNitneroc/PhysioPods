@@ -15,10 +15,9 @@
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
-//TODO : mode leurres dans fastPress
 //TODO : physioPodMode aller/retour...
 //TODO : date et heure de compilation dans le mac address
-
+//TODO : préciser dans ModeChoice s'il y a un mode en cours que ça va l'arrêter
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
 
 void createPod();

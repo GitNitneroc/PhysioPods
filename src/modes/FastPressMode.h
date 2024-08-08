@@ -15,6 +15,7 @@ struct FastPressModeParameters {
     long minInterval;
     long maxInterval;
     uint8_t numberOfTries;
+    bool useDecoy;
 };
 
 /*
@@ -27,11 +28,14 @@ private:
     long minInterval;
     long maxInterval;
     long pressDelay;
+    bool isDecoy;
+    bool decoyIsLit;
     uint numberOfTries;
     uint currentTry;
     int score;
     uint errors;
     uint8_t podToPress;
+    bool useDecoy;
     State state;
 
     void updatePodToPress();
@@ -44,7 +48,7 @@ public:
 
     static bool testRequestParameters(AsyncWebServerRequest *request);
     static PhysioPodMode* generateMode();
-    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries); 
+    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy); 
     void start();
     void stop();
     void update();
