@@ -25,6 +25,12 @@ void createPod();
 void setup(){
     Serial.begin(115200);
     #ifdef isDebug
+    //TODO : remove this, it's just a stupid delay to facilitate debugging of the first steps
+    //delay for the serial monitor to start
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    #endif
+    
+    #ifdef isDebug
     Serial.print("Booting, version ");
     Serial.println(VERSION);
     Serial.println("compiled " __DATE__ " " __TIME__ );
