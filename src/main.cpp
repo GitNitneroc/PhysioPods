@@ -18,7 +18,9 @@ bool shouldBeClient = false;
 //TODO : physioPodMode aller/retour...
 //TODO : date et heure de compilation dans le mac address
 //TODO : préciser dans ModeChoice s'il y a un mode en cours que ça va l'arrêter
+//TODO : dans le mode ChasePod, un timer,qui dit en combien de temps on fait un cycle
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
+//TODO : afficher des stats plus sexy dans les résultats
 
 void createPod();
 

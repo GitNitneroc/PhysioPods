@@ -5,6 +5,10 @@
 
 #define DECOY_PROBABILITY 5 // 1/5 chance of having a decoy
 
+//TODO : re-tester les decoys.
+//TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
+//TODO : pouvoir donner plusieurs couleurs différentes
+
 void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;

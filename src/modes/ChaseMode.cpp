@@ -1,6 +1,7 @@
 #include "ChaseMode.h"
 #include "ServerPod.h"
 
+//TODO : avant de passer au prochain, il faut un pulse, pour qu'on sache que l'appui est bien pris en compte
 
 void ChaseMode::initialize(int cycles, uint8_t* cycle, uint8_t* colors, int cycleLength) {
     this->cycles = cycles;
