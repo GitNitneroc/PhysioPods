@@ -77,7 +77,7 @@ void PhysioPod::initLEDs(){
     #ifdef isDebug
     Serial.println("Creating the light manager Task");
     #endif
-    xTaskCreatePinnedToCore(PhysioPod::manageOwnLight, "ledTask", 2048, NULL , 2, NULL, 0);
+    xTaskCreatePinnedToCore(PhysioPod::manageOwnLight, "ledTask", 4096, NULL , 2, NULL, 0); //value is still arbitrary, but 2048 wasn't enough for Yann
 }
 
 
