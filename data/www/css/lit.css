@@ -1,2 +1,164 @@
-:root{--font:nunito;--primary-color:#07f;--light:#abf}body{font-size:clamp(1.5rem,1vw + 1rem,3rem)}input{font-size:1em}select{font-size:1em}*{box-sizing:border-box}*+*{margin:.5em 0}pre{overflow:auto}.row,.w-100{width:100%}.card:focus,hr{outline:0;border:solid var(--primary-color)}.card,pre{padding:1em;border:solid var(--light)}.btn:hover,a:hover{opacity:.6}.c{max-width:60em;padding:1em;margin:auto;font:1em/1.6 var(--font)}h6{font:100 1em var(--font)}h5{font:100 1.2em var(--font)}h3{font:100 2em var(--font)}h4{font:100 1.5em var(--font)}h2{font:100 2.2em var(--font)}h1{font:100 2.5em var(--font);text-align: center}a{color:var(--primary-color);text-decoration:none}.btn.primary{color:#fff;background:var(--primary-color);border:solid var(--primary-color)}td,th{text-align:left;border-bottom:solid var(--light)}.btn,td,th{padding:1em}.btn{text-transform:uppercase;background:#fff;border:solid;font:.7em var(--font)}tr:nth-child(even){background-color:var(--light)}
-@media only screen and (min-width : 1000px){.col{display:table-cell}.\31{width:5%}.\32{width:15%}.\33{width:22%}.\34{width:30%}.\35{width:40%}.\36{width:50%}.row{display:table;border-spacing:1em 0}}
+/* Root variables and base styles */
+:root {
+    --font: nunito;
+    --primary-color: #07f;
+    --light: #abf;
+    /* font-family: -apple-system, BlinkMacSystemFont, Avenir, "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; */
+}
+
+/* Base styles */
+body {
+    font-size: clamp(1rem, 1vw + 1rem, 27px);
+}
+
+input, select {
+    font-size: 1em;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Component styles */
+.row, .w-100 {
+    width: 100%;
+}
+
+.card, pre {
+    padding: 0.5em;
+    border: solid var(--light);
+    margin: 0 0 0.5em 0;
+}
+
+.card:focus, hr {
+    outline: 0;
+    border: solid var(--primary-color);
+}
+
+.btn:hover, a:hover {
+    opacity: 0.6;
+}
+
+.c {
+    max-width: 60em;
+    padding: 0em;
+    margin: 0px;
+    font: 1em/1.6 var(--font);
+}
+
+/* Typography */
+h1 {
+    font: 100 2.5em var(--font);
+    text-align: center;
+    margin:0px;
+}
+
+h2 { font: 100 2.2em var(--font); }
+h3 { font: 100 2em var(--font); }
+h4 { font: 100 1.5em var(--font); }
+h5 { font: 100 1.2em var(--font); }
+h6 { font: 100 1em var(--font); }
+
+/* Links and Buttons */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.btn {
+    text-transform: uppercase;
+    background: #fff;
+    border: solid;
+    font: 0.7em var(--font);
+    padding: 1em;
+    color: var(--primary-color);
+}
+
+.btn.primary {
+    color: #fff;
+    background: var(--primary-color);
+    border: solid var(--primary-color);
+}
+
+/* Tables */
+td, th {
+    text-align: left;
+    padding: 1em;
+    border-bottom: solid var(--light);
+}
+
+tr:nth-child(even) {
+    background-color: var(--light);
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* Mobile First Approach - Base styles for small screens */
+@media only screen and (max-width: 768px) {
+    .row {
+        display: flex;
+        flex-direction: wrap;
+    }
+
+    hr{
+        display: none;
+    }
+
+    body{ margin: 0px;}
+    
+    .\31, .\32, .\33{
+        width: 50%;
+    }
+    .\34, .\35, .\36 {
+        width: 100%;
+    }
+}
+
+/* Tablet styles */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .row {
+        display: flex;
+        flex-direction: wrap;
+        justify-content: space-between;
+        margin-bottom: 0.5em;
+    }
+    .c{padding: 0.5em}
+    .col {
+        display: block;
+        margin: 0 0;
+        padding: 0.1em;
+    }
+    
+    .\31 { width: 5%; }
+    .\32 { width: 15%; }
+    .\33 { width: 22%; }
+    .\34 { width: 30%; }
+    .\35 { width: 40%; }
+    .\36 { width: 50%; }
+}
+
+/* Desktop styles */
+@media only screen and (min-width: 1024px) {
+    .row {
+        display: table;
+        border-spacing: 1em 0;
+        margin-bottom: 0.5em;
+    }
+    .c{padding: 1em;max-width: 960px;margin: 0 auto;}
+    .col {
+        display: table-cell;
+        padding: 0.2em;
+    }
+    
+    .\31 { width: 5%; }
+    .\32 { width: 15%; }
+    .\33 { width: 22%; }
+    .\34 { width: 30%; }
+    .\35 { width: 40%; }
+    .\36 { width: 50%; }
+}
