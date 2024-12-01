@@ -1,95 +1,123 @@
 <!DOCTYPE html>
 <html>
     <head>
+		<meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods</title>
         <link rel="stylesheet" href="./css/lit.css">
     </head>
     <body> 
         <div class="c">
-			<div class="row card">
-				<h1>PhysioPods</h1>
-				<hr>
-				<div class="row">
-                    <b class="3 col">Home</b>
-                    <!-- <div class="col"><a href="/serverRegistration">Mac Address</a></div> -->
-                    <div class="3 col"><a href="/static/modeChoice.html">Choose a mode</a></div>
+			<div class="card">
+                <h1>PhysioPods</h1>
+                <hr>
+                <div class="row">
+					<div class="3 col"><a href="/static/index.html">Home</a></div>
+                    <div class="3 col"><b>Choose a mode</b></div>
                     <div class="3 col"><a href="/static/results.html">Results</a></div>
                     <div class="3 col"><a href="/static/parameters.html">Parameters</a></div>
                 </div>
-				<hr>
+                <hr>
+            </div>
+			<!-- <div class="c"> -->
+			<div class="row">
+					<div class="3 col"><input type="button" id="1" class="w-100 col btn" value="Fast Press" onclick='show(this.id,"mode1Details")'></div>
+					<div class="3 col"><input type="button" id="2" class="w-100 col btn" value="Fairy Lights" onclick='show(this.id,"mode2Details")'></div>
+					<div class="3 col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details");displayColorWarTeams();'></div>
+					<div class="3 col"><input type="button" id="4" class="w-100 col btn" value="Chase" onclick='show(this.id,"mode4Details");createChaseUI();'></div>
 			</div>
-			<div class="c">
-				<form>
-					<div class="row">
-						<div class="col"><input type="button" id="1" class="w-100 col btn" value="Fast Press" onclick='show(this.id,"mode1Details")'></div>
-						<div class="col"><input type="button" id="2" class="w-100 col btn" value="Fairy Lights" onclick='show(this.id,"mode2Details")'></div>
-						<div class="col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details");displayColorWarTeams();'></div>
-						<div class="col"><input type="button" id="4" class="w-100 col btn" value="Chase" onclick='show(this.id,"mode4Details");createChaseUI();'></div>
-					</div>
-				</form>
-				<div id = "details">
-					<div id="mode1Details" style="display:none">
-						<h2>FastPress</h2>
-						<p>Press the button as fast as you can for 10 seconds</p>
-						<form action="/launchMode">
-							<input type="hidden" id="mode" name="mode" value="FP">
-							<label for="minInterval">Min Interval (0 to 20):</label>
-							<input type="range" id="minInterval" name="minInterval" min="0" max="20" value="3" oninput="this.nextElementSibling.value = this.value"><output>3</output><br/>
-							<label for="maxInterval">Max Interval (added to min Interval 0 to 20):</label>
-							<input type="range" id="maxInterval" name="maxInterval" min="0" max="50" value="2" oninput="this.nextElementSibling.value = this.value"><output>2</output><br/>
-							<label for="tries">Number of tries (1 to 255) :</label>
-							<input type="number" id="tries" name="tries" value="30" min="1" max="255"><br />
-							<label for="decoy">Trigger false lights:</label>
-							<input type="checkbox" id="decoy" name="decoy" value="1"><br />
-							<input type="submit" class="btn primary" value="Launch">
-						</form>
-					</div>
-					<div id="mode2Details" style="display:none">
-						<h2>FairyLights</h2>
-						<p>Pods will get lit one by one, there is no interaction with user.</p>
-						<form action="/launchMode">
-							<input type="hidden" id="mode" name="mode" value="FL">
-							<label for="timeByPod">Time by pod (ms):</label>
-							<input type="range" id="timeByPod" name="timeByPod" min="0" max="5000" value="500" oninput="this.nextElementSibling.value = this.value"><output>100</output><br/>
-							<input type="submit" class="btn primary" value="Launch">
-						</form>
-					</div>
-					<div id="mode3Details" style="display:none">
-						<h2>Color War</h2>
-						<p>This can be played in multiplayer</p>
-						<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
-						<form action="/launchMode">
-							<input type="hidden" id="mode" name="mode" value="CW">
-							<label for="duration">Duration (sec):</label>
-							<input type="number" id="duration" name="duration" min="1" max="65536" value="60" ><br/>
-							<label for="nteams">Number of teams:</label>
-							<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="displayColorWarTeams()"><br/>
-							<label for="probability">Probability: each 1/100th of a sec, there is a probability a pod will change colors. At 0 the pods won&apos;t change colors by themselves</label>
-							<input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005"><br/>
-							<input type="submit" class="btn primary" value="Launch">
-						</form>
-					</div>
-					<div id="mode4Details" style="display:none">
-						<h2>Chase</h2>
-						<p>Press a pod to turn on the next one. Go as fast as possible !</p>
-						<!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
-						<form action="/launchMode" onsubmit="validateCycle()">
-							<input type="hidden" id="mode" name="mode" value="Chase">
-							<input type="hidden" id="cycleInput" name="cycle" value="">
-							<label for="cycles">Cycles :</label>
-							<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" >
-							<p>Choose a Color :</p>
-							<span id="chaseColors">
-							</span>
-							<p>Click on those buttons to create your cycle:</p>
-							<div class="col 12" id="ChaseButtons"></div>
-							<div class="card col w-100" id="ChaseCycle"></div>
-							<input type="button" class="btn" value="Erase Cycle" onclick="emptyChaseCycle()">
-							<input type="submit" class="btn primary" value="Launch">
-						</form>
-					</div>
+			<div class="row center" id = "details">
+				<div id="mode1Details" style="display:none">
+					<h2>FastPress</h2>
+					<p>When it's activated, hit the pod as soon as possible !</p>
+					<form action="/launchMode" onsubmit="fastPressSubmitCheck()">
+						<input type="hidden" id="mode" name="mode" value="FP">
+						<div class="row">
+							<div class="6 col">
+								<fieldset>
+									<label for="minInterval">Min time:</label>
+									<input type="range" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><output>dummy</output><br />
+									<label for="maxInterval">Max time:</label>
+									<input type="range" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><output>dummy</output><br />
+								</fieldset>
+							</div>
+							<div class="6 col">
+								<fieldset>
+									<label for="tries">Number of tries (1 to 255) :</label>
+									<input type="number" id="tries" name="tries" value="30" min="1" max="255"><br />
+									<label for="decoy">Trigger false lights:</label>
+									<input type="checkbox" id="decoy" name="decoy" value="1"><br />
+								</fieldset>
+							</div>
+						</div>
+						<input type="submit" class="btn primary w-100" value="Launch">
+					</form>
+					<script>
+						function fastPressParametersChange(){
+							let minElement = document.getElementById("minInterval");
+							let maxElement = document.getElementById("maxInterval");
+							minElement.nextElementSibling.value = parseInt(minElement.value)/10+"s";
+							maxElement.nextElementSibling.value = (parseInt(maxElement.value)+parseInt(minElement.value))/10+'s'
+						}
+						//run it once to initialize
+						fastPressParametersChange();
+
+						function fastPressSubmitCheck(){
+							//just make sure the minElement value is not 0
+							let minElement = document.getElementById("minInterval");
+							if (minElement.value == 0){
+								minElement.value = 1;
+							}
+						}
+					</script>
+				</div>
+				<div id="mode2Details" style="display:none">
+					<h2>FairyLights</h2>
+					<p>Pods will get lit one by one, there is no interaction with user.</p>
+					<form action="/launchMode">
+						<input type="hidden" id="mode" name="mode" value="FL">
+						<label for="timeByPod">Time by pod (ms):</label>
+						<input type="range" id="timeByPod" name="timeByPod" min="0" max="5000" value="500" oninput="this.nextElementSibling.value = this.value"><output>100</output><br/>
+						<input type="submit" class="btn primary" value="Launch">
+					</form>
+				</div>
+				<div id="mode3Details" style="display:none">
+					<h2>Color War</h2>
+					<p>This can be played in multiplayer</p>
+					<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
+					<form action="/launchMode">
+						<input type="hidden" id="mode" name="mode" value="CW">
+						<label for="duration">Duration (sec):</label>
+						<input type="number" id="duration" name="duration" min="1" max="65536" value="60" ><br/>
+						<label for="nteams">Number of teams:</label>
+						<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="displayColorWarTeams()"><br/>
+						<label for="probability">Probability: each 1/100th of a sec, there is a probability a pod will change colors. At 0 the pods won&apos;t change colors by themselves</label>
+						<input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005"><br/>
+						<input type="submit" class="btn primary" value="Launch">
+					</form>
+				</div>
+				<div id="mode4Details" style="display:none">
+					<h2>Chase</h2>
+					<p>Press a pod to turn on the next one. Go as fast as possible !</p>
+					<!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
+					<form action="/launchMode" onsubmit="validateCycle()">
+						<input type="hidden" id="mode" name="mode" value="Chase">
+						<input type="hidden" id="cycleInput" name="cycle" value="">
+						<label for="cycles">Cycles :</label>
+						<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" >
+						<p>Choose a Color :</p>
+						<span id="chaseColors">
+						</span>
+						<p>Click on those buttons to create your cycle:</p>
+						<div class="col 12" id="ChaseButtons"></div>
+						<div class="card col w-100" id="ChaseCycle"></div>
+						<input type="button" class="btn" value="Erase Cycle" onclick="emptyChaseCycle()">
+						<input type="submit" class="btn primary" value="Launch">
+					</form>
 				</div>
 			</div>
+			<!-- </div> -->
         </div>
         <script>
 			function validateCycle(){
@@ -240,8 +268,12 @@
 				button.classList.add("primary");
 				window.currentSelection = button;
 				//show the details
-                let divs = document.getElementById("details").getElementsByTagName("div")
+				let divs = document.getElementById("details").children;
                 for (let i = 0; i < divs.length; i++) {
+					//is it a div ?
+					if (divs[i].tagName != "DIV"){
+						continue;
+					}
                     if (divs[i].id == toShowId){
                         divs[i].style.display = "block";
                     }else{
