@@ -32,8 +32,8 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
         return false;
     }
     //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
-    //remember this is in seconds
-    long minInterval = minIntervalParam->value().toInt();
+    //remember this is in 10th of seconds
+    long minInterval = minIntervalParam->value().toInt(); //This doesn't check for 0 minterval, which could be problematic but should be client-side validation
     long maxInterval = minInterval+ maxIntervalParam->value().toInt();
     uint8_t tries = triesParam->value().toInt();
     bool useDecoy = false; //default value for decoy
@@ -42,8 +42,8 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     }
 
     #ifdef isDebug
-    Serial.println("minInterval : "+ String(minInterval));
-    Serial.println("maxInterval : "+ String(maxInterval));
+    Serial.println("minInterval : "+ String(minInterval)+" tenth of sec");
+    Serial.println("maxInterval : "+ String(maxInterval)+" tenth of sec");
     Serial.println("tries : "+ String(tries));
     Serial.println("useDecoy : "+ String(useDecoy));
     #endif
@@ -60,7 +60,7 @@ PhysioPodMode* FastPressMode::generateMode() {
     #ifdef isDebug
     Serial.println("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*1000, FastPressMode::parameters.maxInterval*1000, FastPressMode::parameters.numberOfTries, FastPressMode::parameters.useDecoy);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.numberOfTries, FastPressMode::parameters.useDecoy);//this is in ms
     return newMode;
 }
 
