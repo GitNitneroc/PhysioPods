@@ -131,7 +131,7 @@ tr:nth-child(even) {
     .col {
         display: block;
         margin: 0 0;
-        padding: 0.1em;
+        /* padding: 0.1em; */
     }
     
     .\31 { width: 5%; }
@@ -152,7 +152,7 @@ tr:nth-child(even) {
     .c{padding: 1em;max-width: 960px;margin: 0 auto;}
     .col {
         display: table-cell;
-        padding: 0.2em;
+        /* padding: 0.2em; */
     }
     
     .\31 { width: 5%; }
