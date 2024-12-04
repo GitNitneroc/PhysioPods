@@ -124,11 +124,11 @@
 						<input type="hidden" id="cycleInput" name="cycle" value="">
 						<div class="row">
 							<div class="col w-100">
-								<p>Choose a Color :</p>
+								<h4>Choose a Color :</h4>
 								<!-- TODO : Améliorer ça pour que le choix de couleurs prenne toute la largeur de la page -->
-								<span id="chaseColors">
-								</span>
-								<p>Click on those buttons to create your cycle:</p>
+								<div id="chaseColors" class="row center">
+								</div>
+								<h4>Click on those buttons to create your cycle:</h4>
 								<div class="col w-100" id="ChaseButtons"></div>
 								<div class="card col w-100" id="ChaseCycle"></div>
 								<fieldset class="w-100">
@@ -174,7 +174,10 @@
 
 			function chaseColorChange(){
 				unselectChaseColor();
+				//select
 				this.innerHTML = "Selected";
+				this.classList.remove('1');
+				this.classList.add('6');
 				window.chaseColor = this.colorId;
 				//update the chaseButtonsColors
 				let chaseButtons = document.getElementById("ChaseButtons").children;
@@ -188,7 +191,12 @@
 					let chaseColors = document.getElementById("chaseColors");
 					for (let i = 0; i < chaseColors.children.length; i++) {
 						chaseColors.children[i].innerHTML = "";
+						if (i== window.chaseColor){
+							chaseColors.children[i].classList.remove('6');
+							chaseColors.children[i].classList.add('1');
+						}
 					}
+
 				}
 			}
 
@@ -202,7 +210,7 @@
 				//create the colors
 				for (let i = 0; i < 7; i++) {
 					let newColor = document.createElement("button");
-					newColor.classList.add("btn");
+					newColor.classList.add("btn", "1", "col");
 					newColor.colorId = i;
 					newColor.style.backgroundColor = "hsl("+i * 360 / 7+", 100%, 50%)";
 					newColor.style.margin = "5px";
@@ -212,6 +220,8 @@
 					if (i == window.chaseColor){
 						//select the default color
 						newColor.innerHTML = "Selected";
+						newColor.classList.remove('1');
+						newColor.classList.add('6');
 					}
 				}
 			}
