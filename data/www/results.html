@@ -1,7 +1,10 @@
 <!DOCTYPE html> 
 <html>
     <head>
-        <title>PhysioPods results</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PhysioPods Results</title>
         <link rel="stylesheet" href="./css/lit.css">
         <script type="text/javascript">
             function displayScores(data) {
@@ -108,33 +111,30 @@
     </head>
     <body onload="loadScores()">
         <div class="c">
-            <div class="row card">
+            <div class="card">
                 <h1>PhysioPods</h1>
                 <hr>
                 <div class="row">
-                    <b class="3 col">Home</b>
-                    <!-- <div class="col"><a href="/serverRegistration">Mac Address</a></div> -->
+					<div class="3 col"><a href="/static/index.html">Home</a></div>
                     <div class="3 col"><a href="/static/modeChoice.html">Choose a mode</a></div>
-                    <div class="3 col"><a href="/static/results.html">Results</a></div>
+                    <div class="3 col"><b>Results</b></div>
                     <div class="3 col"><a href="/static/parameters.html">Parameters</a></div>
                 </div>
                 <hr>
             </div>
-            <div class="c">
-                <button class="btn primary w-100" onclick='loadScores()'>Refresh scores</button>
-                <table class="w-100" id="results">
-                    <thead>
-                        <tr>
-                            <th>Loading</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Results should come soon...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <button class="btn primary w-100" onclick='loadScores()'>Refresh scores</button>
+            <table class="w-100" id="results">
+                <thead>
+                    <tr>
+                        <th>Loading</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Results should appear soon...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </body>
 </html>
