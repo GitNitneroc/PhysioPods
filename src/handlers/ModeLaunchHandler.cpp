@@ -106,6 +106,17 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
             sendFailResponse(request);
         }
         return;
+
+    }else if (modeName=="Visual Timer"){
+        //VISUAL TIMER MODE
+        Serial.println("User wants to launch Visual Timer mode");
+        validParams = VisualTimerMode::testRequestParameters(request);
+        if (validParams) {
+            sendSuccessResponse(request);
+        } else {
+            sendFailResponse(request);
+        }
+        return;
         
     } else {
         Serial.println("Mode not recognized");
