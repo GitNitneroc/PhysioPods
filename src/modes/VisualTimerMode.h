@@ -2,7 +2,7 @@
 #include "ESPAsyncWebServer.h"
 #include <FastLED.h>
 
-struct VisualTimerParameters {
+struct VisualTimerModeParameters {
     long workTime;
     long restTime;
     uint8_t numberOfCycles;
@@ -27,7 +27,7 @@ class VisualTimerMode : public PhysioPodMode {
         void onPodPressed(uint8_t id) override; // Utile ?
     
     public:
-        static VisualTimerParameters parameters;
+        static VisualTimerModeParameters parameters;
     
         static bool testRequestParameters(AsyncWebServerRequest *request);
         static PhysioPodMode* generateMode();
