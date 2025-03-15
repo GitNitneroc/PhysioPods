@@ -3,6 +3,7 @@
 #include "controls/PhysioPodControl.h"
 #include "scoreStorage.h"
 #include "ESPAsyncWebServer.h"
+#include <FastLED.h>
 
 enum State{
     STOPPED,
@@ -16,6 +17,7 @@ struct FastPressModeParameters {
     long maxInterval;
     uint8_t numberOfTries;
     bool useDecoy;
+    uint8_t nColors;
 };
 
 /*
@@ -38,17 +40,21 @@ private:
     bool useDecoy;
     State state;
 
+    CRGB colors[9]; //NOTE : the number of colors is limited to 9... this is enforced client side only for now
+    uint8_t nColors; //Note this is the number of colors for a lit pod. colors[0] is always the error color (red)
+
     void updatePodToPress();
     void onError(uint8_t pod);
     void onSuccess(uint8_t pod);
     void onPodPressed(uint8_t id) override;
+    void generateColors();
 
 public:
     static FastPressModeParameters parameters;
 
     static bool testRequestParameters(AsyncWebServerRequest *request);
     static PhysioPodMode* generateMode();
-    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy); 
+    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy, uint8_t nColors); 
     void start();
     void stop();
     void update();

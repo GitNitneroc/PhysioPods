@@ -1,3 +1,6 @@
+#ifndef VISUALTIMERMODE_H
+#define VISUALTIMERMODE_H
+
 #include "PhysioPodMode.h"
 #include "ESPAsyncWebServer.h"
 #include <FastLED.h>
@@ -21,9 +24,9 @@ class VisualTimerMode : public PhysioPodMode {
         uint errors; // Utile ?
         uint8_t podToPress; // Utile ?
     
-        void updatePodToPress(); // Utile ?
-        void onError(uint8_t pod); // Utile ?
-        void onSuccess(uint8_t pod); // Utile ?
+        //void updatePodToPress(); // Utile ?
+        //void onError(uint8_t pod); // Utile ?
+        //void onSuccess(uint8_t pod); // Utile ?
         void onPodPressed(uint8_t id) override; // Utile ?
     
     public:
@@ -42,3 +45,5 @@ class VisualTimerMode : public PhysioPodMode {
         VisualTimerMode();
         virtual ~VisualTimerMode() {}
     };
+
+#endif // VISUALTIMERMODE_H

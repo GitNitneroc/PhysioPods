@@ -7,17 +7,30 @@
 
 //TODO : re-tester les decoys.
 //TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
-//TODO : pouvoir donner plusieurs couleurs différentes
 
-void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy) {
+void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy, uint8_t nColors) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
     this->numberOfTries = numberOfTries;
     this->useDecoy = useDecoy;
+    this->nColors = nColors;
+
+    this->generateColors(); //create the colors array ([0] is the error color)
+
     reset();
 }
 
-FastPressModeParameters FastPressMode::parameters = {0,0,0,0};
+void FastPressMode::generateColors() {
+    //note : the error color is always red, so the min nColors is 1, there are in fact 2 colors, so we are using nColors+1
+    for (uint8_t i = 0; i < nColors+1; i++) {
+        uint8_t h = 255 / (nColors+1) * i;
+        CRGB color;
+        hsv2rgb_rainbow(CHSV(h, 255, 128), color);
+        colors[i] = color;
+    }
+}
+
+FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0};
 
 bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     
@@ -25,8 +38,9 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
     AsyncWebParameter* triesParam = request->getParam("tries");
     AsyncWebParameter* useDecoyParam = request->getParam("decoy");
+    AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
 
-    if (minIntervalParam == NULL || maxIntervalParam == NULL || triesParam == NULL){
+    if (minIntervalParam == NULL || maxIntervalParam == NULL || triesParam == NULL || nColorsParam == NULL){
         Serial.println("could not read a parameter");
         //NB : the decoy parameter is optional
         return false;
@@ -36,6 +50,7 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     long minInterval = minIntervalParam->value().toInt(); //This doesn't check for 0 minterval, which could be problematic but should be client-side validation
     long maxInterval = minInterval+ maxIntervalParam->value().toInt();
     uint8_t tries = triesParam->value().toInt();
+    uint8_t nColors = nColorsParam->value().toInt();
     bool useDecoy = false; //default value for decoy
     if (useDecoyParam != NULL){
         useDecoy = useDecoyParam->value().equals("1");
@@ -46,9 +61,10 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     Serial.println("maxInterval : "+ String(maxInterval)+" tenth of sec");
     Serial.println("tries : "+ String(tries));
     Serial.println("useDecoy : "+ String(useDecoy));
+    Serial.println("nColors : "+ String(nColors));
     #endif
 
-    FastPressMode::parameters = {minInterval, maxInterval, tries, useDecoy};
+    FastPressMode::parameters = {minInterval, maxInterval, tries, useDecoy, nColors};
 
     PhysioPodMode::modeConstructor = generateMode;
 
@@ -60,7 +76,7 @@ PhysioPodMode* FastPressMode::generateMode() {
     #ifdef isDebug
     Serial.println("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.numberOfTries, FastPressMode::parameters.useDecoy);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.numberOfTries, FastPressMode::parameters.useDecoy, FastPressMode::parameters.nColors);//this is in ms
     return newMode;
 }
 
@@ -151,13 +167,12 @@ void FastPressMode::onSuccess(uint8_t pod) {
 
 void FastPressMode::onError(uint8_t pod) {
     //display a short error on the pod
-    ServerPod::setPodLightState(pod, true, CRGB::Red, LightMode::PULSE_ON_OFF_SHORT);
+    ServerPod::setPodLightState(pod, true, colors[0], LightMode::PULSE_ON_OFF_SHORT);
     errors++;
     score--;
 }
 
 
-//TODO : integrate the useDecoy flag
 void FastPressMode::update() {
     switch (state){
         case STOPPED:{
@@ -181,11 +196,16 @@ void FastPressMode::update() {
                     interval = random(timer, maxInterval); //between now and the max interval
                     decoyIsLit = true;
                 }else{
+                    //chose a random color for this time
+                    uint8_t randomColorIndex = random(1,nColors+1); //we don't want the error color
+                    CRGB randomColor = colors[randomColorIndex];
+
                     #ifdef isDebug
-                    Serial.println("target pod lit");
+                    Serial.println("target pod lit in color : "+String(randomColorIndex));
                     #endif
+                    
                     //the interval is over and we are not in a decoy, we should light the pod
-                    ServerPod::setPodLightState(podToPress,true, CRGB::Green, LightMode::SIMPLE);
+                    ServerPod::setPodLightState(podToPress,true, randomColor, LightMode::SIMPLE);
                     timer = millis();
                     state = WAIT_FOR_PRESS;
                 }

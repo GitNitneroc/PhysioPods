@@ -6,6 +6,7 @@
 #include "modes/FairyLightsMode.h"
 #include "modes/ColorWarMode.h"
 #include "modes/ChaseMode.h"
+//#include "modes/VisualTimerMode.h"
 
 #include "SPIFFS.h"
 
@@ -110,7 +111,8 @@ void ModeLaunchHandler::handleRequest(AsyncWebServerRequest *request) {
     }else if (modeName=="Visual Timer"){
         //VISUAL TIMER MODE
         Serial.println("User wants to launch Visual Timer mode");
-        validParams = VisualTimerMode::testRequestParameters(request);
+        //validParams = VisualTimerMode::testRequestParameters(request);
+        validParams = false;
         if (validParams) {
             sendSuccessResponse(request);
         } else {

@@ -52,6 +52,15 @@
 								</fieldset>
 							</div>
 						</div>
+						<div class="row">
+							<div class="12 col w-100">
+								<fieldset>
+									<legend>Colors:</legend>
+									<label for="fastPressNColors">Number of colors:</label>
+									<input type="number" id="fastPressNColors" name="fastPressNColors" min="1" max="8" value="1" oninput="displayFastPressColors()"><br/>
+								</fieldset>
+							</div>
+						</div>
 						<input type="submit" class="btn primary w-100" value="Launch">
 					</form>
 					<script>
@@ -63,6 +72,34 @@
 						}
 						//run it once to initialize
 						fastPressParametersChange();
+
+						//displays the number of colors as buttons
+						function displayFastPressColors(){
+							let nColorsInput = document.getElementById("fastPressNColors");
+							let nColors = parseInt(nColorsInput.value)+1;
+							let existingButtons = document.getElementsByClassName("fpColorsButton");
+							while(existingButtons[0]) {
+								existingButtons[0].parentNode.removeChild(existingButtons[0]);
+							}
+							let nextSibling = nColorsInput.nextSibling;
+							for(let i = 0; i < nColors; i++) {
+								let button = document.createElement("button");
+								if (i==0){
+									button.textContent = "Errors";
+								}else{
+									button.textContent = i;
+								}
+								button.classList.add(...["fpColorsButton","btn","primary"]);
+								button.style.backgroundColor = "hsl("+i * 360 / nColors+", 100%, 50%)";
+								nColorsInput.parentNode.insertBefore(button, nextSibling);
+							}
+							//add a line break before our buttons :
+							let br = document.createElement("br")
+							br.classList.add("fpColorsButton"); //since it's teamButton, it will be deleted next time
+							nColorsInput.parentNode.insertBefore(br,nColorsInput.nextSibling)
+						}
+
+						displayFastPressColors();
 
 						function fastPressSubmitCheck(){
 							//just make sure the minElement value is not 0

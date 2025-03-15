@@ -10,6 +10,31 @@ void VisualTimerMode::initialize(long workTime, long restTime, uint8_t numberOfC
 
 VisualTimerModeParameters VisualTimerMode::parameters = {0, 0, 0};
 
+VisualTimerMode::VisualTimerMode() {
+    score = 0;
+    errors = 0;
+    pressDelay = 0;
+    podToPress = 0;
+    interval = 0;
+    timer = 0;
+}
+
+void VisualTimerMode::stop() {
+    #ifdef isDebug
+    Serial.println("VisualTimerMode stopped");
+    #endif
+    PhysioPodMode::stop();
+}
+
+void VisualTimerMode::update() { 
+}
+
+String* VisualTimerMode::returnScore() {
+    //return score
+    //empty return for now
+    return new String("");
+}
+
 bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
     
     AsyncWebParameter* workTimeParam = request->getParam("workTime");
@@ -41,6 +66,13 @@ bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
     return true;
 }
 
+void VisualTimerMode::onPodPressed(uint8_t id) {
+    #ifdef isDebug
+    Serial.println("VisualTimerMode : pod "+String(id)+" pressed");
+    #endif
+}
+
+
 
 PhysioPodMode* VisualTimerMode::generateMode() {
     VisualTimerMode* newMode = new VisualTimerMode();
@@ -70,7 +102,7 @@ void VisualTimerMode::start() {
     ServerPod::setPodLightState(255,false);
 
     //prepare the first interval
-    updatePodToPress();
+    //updatePodToPress();
     //call base start
     PhysioPodMode::start();
 }
