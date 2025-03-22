@@ -165,7 +165,7 @@ ServerPod::ServerPod() : server(80) {
     dnsServer->start(53, "*", WiFi.softAPIP());
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
-    // Start ElegantOTA
+    // Start ElegantOTA  //TODO : ça ne semble pas marcher !
     ElegantOTA.begin(&server);
     Serial.println("|-ElegantOTA started");
 
