@@ -45,9 +45,15 @@
 							<div class="6 col">
 								<fieldset>
 									<legend>Program:</legend>
-									<label for="tries">Number of tries (1 to 255) :</label>
-									<input type="number" id="tries" name="tries" value="30" min="1" max="255"><br />
-									<label for="decoy">Trigger false lights:</label>
+									<span>End of game:</span><br />
+									<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
+									<label for="time">Time</label>
+									<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
+									<label for="tries">Tries</label><br />
+
+									<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
+									<input type="number" id="limit" name="limit" value="30" min="1" max="255"><br />
+									<label for="decoy">Traps:</label>
 									<input type="checkbox" id="decoy" name="decoy" value="1"><br />
 								</fieldset>
 							</div>
@@ -70,7 +76,15 @@
 							minElement.nextElementSibling.value = parseInt(minElement.value)/10+"s";
 							maxElement.nextElementSibling.value = (parseInt(maxElement.value)+parseInt(minElement.value))/10+'s'
 						}
+						function fastPressLimitationChange(){
+							let limitText = document.getElementById("limit-text");
+							let limit = document.getElementById("limit");
+							limitText.innerHTML = document.getElementById("tries").checked ? "Tries (1 to 255):" : "Duration (sec):";
+							limit.max = document.getElementById("tries").checked ? 255 : 65536;
+						}
+
 						//run it once to initialize
+						fastPressLimitationChange();
 						fastPressParametersChange();
 
 						//displays the number of colors as buttons

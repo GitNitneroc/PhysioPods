@@ -8,10 +8,11 @@
 //TODO : re-tester les decoys.
 //TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
 
-void FastPressMode::initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy, uint8_t nColors) {
+void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, uint8_t nColors) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
-    this->numberOfTries = numberOfTries;
+    this->timeLimit = timeLimit;
+    this->limit = limit;
     this->useDecoy = useDecoy;
     this->nColors = nColors;
 
@@ -30,17 +31,18 @@ void FastPressMode::generateColors() {
     }
 }
 
-FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0};
+FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0};
 
 bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     
     AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
     AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
-    AsyncWebParameter* triesParam = request->getParam("tries");
-    AsyncWebParameter* useDecoyParam = request->getParam("decoy");
+    AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
+    AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
+    AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
     AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
 
-    if (minIntervalParam == NULL || maxIntervalParam == NULL || triesParam == NULL || nColorsParam == NULL){
+    if (minIntervalParam == NULL || maxIntervalParam == NULL || limitParam == NULL || nColorsParam == NULL || limitationParam == NULL){
         Serial.println("could not read a parameter");
         //NB : the decoy parameter is optional
         return false;
@@ -49,7 +51,8 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     //remember this is in 10th of seconds
     long minInterval = minIntervalParam->value().toInt(); //This doesn't check for 0 minterval, which could be problematic but should be client-side validation
     long maxInterval = minInterval+ maxIntervalParam->value().toInt();
-    uint8_t tries = triesParam->value().toInt();
+    bool timeLimit = limitationParam->value().equals("0"); //0 for time, 1 for tries
+    uint8_t limit = limitParam->value().toInt();
     uint8_t nColors = nColorsParam->value().toInt();
     bool useDecoy = false; //default value for decoy
     if (useDecoyParam != NULL){
@@ -59,12 +62,13 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     #ifdef isDebug
     Serial.println("minInterval : "+ String(minInterval)+" tenth of sec");
     Serial.println("maxInterval : "+ String(maxInterval)+" tenth of sec");
-    Serial.println("tries : "+ String(tries));
+    Serial.println(timeLimit?"timeLimited":"tryLimited");
+    Serial.println("limit : "+ String(limit));
     Serial.println("useDecoy : "+ String(useDecoy));
     Serial.println("nColors : "+ String(nColors));
     #endif
 
-    FastPressMode::parameters = {minInterval, maxInterval, tries, useDecoy, nColors};
+    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, nColors, timeLimit};
 
     PhysioPodMode::modeConstructor = generateMode;
 
@@ -76,7 +80,7 @@ PhysioPodMode* FastPressMode::generateMode() {
     #ifdef isDebug
     Serial.println("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.numberOfTries, FastPressMode::parameters.useDecoy, FastPressMode::parameters.nColors);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.nColors);//this is in ms
     return newMode;
 }
 
@@ -127,7 +131,8 @@ FastPressMode::FastPressMode() {
     podToPress = 0;
     interval = 0;
     timer = 0;
-    numberOfTries = 0;
+    timeLimit = false;
+    limit = 0;
 }
 
 void FastPressMode::stop() {
@@ -153,11 +158,11 @@ void FastPressMode::onSuccess(uint8_t pod) {
     #ifdef isDebug
     Serial.println("Success ! score : "+String(score));
     #endif
-    if (currentTry < numberOfTries){
+    if (currentTry < limit){ //TODO : this is not the only condition to stop the game
         updatePodToPress();
     } else {
         #ifdef isDebug
-        Serial.println("FastPressMode : game over after "+String(currentTry)+" tries !");
+        Serial.println("FastPressMode : game over after "+String(currentTry)+" limit !");
         #endif
         ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);
         //the game is over
@@ -174,6 +179,23 @@ void FastPressMode::onError(uint8_t pod) {
 
 
 void FastPressMode::update() {
+    //are we time limited and over the limit ?
+    if(timeLimit && millis()-startTimer >= limit*1000){
+        if (state != STOPPED){
+            #ifdef isDebug
+            Serial.println("FastPressMode : game over after "+String(limit)+" seconds !");
+            #endif
+            ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);
+            //little hack to let the time to display this flash
+            state = STOPPED;
+        }else{
+            //give 0.5 more seconds to display the end of game
+            if (millis()-startTimer >= (limit+0.5)*1000){
+                stop();
+            }
+        }
+    }
+
     switch (state){
         case STOPPED:{
             //do nothing
@@ -231,6 +253,7 @@ void FastPressMode::reset() {
     errors = 0;
     pressDelay = 0;
     currentTry = 0;
+    startTimer = 0;
 }
 
 /*
@@ -252,8 +275,8 @@ void FastPressMode::updatePodToPress() {
     interval = random(minInterval, maxInterval);
     timer = millis();
     state = DURING_INTERVAL;
-    #ifdef isDebug
-    Serial.printf("Try %d/%d ! Pod to press : %d... in %d ms !\n",currentTry, numberOfTries, podToPress, interval);
+    #ifdef isDebug //TODO : this is not the only end of game condition
+    Serial.printf("Try %d/%d ! Pod to press : %d... in %d ms !\n",currentTry, limit, podToPress, interval);
     #endif
 }
 
@@ -269,6 +292,8 @@ void FastPressMode::start() {
     //make sure each pod is off
     ServerPod::setPodLightState(255,false);
 
+    startTimer = millis();
+
     //prepare the first interval
     updatePodToPress();
 
@@ -282,8 +307,9 @@ void FastPressMode::start() {
 String* FastPressMode::returnScore() {
     char scoreChar[200]; // HACK : this should be enough
     int meanDelay = this->currentTry == 0 ? 0 : this->pressDelay / this->currentTry;
-    int tries = currentTry<=numberOfTries?currentTry:numberOfTries;
+    int tries = currentTry<=limit?currentTry:limit;
 
+    //TODO : tries n'est plus le seul critère de fin de partie, il faudrait le renommer
     sprintf(scoreChar, "{\"mode\": \"FastPress\", \"tries\": %d, \"score\": %d, \"errors\": %d, \"meanDelay\": %d}", tries, this->score, this->errors, meanDelay);
 
     String* scoreStr = new String(scoreChar);

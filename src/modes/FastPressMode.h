@@ -15,9 +15,10 @@ enum State{
 struct FastPressModeParameters {
     long minInterval;
     long maxInterval;
-    uint8_t numberOfTries;
+    uint16_t limit;
     bool useDecoy;
     uint8_t nColors;
+    bool timeLimit; //true if the mode has a time limit, false if it has a try limit
 };
 
 /*
@@ -26,13 +27,15 @@ struct FastPressModeParameters {
 class FastPressMode : public PhysioPodMode {
 private:
     long timer;
+    long startTimer;
     long interval;
     long minInterval;
     long maxInterval;
     long pressDelay;
     bool isDecoy;
     bool decoyIsLit;
-    uint numberOfTries;
+    bool timeLimit;
+    uint16_t limit;
     uint currentTry;
     int score;
     uint errors;
@@ -54,7 +57,7 @@ public:
 
     static bool testRequestParameters(AsyncWebServerRequest *request);
     static PhysioPodMode* generateMode();
-    void initialize(long minInterval, long maxInterval, uint8_t numberOfTries, bool useDecoy, uint8_t nColors); 
+    void initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, uint8_t nColors); 
     void start();
     void stop();
     void update();
