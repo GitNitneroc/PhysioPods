@@ -28,12 +28,12 @@
 			</div>
 			<div class="row center" id = "details">
 				<div id="mode1Details" style="display:none">
-					<h2>FastPress</h2>
+					<!-- <h2>FastPress</h2> -->
 					<p>When it's activated, hit the pod as soon as possible !</p>
 					<form action="/launchMode" onsubmit="fastPressSubmitCheck()">
 						<input type="hidden" id="mode" name="mode" value="FP">
 						<div class="row">
-							<div class="12 col">
+							<div class="6 col">
 								<fieldset>
 									<legend>Delay:</legend>
 									<label id="minTimeLabel" for="minInterval">Min time:</label>
@@ -44,7 +44,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="12 col">
+							<div class="w-100 col">
 								<fieldset>
 									<legend>Program:</legend>
 									<span>End of game:</span><br />
@@ -61,7 +61,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="12 col w-100">
+							<div class="col w-100">
 								<fieldset>
 									<legend>Colors:</legend>
 									<label for="fastPressNColors">Number of colors:</label>
@@ -131,7 +131,7 @@
 					</script>
 				</div>
 				<div id="mode2Details" style="display:none">
-					<h2>FairyLights</h2>
+					<!-- <h2>FairyLights</h2> -->
 					<p>Pods will get lit one by one, there is no interaction with user.</p>
 					<form action="/launchMode">
 						<div class="row">
@@ -145,7 +145,7 @@
 					</form>
 				</div>
 				<div id="mode3Details" style="display:none">
-					<h2>Color War</h2>
+					<!-- <h2>Color War</h2> -->
 					<p>This can be played in multiplayer</p>
 					<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
 					<form action="/launchMode">
@@ -172,7 +172,7 @@
 					</form>
 				</div>
 				<div id="mode4Details" style="display:none">
-					<h2>Chase</h2>
+					<!-- <h2>Chase</h2> -->
 					<p>Press a pod to turn on the next one. Go as fast as possible !</p>
 					<p>You can create your own sequence here, by selecting colors, then clicking on the pods you wand to light sequentially</p>
 					<!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
