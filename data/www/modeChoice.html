@@ -33,16 +33,18 @@
 					<form action="/launchMode" onsubmit="fastPressSubmitCheck()">
 						<input type="hidden" id="mode" name="mode" value="FP">
 						<div class="row">
-							<div class="6 col">
+							<div class="12 col">
 								<fieldset>
 									<legend>Delay:</legend>
-									<label for="minInterval">Min time:</label>
-									<input type="range" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><output>dummy</output><br />
-									<label for="maxInterval">Max time:</label>
-									<input type="range" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><output>dummy</output><br />
+									<label id="minTimeLabel" for="minInterval">Min time:</label>
+									<input type="range" class="w-100" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><br />
+									<label id="maxTimeLabel" for="maxInterval">Max time:</label>
+									<input type="range" class="w-100" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><br />
 								</fieldset>
 							</div>
-							<div class="6 col">
+						</div>
+						<div class="row">
+							<div class="12 col">
 								<fieldset>
 									<legend>Program:</legend>
 									<span>End of game:</span><br />
@@ -71,12 +73,16 @@
 					</form>
 					<script>
 						function fastPressParametersChange(){
+							//update the labels
+							let minLabel = document.getElementById("minTimeLabel");
+							let maxLabel = document.getElementById("maxTimeLabel");
 							let minElement = document.getElementById("minInterval");
 							let maxElement = document.getElementById("maxInterval");
-							minElement.nextElementSibling.value = parseInt(minElement.value)/10+"s";
-							maxElement.nextElementSibling.value = (parseInt(maxElement.value)+parseInt(minElement.value))/10+'s'
+							minLabel.innerHTML = "Min time: "+parseInt(minElement.value)/10+"s";
+							maxLabel.innerHTML = "Max time: "+(parseInt(maxElement.value)+parseInt(minElement.value))/10+'s';
 						}
 						function fastPressLimitationChange(){
+							//switch the text and the max value of the limit 
 							let limitText = document.getElementById("limit-text");
 							let limit = document.getElementById("limit");
 							limitText.innerHTML = document.getElementById("tries").checked ? "Tries (1 to 255):" : "Duration (sec):";
