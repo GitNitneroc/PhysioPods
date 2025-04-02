@@ -1,0 +1,309 @@
+/* Root variables and base styles */
+:root {
+    --font-family: "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    --color-primary: #1d6ba3;
+    --color-primary-shade: #3e92cc;
+    --color-primary-dark: #072031;
+    --color-primary-contrast: #ffffff;
+
+    --color-secondary: #96c5b0;
+    --color-secondary-contrast: #000000;
+    
+    --color-success: #90e39a;
+    --color-success-dark: #45914e;
+    --color-warning: #fa824c;
+    --color-danger: #e40000;
+
+    --color-light: #f6f8fc;
+    --color-medium: #5f5f5f;
+    --color-dark: #2f2f2f;
+
+    --text-color: var(--color-dark);
+
+    --def-font-size: 0.9rem;
+
+    --def-padding: 0.5rem;
+    --def-padding-half: calc(var(--def-padding) * 0.5);
+    --def-margin: 1rem;
+
+    --def-border-radius: 4px;
+    --def-border-width: 1px;
+
+    --def-button-height: 42px;
+    --tab-button-height: 32px;
+
+    --loader-size: 32px;
+    --loader-size-int: 26px;
+    --loader-border-size: 2px;
+}
+  
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-family);
+    font-size: var(--def-font-size);
+    color: var(--text-color);
+    background-color: var(--color-primary-dark);
+    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+body > * {
+    width: 100%;
+    max-width: 100ch;
+    margin: auto;
+}
+
+header {
+    background: var(--color-primary-dark);
+    color: var(--color-primary-contrast);
+    overflow: hidden;
+    text-align: center;
+}
+
+nav {
+   display: flex;
+   gap: 2px;
+   justify-content: space-evenly;
+   overflow: auto;
+}
+
+nav > a {
+    flex: auto;
+    padding: var(--def-padding-half) var(--def-padding);
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
+    min-height: var(--tab-button-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--def-border-radius) var(--def-border-radius) 0 0;
+    text-decoration: none;
+}
+
+nav > a:not([href]) {
+    background-color: var(--color-primary-contrast);
+    color: var(--color-primary);
+    pointer-events: none;
+}
+
+nav.sub-navigation {
+    overflow: unset;
+}
+
+main {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--def-margin);
+    padding: var(--def-margin) 0;
+    background-color: white;
+}
+
+/** Typography */
+h1, h2, h3 {
+    font-weight: 400;
+    margin: 0;
+}
+
+h1 { 
+    font-size: 1.2rem;
+    line-height: 1.6rem;
+    font-weight: 500;
+    margin: var(--def-padding) 0;
+}
+
+h2 { 
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+}
+
+h3 { 
+    font-size: 0.8rem;
+    line-height: 1rem;
+}
+
+/** Link */
+a {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+a:hover {
+    opacity: 0.6;
+}
+
+/** Button */
+button {
+    text-transform: uppercase;
+    background-color: white;
+    color: var(--color-primary);
+    border: solid;
+    font-size: var(--def-font-size);
+    min-height: var(--def-button-height);
+    border-radius: var(--def-border-radius);
+    border-width: var(--def-border-width);
+    cursor: pointer;
+}
+
+button.solid {
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
+    border: solid var(--color-primary);
+}
+
+button.success {
+    color: var(--color-success-dark);
+}
+
+button.danger {
+    color: var(--color-danger);
+}
+
+button:hover {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 2px var(--color-medium));
+}
+
+input, select {
+    min-height: var(--def-button-height);
+    border-radius: var(--def-border-radius);
+    border-width: var(--def-border-width);
+    padding: var(--def-padding);
+    width: 100%;
+    color: var(--color-dark);
+    font-size: var(--def-font-size);
+    font-weight: 500;
+    border-style: solid;
+    border-color: var(--color-primary);
+}
+
+/** Button group */
+.button-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.button-group > button {
+    border-radius: initial;
+    flex: auto;
+    border-right-width: 0;
+}
+
+.button-group > button:first-child {
+    border-top-left-radius: var(--def-border-radius);
+    border-bottom-left-radius: var(--def-border-radius);
+}
+
+.button-group > button:last-child {
+    border-top-right-radius: var(--def-border-radius);
+    border-bottom-right-radius: var(--def-border-radius);
+    border-right-width: var(--def-border-width);
+}
+
+/** Card */
+.card-header {
+    padding: var(--def-padding-half) var(--def-padding);
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
+}
+
+.card-content {
+    padding: var(--def-margin);
+    display: flex;
+    flex-direction: column;
+    gap: var(--def-margin);
+}
+
+/* Tables */
+td, th {
+    text-align: left;
+    padding: 1em;
+    border-bottom: solid var(--light);
+}
+
+tr:nth-child(even) {
+    background-color: var(--light);
+}
+
+/** Utils */
+.row {
+    flex: 1;
+    display: flex;
+    gap: var(--def-margin);
+    align-items: center;
+}
+
+.col > *,
+.row > * {
+    flex: 1;
+}
+
+.col {
+    flex: 1;
+    display: flex;
+    gap: var(--def-margin);
+    flex-direction: column;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.padding {
+    padding: var(--def-margin);
+}
+
+/** Loader */
+.loader {
+    width: var(--loader-size);
+    height: var(--loader-size);
+    border: var(--loader-border-size) solid var(--color-primary);
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    animation: rotation 1s linear infinite;
+}
+
+.loader::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--loader-size-int);
+    height: var(--loader-size-int);
+    border-radius: 50%;
+    border: var(--loader-border-size) solid transparent;
+    border-bottom-color: var(--color-warning);
+}
+
+.loader.small {
+    --loader-size: 10px;
+    --loader-size-int: 6px;
+    --loader-border-size: 1px;
+}
+      
+@keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+} 

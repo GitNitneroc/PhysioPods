@@ -5,71 +5,65 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods</title>
-        <link rel="stylesheet" href="./css/lit.css">
+        <link rel="stylesheet" href="./css/style.css">
     </head>
     <body> 
-        <div class="c">
-			<div class="card">
-                <h1>PhysioPods</h1>
-                <hr>
-                <div class="row">
-					<div class="3 col"><a href="/static/index.html">Home</a></div>
-                    <div class="3 col"><b>Choose a mode</b></div>
-                    <div class="3 col"><a href="/static/results.html">Results</a></div>
-                    <div class="3 col"><a href="/static/parameters.html">Parameters</a></div>
-                </div>
-                <hr>
-            </div>
-			<div class="row">
-					<div class="3 col"><input type="button" id="1" class="w-100 col btn" value="Fast Press" onclick='show(this.id,"mode1Details")'></div>
-					<div class="3 col"><input type="button" id="2" class="w-100 col btn" value="Fairy Lights" onclick='show(this.id,"mode2Details")'></div>
-					<div class="3 col"><input type="button" id="3" class="w-100 col btn" value="Color War" onclick='show(this.id,"mode3Details");displayColorWarTeams();'></div>
-					<div class="3 col"><input type="button" id="4" class="w-100 col btn" value="Chase" onclick='show(this.id,"mode4Details");createChaseUI();'></div>
-			</div>
-			<div class="row center" id = "details">
+		<header>
+			<h1>PhysioPods</h1>
+			<nav>
+				<a href="/static/index.html">Home</a>
+				<a>Choose a mode</a>
+				<a href="/static/results.html">Results</a>
+				<a href="/static/parameters.html">Parameters</a>
+			</nav>
+		</header>
+		<main class="padding">
+			<nav class="sub-navigation">
+				<div class="button-group">
+					<button id="1" onclick='show(this.id,"mode1Details")'>Fast Press</button>
+					<button id="2" onclick='show(this.id,"mode2Details")'>Fairy Lights</button>
+					<button id="3" onclick='show(this.id,"mode3Details");displayColorWarTeams();'>Color War</button>
+					<button id="4" onclick='show(this.id,"mode4Details");createChaseUI();'>Chase</button>
+				</div>
+			</nav>
+			<div id="details">
 				<div id="mode1Details" style="display:none">
 					<!-- <h2>FastPress</h2> -->
 					<p>When it's activated, hit the pod as soon as possible !</p>
-					<form action="/launchMode" onsubmit="fastPressSubmitCheck()">
+					<form class="col" action="/launchMode" onsubmit="fastPressSubmitCheck()">
 						<input type="hidden" id="mode" name="mode" value="FP">
-						<div class="row">
-							<div class="6 col">
-								<fieldset>
-									<legend>Delay:</legend>
-									<label id="minTimeLabel" for="minInterval">Min time:</label>
-									<input type="range" class="w-100" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><br />
-									<label id="maxTimeLabel" for="maxInterval">Max time:</label>
-									<input type="range" class="w-100" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><br />
-								</fieldset>
-							</div>
+						<div class="col">
+							<fieldset>
+								<legend>Delay:</legend>
+								<label id="minTimeLabel" for="minInterval">Min time:</label>
+								<input type="range" class="w-100" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><br />
+								<label id="maxTimeLabel" for="maxInterval">Max time:</label>
+								<input type="range" class="w-100" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><br />
+							</fieldset>
 						</div>
-						<div class="row">
-							<div class="w-100 col">
-								<fieldset>
-									<legend>Program:</legend>
-									<span>End of game:</span><br />
-									<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
-									<label for="time">Time</label>
-									<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
-									<label for="tries">Tries</label><br />
+						<div class="col">
+							<fieldset>
+								<legend>Program:</legend>
+								<span>End of game:</span><br />
+								<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
+								<label for="time">Time</label>
+								<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
+								<label for="tries">Tries</label><br />
 
-									<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
-									<input type="number" id="limit" name="limit" value="30" min="1" max="255"><br />
-									<label for="decoy">Traps:</label>
-									<input type="checkbox" id="decoy" name="decoy" value="1"><br />
-								</fieldset>
-							</div>
+								<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
+								<input type="number" id="limit" name="limit" value="30" min="1" max="255"><br />
+								<label for="decoy">Traps:</label>
+								<input type="checkbox" id="decoy" name="decoy" value="1"><br />
+							</fieldset>
 						</div>
-						<div class="row">
-							<div class="col w-100">
-								<fieldset>
-									<legend>Colors:</legend>
-									<label for="fastPressNColors">Number of colors:</label>
-									<input type="number" id="fastPressNColors" name="fastPressNColors" min="1" max="8" value="1" oninput="displayFastPressColors()"><br/>
-								</fieldset>
-							</div>
+						<div class="col">
+							<fieldset>
+								<legend>Colors:</legend>
+								<label for="fastPressNColors">Number of colors:</label>
+								<input type="number" id="fastPressNColors" name="fastPressNColors" min="1" max="8" value="1" oninput="displayFastPressColors()"><br/>
+							</fieldset>
 						</div>
-						<input type="submit" class="btn primary w-100" value="Launch">
+						<button type="submit" class="solid w-100">Launch</button>
 					</form>
 					<script>
 						function fastPressParametersChange(){
@@ -109,8 +103,10 @@
 								}else{
 									button.textContent = i;
 								}
-								button.classList.add(...["fpColorsButton","btn","primary"]);
+								button.classList.add(...["fpColorsButton"]);
 								button.style.backgroundColor = "hsl("+i * 360 / nColors+", 100%, 50%)";
+								button.style.borderColor = button.style.backgroundColor;
+								button.style.color = 'black';
 								nColorsInput.parentNode.insertBefore(button, nextSibling);
 							}
 							//add a line break before our buttons :
@@ -207,7 +203,7 @@
 					</form>
 				</div>
 			</div>
-        </div>
+        </main>
         <script>
 			function validateCycle(){
 				let chaseCycleDiv = document.getElementById("ChaseCycle");
@@ -360,11 +356,11 @@
             function show(buttonId, toShowId){
 				//unselect old button
 				if (window.currentSelection){
-					window.currentSelection.classList.remove("primary");
+					window.currentSelection.classList.remove("solid");
 				}
 				//select the current button
 				let button = document.getElementById(buttonId);
-				button.classList.add("primary");
+				button.classList.add("solid");
 				window.currentSelection = button;
 				//show the details
 				let divs = document.getElementById("details").children;
