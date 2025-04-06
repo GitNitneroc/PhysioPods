@@ -205,7 +205,9 @@ fieldset > legend:not(:focus):not(:active) {
     white-space: nowrap; 
 }
 
-input, select {
+input[type='text'],
+input[type='number'],
+select {
     min-height: var(--def-button-height);
     border-radius: var(--def-border-radius);
     border-width: var(--def-border-width);

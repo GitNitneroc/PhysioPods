@@ -47,18 +47,23 @@
 						<div class="card">
 							<div class="card-header"><h2 aria-hidden="true">Program</h2></div>
 							<div class='card-content'>
-								<fieldset>
+								<fieldset class="col">
 									<legend>Program</legend>
-									<span>End of game:</span>
-									<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
-									<label for="time">Time</label>
-									<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
-									<label for="tries">Tries</label>
-
-									<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
-									<input type="number" id="limit" name="limit" value="30" min="1" max="255">
-									<label for="decoy">Traps:</label>
-									<input type="checkbox" id="decoy" name="decoy" value="1">
+									<div>
+										<span>End of game:</span>
+										<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
+										<label for="time">Time</label>
+										<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
+										<label for="tries">Tries</label>
+									</div>
+									<div>
+										<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
+										<input type="number" id="limit" name="limit" value="30" min="1" max="255">
+									</div>
+									<div>
+										<label for="decoy">Traps:</label>
+										<input type="checkbox" id="decoy" name="decoy" value="1">
+									</div>
 								</fieldset>
 							</div>
 						</div>
