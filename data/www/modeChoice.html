@@ -17,8 +17,8 @@
 				<a href="/static/parameters.html">Parameters</a>
 			</nav>
 		</header>
-		<main class="padding">
-			<nav class="sub-navigation">
+		<main>
+			<nav class="sub-navigation padding-inline">
 				<div class="button-group">
 					<button id="1" onclick='show(this.id,"mode1Details")'>Fast Press</button>
 					<button id="2" onclick='show(this.id,"mode2Details")'>Fairy Lights</button>
@@ -29,41 +29,53 @@
 			<div id="details">
 				<div id="mode1Details" style="display:none">
 					<!-- <h2>FastPress</h2> -->
-					<p>When it's activated, hit the pod as soon as possible!</p>
-					<form class="col" action="/launchMode" onsubmit="fastPressSubmitCheck()">
+					<p class="mode-description">When it's activated, hit the pod as soon as possible!</p>
+					<form action="/launchMode" onsubmit="fastPressSubmitCheck()">
 						<input type="hidden" id="mode" name="mode" value="FP">
-						<div class="col">
-							<fieldset>
-								<legend>Delay:</legend>
-								<label id="minTimeLabel" for="minInterval">Min time:</label>
-								<input type="range" class="w-100" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><br />
-								<label id="maxTimeLabel" for="maxInterval">Max time:</label>
-								<input type="range" class="w-100" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><br />
-							</fieldset>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Delay</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<legend>Delay</legend>
+									<label id="minTimeLabel" for="minInterval">Min time:</label>
+									<input type="range" class="w-100" id="minInterval" name="minInterval" min="1" max="200" value="10" oninput="fastPressParametersChange()"><br />
+									<label id="maxTimeLabel" for="maxInterval">Max time:</label>
+									<input type="range" class="w-100" id="maxInterval" name="maxInterval" min="0" max="200" value="30" oninput="fastPressParametersChange()"><br />
+								</fieldset>
+							</div>
 						</div>
-						<div class="col">
-							<fieldset>
-								<legend>Program:</legend>
-								<span>End of game:</span><br />
-								<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
-								<label for="time">Time</label>
-								<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
-								<label for="tries">Tries</label><br />
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Program</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<legend>Program</legend>
+									<span>End of game:</span>
+									<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
+									<label for="time">Time</label>
+									<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
+									<label for="tries">Tries</label>
 
-								<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
-								<input type="number" id="limit" name="limit" value="30" min="1" max="255"><br />
-								<label for="decoy">Traps:</label>
-								<input type="checkbox" id="decoy" name="decoy" value="1"><br />
-							</fieldset>
+									<label for="limit" id="limit-text">Number of tries (1 to 255):</label>
+									<input type="number" id="limit" name="limit" value="30" min="1" max="255">
+									<label for="decoy">Traps:</label>
+									<input type="checkbox" id="decoy" name="decoy" value="1">
+								</fieldset>
+							</div>
 						</div>
-						<div class="col">
-							<fieldset>
-								<legend>Colors:</legend>
-								<label for="fastPressNColors">Number of colors:</label>
-								<input type="number" id="fastPressNColors" name="fastPressNColors" min="1" max="8" value="1" oninput="displayFastPressColors()"><br/>
-							</fieldset>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Colors</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<legend>Colors</legend>
+									<label for="fastPressNColors">Number of colors:</label>
+									<input type="number" id="fastPressNColors" name="fastPressNColors" min="1" max="8" value="1" oninput="displayFastPressColors()">
+								</fieldset>
+								<div id="fastPressButtonsContainer" class="row"></div>
+							</div>
 						</div>
-						<button type="submit" class="solid w-100">Launch</button>
+						<div class="padding-inline">
+							<button type="submit" class="solid w-100">Launch</button>
+						</div>
 					</form>
 					<script>
 						function fastPressParametersChange(){
@@ -91,11 +103,13 @@
 						function displayFastPressColors(){
 							let nColorsInput = document.getElementById("fastPressNColors");
 							let nColors = parseInt(nColorsInput.value)+1;
+							const buttonsContainer = document.getElementById("fastPressButtonsContainer");
 							let existingButtons = document.getElementsByClassName("fpColorsButton");
 							while(existingButtons[0]) {
-								existingButtons[0].parentNode.removeChild(existingButtons[0]);
+								if (buttonsContainer) {
+									buttonsContainer.removeChild(existingButtons[0]);
+								}
 							}
-							let nextSibling = nColorsInput.nextSibling;
 							for(let i = 0; i < nColors; i++) {
 								let button = document.createElement("button");
 								if (i==0){
@@ -105,18 +119,17 @@
 								}
 								button.classList.add(...["fpColorsButton"]);
 								const h = i * 360 / nColors;
-								button.style.backgroundColor = `hsl(${h}, 100%, 50%)`;
-								button.style.borderColor = button.style.backgroundColor;
+								const color = `hsl(${h}, 100%, 50%)`;
+								button.style.backgroundColor = color;
+								button.style.borderColor = color;
 								//will set the button label's color black or white depending
 								//on the background's luminosity to ensure readability.
 								//If css lch() function not supported, fallback to black.
 								button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
-								nColorsInput.parentNode.insertBefore(button, nextSibling);
+								if (buttonsContainer) {
+									buttonsContainer.appendChild(button);
+								}
 							}
-							//add a line break before our buttons :
-							let br = document.createElement("br")
-							br.classList.add("fpColorsButton"); //since it's teamButton, it will be deleted next time
-							nColorsInput.parentNode.insertBefore(br,nColorsInput.nextSibling)
 						}
 
 						displayFastPressColors();
