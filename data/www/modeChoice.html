@@ -104,9 +104,13 @@
 									button.textContent = i;
 								}
 								button.classList.add(...["fpColorsButton"]);
-								button.style.backgroundColor = "hsl("+i * 360 / nColors+", 100%, 50%)";
+								const h = i * 360 / nColors;
+								button.style.backgroundColor = `hsl(${h}, 100%, 50%)`;
 								button.style.borderColor = button.style.backgroundColor;
-								button.style.color = 'black';
+								//will set the button label's color black or white depending
+								//on the background's luminosity to ensure readability.
+								//If css lch() function not supported, fallback to black.
+								button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
 								nColorsInput.parentNode.insertBefore(button, nextSibling);
 							}
 							//add a line break before our buttons :
