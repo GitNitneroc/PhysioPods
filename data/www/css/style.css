@@ -143,8 +143,11 @@ a {
     font-weight: 500;
 }
 
-a:hover {
-    opacity: 0.6;
+/** Mouse devices only */
+@media (pointer: fine) {
+    a:hover {
+        opacity: 0.6;
+    }
 }
 
 /** Button */
@@ -178,9 +181,12 @@ button.fpColorsButton {
     color: black;
 }
 
-button:hover {
-    opacity: 0.8;
-    filter: drop-shadow(0 0 2px var(--color-medium));
+/** Mouse devices only */
+@media (pointer: fine) {
+    button:hover {
+        opacity: 0.8;
+        filter: drop-shadow(0 0 2px var(--color-medium));
+    }
 }
 
 input, select {
@@ -271,6 +277,10 @@ tr:nth-child(even) {
 
 .padding {
     padding: var(--def-margin);
+}
+
+.padding-inline {
+    padding-inline: var(--def-margin);
 }
 
 /** Loader */
