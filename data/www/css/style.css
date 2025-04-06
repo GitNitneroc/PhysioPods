@@ -163,7 +163,7 @@ button {
 button.solid {
     color: var(--color-primary-contrast);
     background-color: var(--color-primary);
-    border: solid var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 button.success {
