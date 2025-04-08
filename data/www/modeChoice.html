@@ -175,29 +175,34 @@
 				</div>
 				<div id="mode3Details" style="display:none">
 					<!-- <h2>Color War</h2> -->
-					<p>This can be played in multiplayer</p>
-					<p>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points</p>
+					<p class="mode-description">This can be played in multiplayer.<br/>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points.</p>
 					<form action="/launchMode">
 						<input type="hidden" id="mode" name="mode" value="CW">
-						<div class="row">
-							<fieldset class="w-100">
-								<legend>General:</legend>
-								<label for="duration">Game Duration (sec):</label>
-								<input type="number" id="duration" name="duration" min="1" max="65536" value="60" ><br/>
-								<label for="nteams">Number of teams:</label>
-								<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="displayColorWarTeams()"><br/>
-							</fieldset>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">General</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<legend>General</legend>
+									<label for="duration">Game Duration (sec):</label>
+									<input type="number" id="duration" name="duration" min="1" max="65536" value="60" >
+									<label for="nteams">Number of teams:</label>
+									<input type="number" id="nteams" name="nteams" min="2" max="255" value="2" oninput="displayColorWarTeams()">
+								</fieldset>
+								<div id="teamButtonsContainer" class="row"></div>
+							</div>
 						</div>
-						<div class="row">
-							<fieldset class="w-100">
-								<legend>Chaos:</legend>
-								<p>The probability of a change of color for one of the pods, each 1/100th of a sec. At 0 the pods won&apos;t change colors by theirselves</p>
-								<label for="probability">Probability:</label>
-								<input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005">
-							</fieldset>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Chaos</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<legend>Chaos</legend>
+									<p class="mode-description">The probability of a change of color for one of the pods, each 1/100th of a sec. At 0 the pods won&apos;t change colors by theirselves.</p>
+									<label for="probability">Probability:</label>
+									<input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005">
+								</fieldset>
+								<button type="submit" class="solid w-100">Launch</button>
+							</div>
 						</div>
-
-						<input type="submit" class="btn primary w-100" value="Launch">
 					</form>
 				</div>
 				<div id="mode4Details" style="display:none">
@@ -282,7 +287,6 @@
 							chaseColors.children[i].classList.add('1');
 						}
 					}
-
 				}
 			}
 
@@ -413,23 +417,26 @@
 			function displayColorWarTeams(){
 				let nTeamsInput = document.getElementById("nteams");
 				let nTeams = nTeamsInput.value;
+				const buttonsContainer = document.getElementById("teamButtonsContainer");
 				let existingButtons = document.getElementsByClassName("teamButton");
 				while(existingButtons[0]) {
-					existingButtons[0].parentNode.removeChild(existingButtons[0]);
+					if (buttonsContainer) {
+						buttonsContainer.removeChild(existingButtons[0]);
+					}
 				}
-				let nextSibling = nTeamsInput.nextSibling;
 				for(let i = 0; i < nTeams; i++) {
 					let button = document.createElement("button");
 					button.textContent = "Team " + (i + 1);
-					button.classList.add(...["teamButton","btn","primary"]);
-					button.style.backgroundColor = "hsl("+i * 360 / nTeams+", 100%, 50%)";
-					nTeamsInput.parentNode.insertBefore(button, nextSibling);
+					button.classList.add(...["teamButton"]);
+					const h = i * 360 / nTeams;
+					const color = `hsl(${h}, 100%, 50%)`;
+					button.style.backgroundColor = color;
+					button.style.borderColor = color;
+					button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+					if (buttonsContainer) {
+						buttonsContainer.appendChild(button);
+					}
 				}
-				//add a line break before our buttons :
-				let br = document.createElement("br")
-				br.classList.add("teamButton"); //since it's teamButton, it will be deleted next time
-				nTeamsInput.parentNode.insertBefore(br,nTeamsInput.nextSibling)
-
 			}
         </script>
     </body>
