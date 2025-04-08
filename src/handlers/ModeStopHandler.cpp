@@ -7,6 +7,7 @@
 #include <ESP8266WiFi.h>
 #endif
 
+#include "debugPrint.h"
 #include <esp_now.h>
 #include "modes/PhysioPodMode.h"
 
@@ -19,7 +20,7 @@ ModeStopHandler::ModeStopHandler() {
 bool ModeStopHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/modeStop") {
         #ifdef isDebug
-        Serial.println("ModeStopHandler request !");
+        DebugPrintln("ModeStopHandler request !");
         #endif
         return true;
     }
@@ -33,12 +34,12 @@ void ModeStopHandler::handleRequest(AsyncWebServerRequest *request) {
         PhysioPodMode::currentMode->stop();
         response->print("mode stopped");
         #ifdef isDebug
-        Serial.println("Mode stopped !");
+        DebugPrintln("Mode stopped !");
         #endif
     }else{
         response->print("error : no mode currently running !");
         #ifdef isDebug
-        Serial.println("No mode running !");
+        DebugPrintln("No mode running !");
         #endif
     }
     

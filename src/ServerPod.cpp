@@ -18,6 +18,8 @@
 //#include <ElegantOTA.h>
 #include <PrettyOTA.h>
 
+#include "debugPrint.h"
+
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
 #include "handlers/CaptiveRequestHandler.h"
@@ -52,6 +54,7 @@ void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
 
 bool ServerPod::initializeSPIFFS(){
     //start the SPIFFS
+    //WebSerial is not started yet, let's stick to Serial
     if(!SPIFFS.begin(true)){
         Serial.println("An Error has occurred while mounting SPIFFS, rebooting...");
         return false;        
@@ -93,7 +96,7 @@ void ServerPod::prepareCaptivePortal(AsyncWebServer* server){
 }
 
 void ServerPod::attachHandlers(AsyncWebServer* server){
-    Serial.println("|-Adding the web handlers to the server...");
+    DebugPrintln("|-Adding the web handlers to the server...");
     //handlers for the web server
     server->addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
     server->addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
@@ -225,6 +228,24 @@ ServerPod::ServerPod() : server(80) {
     OTAUpdates.OnStart(onOTAUpdateStart);// Set callback
     Serial.println("|-PrettyOTA started"); 
 
+    // Start WebSerial
+    #ifdef isDebug
+    Serial.println("|-WebSerial starting...");
+    WebSerial.begin(&server);
+    //webserial could also accept incomming messages
+    WebSerial.onMessage([](uint8_t *data, size_t len) {
+        Serial.printf("Received %lu bytes from WebSerial: ", len);
+        Serial.write(data, len);
+        Serial.println();
+        WebSerial.println("Received Data...");
+        String d = "";
+        for(size_t i = 0; i < len; i++){
+            d += char(data[i]);
+        }
+        WebSerial.println(d);
+    });
+    #endif
+
     //start the web server
     attachHandlers(&server); //attach the handlers to the server
     prepareCaptivePortal(&server); //prepare the captive portal
@@ -232,16 +253,16 @@ ServerPod::ServerPod() : server(80) {
     server.begin();
     
     server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
-    Serial.println("|-Static files server initialised...");
+    DebugPrintln("|-Static files server initialised...");
 
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
-        Serial.println("Error initializing ESP-NOW, restarting the device");
+        DebugPrintln("Error initializing ESP-NOW, restarting the device");
         ESP.restart();
     }
     uint32_t version = 0;
     esp_now_get_version(&version);
-    Serial.println("|-ESP-NOW v"+String(version)+" initialized");
+    DebugPrintln("|-ESP-NOW v"+String(version)+" initialized");
 
     //add broadcast mac address to the peers
     //TODO : actually check this is needed, I read somewhere that it's not necessary
@@ -255,15 +276,15 @@ ServerPod::ServerPod() : server(80) {
     
     // Add peer        
     if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add broadcast as peer, restarting the device");
+        DebugPrintln("Failed to add broadcast as peer, restarting the device");
         ESP.restart();
     }else{
-        Serial.println("Broadcast peer added");
+        DebugPrintln("Broadcast peer added");
     }
 
     //receive callback
     esp_now_register_recv_cb(this->OnDataReceived);
-    Serial.println("ESPNow callback registered");
+    DebugPrintln("ESPNow callback registered");
 
     //Check the clients' timeouts
     xTaskCreate(
@@ -273,9 +294,9 @@ ServerPod::ServerPod() : server(80) {
         NULL,  /* Parameter passed as input of the task */
         1,  /* Priority of the task. */
         NULL);  /* Task handle. */
-    Serial.println("Check clients timeouts task started");
+    DebugPrintln("Check clients timeouts task started");
 
-    Serial.println("ServerPod seems ready !");
+    DebugPrintln("ServerPod seems ready !");
 }
 
 /* void ServerPod::broadcastMessage(const void* message){
@@ -320,18 +341,18 @@ void ServerPod::CheckClientTimeouts(void * vpParameters){
         for (int i = 0; i < sp->peersNum; i++){
             sp->clientsTimers[i]++; 
             if (sp->clientsTimers[i] >= 2){
-                Serial.print("Timeout detected for pod : ");
-                Serial.println(i+1);
+                DebugPrint("Timeout detected for pod : ");
+                DebugPrintln(i+1);
                 if (i<sp->peersNum-1){ //this is not the last pod
                     //create the reorg message
                     IdReorgMessage reorgMsg;
                     reorgMsg.newId = i+1;
                     reorgMsg.oldId = sp->peersNum;
                     reorgMsg.sessionId = sp->sessionId;
-                    Serial.print("Asking pod ");
-                    Serial.print(sp->peersNum);
-                    Serial.print(" to switch to id ");
-                    Serial.println(i+1);
+                    DebugPrint("Asking pod ");
+                    DebugPrint(sp->peersNum);
+                    DebugPrint(" to switch to id ");
+                    DebugPrintln(i+1);
                     sp->clientsTimers[i] = 0; //reset the timer for the reorg'ed pod
                     //send reorg message
                     esp_now_send(ip_addr_broadcast, (uint8_t *) &reorgMsg, sizeof(IdReorgMessage));
@@ -345,22 +366,22 @@ void ServerPod::CheckClientTimeouts(void * vpParameters){
 /* This should be called to start the specified PhysioPodMode*/
 void ServerPod::startMode(PhysioPodMode* newMode){
     #ifdef isDebug
-    Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
-    Serial.println("Starting new mode...");
+    DebugPrintln("Free memory : "+String(ESP.getFreeHeap())+" bytes");
+    DebugPrintln("Starting new mode...");
     #endif
     //if there is a mode running, stop it
     if (PhysioPodMode::currentMode != nullptr){
         if (PhysioPodMode::currentMode->isRunning()){
             #ifdef isDebug
-            Serial.println("Stopping older mode...");
+            DebugPrintln("Stopping older mode...");
             #endif
             PhysioPodMode::currentMode->stop();
         }
         //store a pointer to the current mode, and delete it later
         #ifdef isDebug
-        Serial.print("Deleting older mode : ");
-        Serial.println(PhysioPodMode::currentMode->getName());
-        Serial.println("Free memory : "+String(ESP.getFreeHeap())+" bytes");
+        DebugPrint("Deleting older mode : ");
+        DebugPrintln(PhysioPodMode::currentMode->getName());
+        DebugPrintln("Free memory : "+String(ESP.getFreeHeap())+" bytes");
         #endif
         delete PhysioPodMode::currentMode;
         PhysioPodMode::currentMode = newMode;
@@ -381,12 +402,12 @@ void ServerPod::SendPong(uint8_t podId){
     esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &pongMsg, sizeof(PingMessage));
     if (result == ESP_OK) {
         #ifdef isDebug
-        //Serial.println("PongMessage broadcasted (pod "+String(podId)+")");
+        //DebugPrintln("PongMessage broadcasted (pod "+String(podId)+")");
         #endif
     } else {
         #ifdef isDebug
-        Serial.print("Error sending the ESP-NOW message : ");
-        Serial.println(esp_err_to_name(result));
+        DebugPrint("Error sending the ESP-NOW message : ");
+        DebugPrintln(esp_err_to_name(result));
         #endif
     }
 }
@@ -397,12 +418,12 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         ControlMessage* message = (ControlMessage*)data;
         if (message->sessionId != getInstance()->getSessionId()){
             #ifdef isDebug
-            Serial.println("Received a control message with a wrong session id");
+            DebugPrintln("Received a control message with a wrong session id");
             #endif
             return;
         }
         #ifdef isDebug
-        Serial.println("Received a control message from pod "+String(message->id));
+        DebugPrintln("Received a control message from pod "+String(message->id));
         #endif
         if(PhysioPodMode::currentMode != nullptr && PhysioPodMode::currentMode->isRunning()){
             //call the current mode's press callback
@@ -414,12 +435,12 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         PingMessage* pingMsg = (PingMessage*)data;
         if (pingMsg->sessionId != getInstance()->getSessionId()){
             #ifdef isDebug
-            Serial.println("Received a ping with a wrong session id");
+            DebugPrintln("Received a ping with a wrong session id");
             #endif
             return;
         }
         #ifdef isDebug
-        //Serial.println("Received a ping message from pod "+String(pingMsg->id));
+        //DebugPrintln("Received a ping message from pod "+String(pingMsg->id));
         #endif
         ServerPod::getInstance()->clientsTimers[pingMsg->id-1]=0; //reset the timer for this client
         //send a pong message
@@ -427,12 +448,13 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         break;
     }
     default:
-        Serial.print("Received a message of unknown length from ");
+        DebugPrint("Received a message of unknown length from ");
         for (int i = 0; i < 6; i++) {
-            Serial.print(sender_addr[i], HEX);
+            //Serial.printf("%02X", sender_addr[i]);
+            DebugPrintf("%02X", sender_addr[i]);
             if (i<5) Serial.print(":");
         }
-        Serial.println();
+        DebugPrintln();
         break;
     }
 }
@@ -455,25 +477,25 @@ void ServerPod::setPodLightState(uint8_t podId, bool ledState, CRGB color, Light
         esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(LEDMessage));
         if (result == ESP_OK) {
             #ifdef isDebug
-            Serial.println("LEDMessage broadcasted (pod "+String(podId)+")");
+            DebugPrintln("LEDMessage broadcasted (pod "+String(podId)+")");
             #endif
         } else {
             #ifdef isDebug
-            Serial.print("Error sending the ESP-NOW message : ");
-            Serial.println(esp_err_to_name(result));
+            DebugPrint("Error sending the ESP-NOW message : ");
+            DebugPrintln(esp_err_to_name(result));
             #endif
         }
         //check if the serverPod is one of the targets
         if (podId == 255) {
             #ifdef isDebug
-            Serial.println("The ServerPod is one of the targets");
+            DebugPrintln("The ServerPod is one of the targets");
             #endif
             ServerPod::setOwnLightState(ledState, color,mode);
         }
     } else {
         //the serverPod is the only target
         #ifdef isDebug
-        Serial.println("The serverPod is the target");
+        DebugPrintln("The serverPod is the target");
         #endif
         ServerPod::setOwnLightState(ledState, color, mode);
     }
@@ -481,7 +503,7 @@ void ServerPod::setPodLightState(uint8_t podId, bool ledState, CRGB color, Light
 
 void ServerPod::onControlPressed(){
     #ifdef isDebug
-    Serial.println("This pods' Control is activated !");
+    DebugPrintln("This pods' Control is activated !");
     #endif
     //this should be transmitted to the mode, just like clientPods controls
     if (PhysioPodMode::currentMode != nullptr){
@@ -495,7 +517,7 @@ void ServerPod::updatePod(){
         //There is a new mode to start, this is the time to do it
         PhysioPodMode* mode = PhysioPodMode::modeConstructor();
         PhysioPodMode::modeConstructor = nullptr;
-        Serial.println(PhysioPodMode::currentMode==nullptr?"No mode running":"Mode running");
+        DebugPrintln(PhysioPodMode::currentMode==nullptr?"No mode running":"Mode running");
         startMode(mode);
     }
 
@@ -506,12 +528,16 @@ void ServerPod::updatePod(){
         //also update the control
         //We could also wait a bit, to avoid updating the control too often
         if (control != nullptr){
-            //Serial.println("Updating control");
+            //DebugPrintln("Updating control");
             bool state = control->checkControl();
         }else{
             #ifdef isDebug
-            Serial.println("No control to update");
+            DebugPrintln("No control to update");
             #endif
         }
     }
+
+    #ifdef isDebug
+    WebSerial.loop();
+    #endif
 }

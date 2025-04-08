@@ -1,5 +1,6 @@
 #include "FairyLightsMode.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 void FairyLightsMode::initialize(int timeByPod) {
     this->timeByPod = timeByPod;
@@ -31,14 +32,14 @@ bool FairyLightsMode::testRequestParameters(AsyncWebServerRequest *request) {
 
     const AsyncWebParameter* timeByPodParam = request->getParam("timeByPod");
     if (timeByPodParam == NULL) {
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         return false;
     }
 
     int timeByPod = timeByPodParam->value().toInt();
 
     #ifdef isDebug
-    Serial.println("timeByPod : "+ String(timeByPod));
+    DebugPrintln("timeByPod : "+ String(timeByPod));
     #endif
 
     FairyLightsMode::parameters = {timeByPod};
@@ -49,7 +50,7 @@ bool FairyLightsMode::testRequestParameters(AsyncWebServerRequest *request) {
 PhysioPodMode* FairyLightsMode::generateMode() {
     FairyLightsMode* newMode = new FairyLightsMode();
     #ifdef isDebug
-    Serial.println("Mode created, initializing...");
+    DebugPrintln("Mode created, initializing...");
     #endif
     newMode->initialize(FairyLightsMode::parameters.timeByPod);
     return newMode;

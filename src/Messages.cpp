@@ -1,5 +1,6 @@
 #include "Messages.h"
 #include "PhysioPod.h"
+#include "debugPrint.h"
 using namespace Messages;
 
 parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_t *data, int len){
@@ -9,7 +10,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
     switch (type){
         case MessageType::PING:{
             message.type = MessageType::PING;
-            Serial.println("Ping message received");
+            DebugPrintln("Ping message received");
             PingMessage* pingMessage = (PingMessage*)data;
             //check sessiongId
             if (pingMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
@@ -19,7 +20,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             break;
         }
         case MessageType::CONTROL:{
-            Serial.println("Control message received");
+            DebugPrintln("Control message received");
             message.type = MessageType::CONTROL;
             ControlMessage* controlMessage = (ControlMessage*)data;
             //check sessionId
@@ -34,7 +35,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             break;
         }
         case MessageType::ID_REORG:{
-            Serial.println("IdReorg message received");
+            DebugPrintln("IdReorg message received");
             message.type = MessageType::ID_REORG;
             IdReorgMessage* reorgMessage = (IdReorgMessage*)data;
             //check sessiongId
@@ -50,7 +51,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
         }
         
         case MessageType::LED:{
-            Serial.println("LED message received");
+            DebugPrintln("LED message received");
             message.type = MessageType::LED;
             LEDMessage* ledMessage = (LEDMessage*)data;
             //check sessionId
@@ -66,7 +67,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
         }
         case MessageType::SSID:{
             message.type = MessageType::SSID;
-            Serial.println("SSID message received");
+            DebugPrintln("SSID message received");
             SSIDMessage* ssidMessage = (SSIDMessage*)data;
             //check sessionId
             if (ssidMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
@@ -77,7 +78,7 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             break;
         }
         default:
-            Serial.println("Unknown message received");
+            DebugPrintln("Unknown message received");
             message.type = MessageType::ERROR;
             break;
     }

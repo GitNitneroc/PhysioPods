@@ -1,6 +1,7 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
+
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
@@ -16,6 +17,7 @@ bool shouldBeClient = false;
 void createPod();
 
 void setup(){
+    //NOTE : until Serverpod is created, we don't know if there is a WebSerial or not, since there is no server yet. So let's stick to Serial for now
     Serial.begin(115200);
     #ifdef isDebug
     //TODO : remove this, it's just a stupid delay to facilitate debugging of the first steps

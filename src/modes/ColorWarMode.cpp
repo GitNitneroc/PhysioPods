@@ -1,5 +1,6 @@
 #include "ColorWarMode.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 ColorWarParameters ColorWarMode::parameters = {0,0,0};
 
@@ -30,7 +31,7 @@ void ColorWarMode::reset() {
     StartTimer = millis();
     //turn off every pod
     #ifdef isDebug
-    Serial.println("ColorWarMode : turning off "+String(nPods)+" pods");
+    DebugPrintln("ColorWarMode : turning off "+String(nPods)+" pods");
     #endif
     for (uint8_t i = 0; i < nPods; i++) {
         ServerPod::setPodLightState(i, false);
@@ -42,7 +43,7 @@ bool ColorWarMode::testRequestParameters(AsyncWebServerRequest *request) {
     const AsyncWebParameter* durationParam = request->getParam("duration");
     const AsyncWebParameter* probabilityParam = request->getParam("probability");
     if (nColorsParam == NULL || durationParam == NULL || probabilityParam == NULL) {
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         return false;
     }
 
@@ -51,9 +52,9 @@ bool ColorWarMode::testRequestParameters(AsyncWebServerRequest *request) {
     float probability = probabilityParam->value().toFloat();
 
     #ifdef isDebug
-    Serial.println("nColors : "+ String(nColors));
-    Serial.println("duration : "+ String(duration));
-    Serial.println("probability : "+ String(probability));
+    DebugPrintln("nColors : "+ String(nColors));
+    DebugPrintln("duration : "+ String(duration));
+    DebugPrintln("probability : "+ String(probability));
     #endif
 
     ColorWarMode::parameters = parameters = {nColors, duration, probability};
@@ -64,7 +65,7 @@ bool ColorWarMode::testRequestParameters(AsyncWebServerRequest *request) {
 PhysioPodMode* ColorWarMode::generateMode() {
     ColorWarMode* newMode = new ColorWarMode();
     #ifdef isDebug
-    Serial.println("Mode created, initializing...");
+    DebugPrintln("Mode created, initializing...");
     #endif
     newMode->initialize(parameters.nColors, parameters.duration, parameters.probability);
     return newMode;
@@ -92,7 +93,7 @@ void ColorWarMode::initialize(uint8_t nColors, uint16_t duration, float probabil
     this->duration = duration;
     this->probability = probability;
     #ifdef isDebug
-    Serial.println("ColorWarMode : initializing with " + String(nColors) + " colors, a duration of " + String(duration) + "s and a probability of " + String(probability));
+    DebugPrintln("ColorWarMode : initializing with " + String(nColors) + " colors, a duration of " + String(duration) + "s and a probability of " + String(probability));
     #endif
     resetScores();
 
@@ -101,7 +102,7 @@ void ColorWarMode::initialize(uint8_t nColors, uint16_t duration, float probabil
     resetPodsColors(); //not sure this is necessary, start does something like that anyway
     StartTimer = millis();
     #ifdef isDebug
-    Serial.println("ColorWarMode : turning off all connected pods");
+    DebugPrintln("ColorWarMode : turning off all connected pods");
     #endif
     //we can't use nPods now, this will only be initialized in start(), so that pod number can still change between games
     for (uint8_t i = 0; i < ServerPod::peersNum+2; i++) { //+2 because peers does not count the server
@@ -113,7 +114,7 @@ void ColorWarMode::update() {
     //is it time to stop ?
     if (millis() - StartTimer > duration*1000) { //This is in ms
         #ifdef isDebug
-        Serial.println("ColorWarMode : time's up");
+        DebugPrintln("ColorWarMode : time's up");
         #endif
         ServerPod::setPodLightState(255, true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG); //end of game
         stop();
@@ -130,7 +131,7 @@ void ColorWarMode::update() {
             CRGB newColor = colors[rancomColorId];
             podsColors[podId] = rancomColorId;
             #ifdef isDebug
-            Serial.println("ColorWarMode : random change to color n"+String(rancomColorId)+" for pod n"+String(podId));
+            DebugPrintln("ColorWarMode : random change to color n"+String(rancomColorId)+" for pod n"+String(podId));
             #endif
             ServerPod::setPodLightState(podId, true, CRGB(newColor.r, newColor.g, newColor.b));
         }

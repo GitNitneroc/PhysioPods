@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 #include "CapacitiveTouchControl.h"
+#include "debugPrint.h"
 
 #ifndef CAPACITIVE_TOUCH_THRESHOLD
 #define CAPACITIVE_TOUCH_THRESHOLD 40000
@@ -16,20 +17,20 @@ CapacitiveTouchControl::CapacitiveTouchControl(byte pin){
     //this->checking = false;
     this->state = false;
     this->onPressedCallback = nullptr;
-    Serial.println("CapacitiveTouchControl created");
+    DebugPrintln("CapacitiveTouchControl created");
 }
 
 void CapacitiveTouchControl::initialize(void (*callback)()){
     this->onPressedCallback = callback;
     this->lastDebounceTime = millis();
     #ifndef USE_CAPACITIVE_TOUCH
-    Serial.println("You are initializing a Capacitive touch, please enable USE_CAPACITIVE_TOUCH build flag in platformio.ini");
+    DebugPrintln("You are initializing a Capacitive touch, please enable USE_CAPACITIVE_TOUCH build flag in platformio.ini");
     #endif
 }
 
 bool CapacitiveTouchControl::checkControl(){
     #ifdef USE_CAPACITIVE_TOUCH
-    //Serial.println(touchRead(pin));
+    //DebugPrintln(touchRead(pin));
     #ifdef USE_INVERTED_TOUCH
         bool newState=(touchRead(pin) > CAPACITIVE_TOUCH_THRESHOLD);
     #else
@@ -41,8 +42,8 @@ bool CapacitiveTouchControl::checkControl(){
             lastDebounceTime = millis();
             state = !state;
             #ifdef isDebug
-            Serial.print("Capacitive touch state changed : ");
-            Serial.println(state ? "HIGH" : "LOW");
+            DebugPrint("Capacitive touch state changed : ");
+            DebugPrintln(state ? "HIGH" : "LOW");
             #endif
             if (state){
                 //notify the pod that the button is pressed
@@ -51,7 +52,7 @@ bool CapacitiveTouchControl::checkControl(){
         }
         #ifdef isDebug
         else{
-            Serial.println("Ignored a touch event due to debounce delay");
+            DebugPrintln("Ignored a touch event due to debounce delay");
         }
         #endif
     }

@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 #include "ProximityControl.h"
+#include "debugPrint.h"
 
 #define debounceDelay 50
 
@@ -9,7 +10,7 @@ ProximityControl::ProximityControl(byte pin){
     this->state = false;
     this->lastDebounceTime = 0;
     this->onPressedCallback = nullptr;
-    Serial.println("ProximityControl created");
+    DebugPrintln("ProximityControl created");
 }
 
 void ProximityControl::initialize(void (*callback)()){
@@ -28,8 +29,8 @@ bool ProximityControl::checkControl(){
             lastDebounceTime = millis();
             state = !state;
             #ifdef isDebug
-            Serial.print("Proximity state changed : ");
-            Serial.println(state ? "HIGH" : "LOW");
+            DebugPrint("Proximity state changed : ");
+            DebugPrintln(state ? "HIGH" : "LOW");
             #endif
             //notify the pod that the button is pressed
             if (!state){
@@ -38,7 +39,7 @@ bool ProximityControl::checkControl(){
             return !state; //return true if the current is low (INPUT_PULLUP)
         }
         #ifdef isDebug
-        Serial.println("Ignored a bounce !");
+        DebugPrintln("Ignored a bounce !");
         #endif
     }
     return !state;

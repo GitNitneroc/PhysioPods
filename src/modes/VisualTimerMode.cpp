@@ -1,5 +1,6 @@
 #include "VisualTimerMode.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 void VisualTimerMode::initialize(long workTime, long restTime, uint8_t numberOfCycles) {
     this->workTime = workTime;
@@ -21,7 +22,7 @@ VisualTimerMode::VisualTimerMode() {
 
 void VisualTimerMode::stop() {
     #ifdef isDebug
-    Serial.println("VisualTimerMode stopped");
+    DebugPrintln("VisualTimerMode stopped");
     #endif
     PhysioPodMode::stop();
 }
@@ -43,7 +44,7 @@ bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
 
 
     if (workTimeParam == NULL || restTimeParam == NULL || cycleParam == NULL) {
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         return false;
     }
     //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
@@ -54,9 +55,9 @@ bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
     
 
     //#ifdef isDebug
-    //Serial.println("workTime : "+ String(workTime)+" tenth of sec");
-    //Serial.println("restTime : "+ String(restTime)+" tenth of sec");
-    //Serial.println("cycles : "+ String(cycles));
+    //DebugPrintln("workTime : "+ String(workTime)+" tenth of sec");
+    //DebugPrintln("restTime : "+ String(restTime)+" tenth of sec");
+    //DebugPrintln("cycles : "+ String(cycles));
     //#endif
 
     VisualTimerMode::parameters = {workTime, restTime, cycles};
@@ -68,7 +69,7 @@ bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
 
 void VisualTimerMode::onPodPressed(uint8_t id) {
     #ifdef isDebug
-    Serial.println("VisualTimerMode : pod "+String(id)+" pressed");
+    DebugPrintln("VisualTimerMode : pod "+String(id)+" pressed");
     #endif
 }
 
@@ -77,7 +78,7 @@ void VisualTimerMode::onPodPressed(uint8_t id) {
 PhysioPodMode* VisualTimerMode::generateMode() {
     VisualTimerMode* newMode = new VisualTimerMode();
     #ifdef isDebug
-    Serial.println("Mode created, initializing...");
+    DebugPrintln("Mode created, initializing...");
     #endif
     newMode->initialize(VisualTimerMode::parameters.workTime*100, VisualTimerMode::parameters.restTime*100, VisualTimerMode::parameters.numberOfCycles);//this is in ms
     return newMode;

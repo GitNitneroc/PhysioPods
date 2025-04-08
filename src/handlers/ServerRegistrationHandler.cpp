@@ -9,6 +9,7 @@
 
 #include <esp_now.h>
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 /*
     * This is a request handler to get the server's mac address
@@ -19,7 +20,7 @@ ServerRegistrationHandler::ServerRegistrationHandler() {
 bool ServerRegistrationHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/serverRegistration") { //Remember this is hard coded in the client connection of pods too
         #ifdef isDebug
-        Serial.println("ServerRegistrationHandler request !");
+        DebugPrintln("ServerRegistrationHandler request !");
         #endif
         return true;
     }
@@ -34,19 +35,19 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     const AsyncWebParameter* clientVersion = request->getParam("version");
     if (clientVersion != NULL) {
         #ifdef isDebug
-        Serial.print("ClientPod version : ");
-        Serial.println(clientVersion->value());
+        DebugPrint("ClientPod version : ");
+        DebugPrintln(clientVersion->value());
         #endif
         //if version is older than the server's, the client should not connect
         if (clientVersion->value().toInt() != VERSION) {
-            Serial.println("Incompatible version, client should not connect");
+            DebugPrintln("Incompatible version, client should not connect");
             response->print("Incompatible version\r\n");
             request->send(response);
             return;
         }
     }else{
         #ifdef isDebug
-        Serial.println("No version provided");
+        DebugPrintln("No version provided");
         #endif
     }
     
@@ -60,7 +61,7 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     const AsyncWebParameter* clientMac = request->getParam("mac");
     if (clientMac == NULL) {
         #ifdef isDebug
-        Serial.println("This is not a pod : No mac address provided");
+        DebugPrintln("This is not a pod : No mac address provided");
         #endif
     }else{
         //a new peer is connected !
@@ -70,9 +71,9 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
         #ifdef isDebug
         //read the mac address
         const char* macStr = clientMac->value().c_str();
-        Serial.print("ClientPod mac address : ");
-        Serial.print(macStr);
-        Serial.printf(" is attributed id : %d\n", ServerPod::peersNum);
+        DebugPrint("ClientPod mac address : ");
+        DebugPrint(macStr);
+        DebugPrintf(" is attributed id : %d\n", ServerPod::peersNum);
         #endif
         
         //append the id to the response on a new line

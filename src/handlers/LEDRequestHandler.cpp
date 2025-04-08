@@ -4,6 +4,7 @@
 #include "LEDRequestHandler.h"
 #include "ServerPod.h"
 #include "Messages.h"
+#include "debugPrint.h"
 #include <esp_now.h>
 
 LEDRequestHandler::LEDRequestHandler() {
@@ -12,12 +13,12 @@ LEDRequestHandler::LEDRequestHandler() {
 bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request) const {
     if (request->url()=="/LED") {
         #ifdef isDebug
-        Serial.println("LEDRequestHandler received params: ");
+        DebugPrintln("LEDRequestHandler received params: ");
         for (uint8_t i=0; i<request->params(); i++) {
             const AsyncWebParameter* p = request->getParam(i);
-            Serial.print(p->name());
-            Serial.print(": ");
-            Serial.println(p->value());
+            DebugPrint(p->name());
+            DebugPrint(": ");
+            DebugPrintln(p->value());
         }
         #endif
         return true;
@@ -36,7 +37,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     //Read the LED parameter
     if (ledParam->name()!="LED") {
         #ifdef isDebug
-        Serial.println("LEDRequestHandler : error reading LED parameter, ignoring the request");
+        DebugPrintln("LEDRequestHandler : error reading LED parameter, ignoring the request");
         #endif
         return;
     }else{
@@ -50,7 +51,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     const AsyncWebParameter* idParam = request->getParam(1);
     if (idParam->name()!="id") {
         #ifdef isDebug
-        Serial.println("LEDRequestHandler : error reading id parameter, ignoring the request");
+        DebugPrintln("LEDRequestHandler : error reading id parameter, ignoring the request");
         #endif
         return;
     }else{      
