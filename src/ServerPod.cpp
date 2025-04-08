@@ -13,11 +13,20 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-#include "handlers/ModeInfoHandler.h"
-
 #include "SPIFFS.h"
 //OTA
 #include <ElegantOTA.h>
+
+//Our handlers for the web server
+#include "handlers/LEDRequestHandler.h"
+#include "handlers/CaptiveRequestHandler.h"
+#include "handlers/ServerRegistrationHandler.h"
+#include "handlers/ModeLaunchHandler.h"
+#include "handlers/ScoreJSONHandler.h"
+#include "handlers/ModeInfoHandler.h"
+#include "handlers/ModeStopHandler.h"
+#include "handlers/PeersNumHandler.h"
+#include "handlers/SSIDHandler.h"
 
 #include "modes/PhysioPodMode.h"
 
@@ -37,6 +46,36 @@ void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
     ServerPod::getInstance()->APStarted = true;
 }
 
+bool ServerPod::initializeSPIFFS(){
+    //start the SPIFFS
+    if(!SPIFFS.begin(true)){
+        Serial.println("An Error has occurred while mounting SPIFFS, rebooting...");
+        return false;        
+    }
+    //test a file
+    if (!SPIFFS.exists("/www/index.html")) {
+        Serial.println("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
+        return false;
+    }    
+    #ifdef isDebug
+    Serial.println("|-SPIFFS mounted successfully");
+    #endif
+    return true;
+}
+
+void ServerPod::attachHandlers(AsyncWebServer* server){
+    Serial.println("|-Adding the web handlers to the server...");
+    //handlers for the web server
+    server->addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
+    server->addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
+    server->addHandler(new ModeStopHandler()); //Handles the mode stop request
+    server->addHandler(new ModeLaunchHandler()); //Handles the mode launch request
+    server->addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
+    server->addHandler(new LEDRequestHandler()); //Handles the LED control requests
+    server->addHandler(new ScoreJSONHandler()); //Handles the score requests
+    server->addHandler(new SSIDHandler()); //Handles the ssid change request
+}
+
 //TODO reorganize the constructor, it's too long
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
@@ -53,20 +92,12 @@ ServerPod::ServerPod() : server(80) {
     PhysioPodMode* mode = nullptr;
     instance = this;
 
-    //start the SPIFFS
-    if(!SPIFFS.begin(true)){
-        Serial.println("An Error has occurred while mounting SPIFFS, rebooting...");
-        ESP.restart();        
-    }
-    //test a file
-    if (!SPIFFS.exists("/www/index.html")) {
-        Serial.println("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
+    //initialize SPIFFS
+    if (!initializeSPIFFS()){
+        //if the SPIFFS failed to start, restart the device
+        Serial.println("Failed to start the SPIFFS, restarting the device");
         ESP.restart();
-        return;
-    }    
-    #ifdef isDebug
-    Serial.println("|-SPIFFS mounted successfully");
-    #endif
+    }
 
     //stop the WiFi client just to be sure
     WiFi.disconnect();
@@ -171,9 +202,9 @@ ServerPod::ServerPod() : server(80) {
     ElegantOTA.begin(&server);
     Serial.println("|-ElegantOTA started");
 
+    //start the web server
+    attachHandlers(&server); //attach the handlers to the server
     Serial.println("|-Web server starting...");
-    server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
-
     server.begin();
     
     server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes

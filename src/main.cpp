@@ -1,17 +1,6 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
 
-//Our handlers for the web server
-#include "handlers/LEDRequestHandler.h"
-#include "handlers/CaptiveRequestHandler.h"
-#include "handlers/ServerRegistrationHandler.h"
-#include "handlers/ModeLaunchHandler.h"
-#include "handlers/ScoreJSONHandler.h"
-#include "handlers/ModeInfoHandler.h"
-#include "handlers/ModeStopHandler.h"
-#include "handlers/PeersNumHandler.h"
-#include "handlers/SSIDHandler.h"
-
 PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
@@ -19,6 +8,8 @@ bool shouldBeClient = false;
 //TODO : date et heure de compilation dans le mac address
 //TODO : préciser dans ModeChoice s'il y a un mode en cours que ça va l'arrêter
 //TODO : dans le mode ChasePod, un timer,qui dit en combien de temps on fait un cycle
+//TODO : le HIITimer
+//TODO : dans fastPress permettre d'éviter la répétition du même pod
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
 //TODO : afficher des stats plus sexy dans les résultats
 
@@ -66,25 +57,12 @@ void createPod(){
         ScoreStorage::init();
         ServerPod* serverPod = new ServerPod();
         pod = serverPod;
-
-        Serial.println("Adding the web handlers to the server...");
-        //TODO : this could be done in the ServerPod constructor
-        //handlers for the web server
-        //serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
-        serverPod->server.addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
-        serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
-        serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request
-        serverPod->server.addHandler(new ServerRegistrationHandler()); //Handles the server mac address request
-        serverPod->server.addHandler(new LEDRequestHandler()); //Handles the LED control requests
-        serverPod->server.addHandler(new ScoreJSONHandler()); //Handles the score requests
-        serverPod->server.addHandler(new SSIDHandler()); //Handles the ssid change request
-        //serverPod->server.addHandler(new CaptiveRequestHandler());//call last, if no specific handler matched. Serves captivePortal.html 
     }
     //make the pod blink once, to show that it is ready, and to be sure that LED(s) are working and off when we start
     pod->setOwnLightState(true, (shouldBeClient? CRGB::Blue : CRGB::Green) , LightMode::PULSE_ON_OFF_LONG); //Note : Pulse reverts to off state after the pulse
 }
 
 void loop(){
-    //we could add a small delay, especially if we are a client
+    //for battery maybe we could add a small delay, especially if we are a client ?
     pod->updatePod();
 }

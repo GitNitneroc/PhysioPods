@@ -27,6 +27,9 @@ private :
     static void CheckClientTimeouts(void * vpParameters);
     static void DNSLoop(void * vpParameters);
 
+    void attachHandlers(AsyncWebServer* server);
+    bool initializeSPIFFS(); //tries to initialize SPIFFS, and returns true if index.html is found
+
 public :
     uint8_t clientsTimers[254]; //no need for 255 since id 0 is self 
     static const uint8_t ip_addr_broadcast[6];
