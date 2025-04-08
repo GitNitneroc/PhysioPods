@@ -51,10 +51,16 @@
 									<legend>Program</legend>
 									<div>
 										<span>End of game:</span>
-										<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
-										<label for="time">Time</label>
-										<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
-										<label for="tries">Tries</label>
+										<div class="row">
+											<div>
+												<input type="radio" id="time" name="limitation" value="0" checked="checked" onchange="fastPressLimitationChange()">
+												<label for="time">Time</label>
+											</div>
+											<div>
+												<input type="radio" id="tries" name="limitation" value="1" onchange="fastPressLimitationChange()">
+												<label for="tries">Tries</label>
+											</div>
+										</div>
 									</div>
 									<div>
 										<label for="limit" id="limit-text">Number of tries (1 to 255):</label>

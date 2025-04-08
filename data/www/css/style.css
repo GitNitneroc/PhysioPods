@@ -205,6 +205,13 @@ fieldset > legend:not(:focus):not(:active) {
     white-space: nowrap; 
 }
 
+/** Forms */
+input {
+    accent-color: var(--color-primary);
+    margin-inline: 0;
+    margin-block: var(--def-padding-half);
+}
+
 input[type='text'],
 input[type='number'],
 select {
@@ -218,6 +225,19 @@ select {
     font-weight: 500;
     border-style: solid;
     border-color: var(--color-primary);
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+    height: 20px;
+    width: 20px;
+}
+
+div:has(> input[type="radio"]),
+div:has(> input[type="checkbox"]) {
+    display: flex;
+    gap: var(--def-padding);
+    align-items: center;
 }
 
 /** Button group */
