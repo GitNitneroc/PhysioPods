@@ -35,12 +35,12 @@ FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0};
 
 bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     
-    AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
-    AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
-    AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
-    AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
-    AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
-    AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
+    const AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
+    const AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
+    const AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
+    const AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
+    const AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
+    const AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
 
     if (minIntervalParam == NULL || maxIntervalParam == NULL || limitParam == NULL || nColorsParam == NULL || limitationParam == NULL){
         Serial.println("could not read a parameter");

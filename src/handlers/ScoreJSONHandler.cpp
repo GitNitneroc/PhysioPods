@@ -9,7 +9,7 @@
 ScoreJSONHandler::ScoreJSONHandler() {
 }
 
-bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request){
+bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/score") {
         #ifdef isDebug
         Serial.println("ScoreJSONHandler request !");

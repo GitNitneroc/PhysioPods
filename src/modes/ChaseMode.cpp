@@ -50,14 +50,14 @@ ChaseParameters ChaseMode::parameters = {0};
 
 bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
 
-    AsyncWebParameter* cyclesParam = request->getParam("cycles");
+    const AsyncWebParameter* cyclesParam = request->getParam("cycles");
     if (cyclesParam == NULL) {
         Serial.println("could not read a parameter");
         return false;
     }
     int cycles = cyclesParam->value().toInt();
 
-    AsyncWebParameter* cycleParam = request->getParam("cycle");
+    const AsyncWebParameter* cycleParam = request->getParam("cycle");
     if (cycleParam == NULL) {
         Serial.println("could not read a parameter");
         return false;

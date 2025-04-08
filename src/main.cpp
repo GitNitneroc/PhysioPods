@@ -70,7 +70,7 @@ void createPod(){
         Serial.println("Adding the web handlers to the server...");
         //TODO : this could be done in the ServerPod constructor
         //handlers for the web server
-        serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
+        //serverPod->server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
         serverPod->server.addHandler(new PeersNumHandler()); //Handles the requests for the number of connected peers
         serverPod->server.addHandler(new ModeStopHandler()); //Handles the mode stop request
         serverPod->server.addHandler(new ModeLaunchHandler()); //Handles the mode launch request

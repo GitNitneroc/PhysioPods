@@ -9,12 +9,12 @@
 LEDRequestHandler::LEDRequestHandler() {
 }
 
-bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request){
+bool LEDRequestHandler::canHandle(AsyncWebServerRequest *request) const {
     if (request->url()=="/LED") {
         #ifdef isDebug
         Serial.println("LEDRequestHandler received params: ");
         for (uint8_t i=0; i<request->params(); i++) {
-            AsyncWebParameter* p = request->getParam(i);
+            const AsyncWebParameter* p = request->getParam(i);
             Serial.print(p->name());
             Serial.print(": ");
             Serial.println(p->value());
@@ -29,7 +29,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     //this means we received a request to "/LED"
     //the parameters are always in the same ordre : LED (ON or OFF), id (the id of the pod), lightMode
     //check if the request contains a parameter "LED"
-    AsyncWebParameter* ledParam = request->getParam(0);
+    const AsyncWebParameter* ledParam = request->getParam(0);
     bool ledState;
     uint8_t destId;
     LightMode lightMode;
@@ -47,7 +47,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
         }
     }
     //Read the id parameter
-    AsyncWebParameter* idParam = request->getParam(1);
+    const AsyncWebParameter* idParam = request->getParam(1);
     if (idParam->name()!="id") {
         #ifdef isDebug
         Serial.println("LEDRequestHandler : error reading id parameter, ignoring the request");
@@ -58,7 +58,7 @@ void LEDRequestHandler::handleRequest(AsyncWebServerRequest *request) {
     }
 
     //Read the lightMode parameter, this one is optional and defaults to LightMode::SIMPLE
-    AsyncWebParameter* lightModeParam = request->getParam(2);
+    const AsyncWebParameter* lightModeParam = request->getParam(2);
     if (lightModeParam == nullptr || lightModeParam->name()!="mode") {
         lightMode = LightMode::SIMPLE;
     }else{

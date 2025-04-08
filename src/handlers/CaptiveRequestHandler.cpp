@@ -9,7 +9,7 @@
 CaptiveRequestHandler::CaptiveRequestHandler() {
 }
 
-bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request){
+bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request) const{
     #ifdef isDebug
     Serial.print("CaptiveRequestHandler received request: ");
     Serial.println(request->url());

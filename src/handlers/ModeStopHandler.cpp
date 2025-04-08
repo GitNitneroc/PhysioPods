@@ -16,7 +16,7 @@
 ModeStopHandler::ModeStopHandler() {
 }
 
-bool ModeStopHandler::canHandle(AsyncWebServerRequest *request){
+bool ModeStopHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/modeStop") {
         #ifdef isDebug
         Serial.println("ModeStopHandler request !");

@@ -18,7 +18,7 @@
 SSIDHandler::SSIDHandler() {
 }
 
-bool SSIDHandler::canHandle(AsyncWebServerRequest *request){
+bool SSIDHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/ssid") {
         #ifdef isDebug
         Serial.println("SSIDHandler request !");
@@ -32,7 +32,7 @@ void SSIDHandler::handleRequest(AsyncWebServerRequest *request) {
     //start the response
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
 
-    AsyncWebParameter* ssidParam = request->getParam("ssid");
+    const AsyncWebParameter* ssidParam = request->getParam("ssid");
     if (ssidParam == nullptr){
         response->print("No ssid parameter found");
         Serial.println("No ssid parameter found");

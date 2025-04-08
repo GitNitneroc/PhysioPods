@@ -16,12 +16,12 @@
 ModeLaunchHandler::ModeLaunchHandler() {
 }
 
-bool ModeLaunchHandler::canHandle(AsyncWebServerRequest *request){
+bool ModeLaunchHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/launchMode") {      
         #ifdef isDebug
         Serial.println("ModeLaunchHandler request !");
         for (uint8_t i=0; i<request->params(); i++) {
-            AsyncWebParameter* p = request->getParam(i);
+            const AsyncWebParameter* p = request->getParam(i);
             Serial.print(p->name());
             Serial.print(": ");
             Serial.println(p->value());

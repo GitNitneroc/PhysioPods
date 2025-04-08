@@ -38,9 +38,9 @@ void ColorWarMode::reset() {
 }
 
 bool ColorWarMode::testRequestParameters(AsyncWebServerRequest *request) {
-    AsyncWebParameter* nColorsParam = request->getParam("nteams");
-    AsyncWebParameter* durationParam = request->getParam("duration");
-    AsyncWebParameter* probabilityParam = request->getParam("probability");
+    const AsyncWebParameter* nColorsParam = request->getParam("nteams");
+    const AsyncWebParameter* durationParam = request->getParam("duration");
+    const AsyncWebParameter* probabilityParam = request->getParam("probability");
     if (nColorsParam == NULL || durationParam == NULL || probabilityParam == NULL) {
         Serial.println("could not read a parameter");
         return false;

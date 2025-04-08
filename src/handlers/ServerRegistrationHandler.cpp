@@ -16,7 +16,7 @@
 ServerRegistrationHandler::ServerRegistrationHandler() {
 }
 
-bool ServerRegistrationHandler::canHandle(AsyncWebServerRequest *request){
+bool ServerRegistrationHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/serverRegistration") { //Remember this is hard coded in the client connection of pods too
         #ifdef isDebug
         Serial.println("ServerRegistrationHandler request !");
@@ -31,7 +31,7 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
     
     //did the client provide a version ?
-    AsyncWebParameter* clientVersion = request->getParam("version");
+    const AsyncWebParameter* clientVersion = request->getParam("version");
     if (clientVersion != NULL) {
         #ifdef isDebug
         Serial.print("ClientPod version : ");
@@ -57,7 +57,7 @@ void ServerRegistrationHandler::handleRequest(AsyncWebServerRequest *request) {
     response->print("\r\n");
 
     //add an extra line to the response if the client provided a mac address
-    AsyncWebParameter* clientMac = request->getParam("mac");
+    const AsyncWebParameter* clientMac = request->getParam("mac");
     if (clientMac == NULL) {
         #ifdef isDebug
         Serial.println("This is not a pod : No mac address provided");

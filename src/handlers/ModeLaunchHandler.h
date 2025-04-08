@@ -21,7 +21,7 @@ public:
     ModeLaunchHandler();
     virtual ~ModeLaunchHandler() {}
 
-    bool canHandle(AsyncWebServerRequest *request);
+    bool canHandle(AsyncWebServerRequest *request) const override;
 
     void handleRequest(AsyncWebServerRequest *request);
 

@@ -37,9 +37,9 @@ String* VisualTimerMode::returnScore() {
 
 bool VisualTimerMode::testRequestParameters(AsyncWebServerRequest *request) {
     
-    AsyncWebParameter* workTimeParam = request->getParam("workTime");
-    AsyncWebParameter* restTimeParam = request->getParam("restTime");
-    AsyncWebParameter* cycleParam = request->getParam("cycles");
+    const AsyncWebParameter* workTimeParam = request->getParam("workTime");
+    const AsyncWebParameter* restTimeParam = request->getParam("restTime");
+    const AsyncWebParameter* cycleParam = request->getParam("cycles");
 
 
     if (workTimeParam == NULL || restTimeParam == NULL || cycleParam == NULL) {

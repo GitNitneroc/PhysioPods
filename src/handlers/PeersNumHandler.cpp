@@ -13,7 +13,7 @@
 PeersNumHandler::PeersNumHandler() {
 }
 
-bool PeersNumHandler::canHandle(AsyncWebServerRequest *request){
+bool PeersNumHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/peers") {
         #ifdef isDebug
         Serial.println("PeersNumHandler request !");

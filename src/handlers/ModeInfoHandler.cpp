@@ -16,7 +16,7 @@
 ModeInfoHandler::ModeInfoHandler() {
 }
 
-bool ModeInfoHandler::canHandle(AsyncWebServerRequest *request){
+bool ModeInfoHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/modeInfo") {
         #ifdef isDebug
         Serial.println("ModeInfoHandler request !");

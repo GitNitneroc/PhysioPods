@@ -13,6 +13,8 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
+#include "handlers/ModeInfoHandler.h"
+
 #include "SPIFFS.h"
 //OTA
 #include <ElegantOTA.h>
@@ -170,7 +172,10 @@ ServerPod::ServerPod() : server(80) {
     Serial.println("|-ElegantOTA started");
 
     Serial.println("|-Web server starting...");
+    server.addHandler(new ModeInfoHandler()); //Handles the requests for informations about the current mode
+
     server.begin();
+    
     server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
     Serial.println("|-Static files server initialised...");
 

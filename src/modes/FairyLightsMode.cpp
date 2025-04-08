@@ -29,7 +29,7 @@ FairyLightsParameters FairyLightsMode::parameters = {0};
 
 bool FairyLightsMode::testRequestParameters(AsyncWebServerRequest *request) {
 
-    AsyncWebParameter* timeByPodParam = request->getParam("timeByPod");
+    const AsyncWebParameter* timeByPodParam = request->getParam("timeByPod");
     if (timeByPodParam == NULL) {
         Serial.println("could not read a parameter");
         return false;
