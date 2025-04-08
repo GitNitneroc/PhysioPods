@@ -15,7 +15,8 @@
 
 #include "SPIFFS.h"
 //OTA
-#include <ElegantOTA.h>
+//#include <ElegantOTA.h>
+#include <PrettyOTA.h>
 
 //Our handlers for the web server
 #include "handlers/LEDRequestHandler.h"
@@ -41,6 +42,8 @@ using namespace Messages;
 //ServerPod* ServerPod::instance = nullptr;
 const uint8_t ServerPod::ip_addr_broadcast[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 uint8_t ServerPod::peersNum = 0;
+
+PrettyOTA OTAUpdates;
 
 void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
     //This is used to make sure the AP is started before we continue
@@ -100,6 +103,18 @@ void ServerPod::attachHandlers(AsyncWebServer* server){
     server->addHandler(new LEDRequestHandler()); //Handles the LED control requests
     server->addHandler(new ScoreJSONHandler()); //Handles the score requests
     server->addHandler(new SSIDHandler()); //Handles the ssid change request
+}
+
+//this is a callback when the OTA update starts
+//this is used to unmount the SPIFFS filesystem if the OTA update is going to update the filesystem
+void onOTAUpdateStart(NSPrettyOTA::UPDATE_MODE updateMode)
+{
+    // Is the filesystem going to be updated?
+    if(updateMode == NSPrettyOTA::UPDATE_MODE::FILESYSTEM)
+    {
+        // Unmount SPIFFS filesystem here
+        SPIFFS.end();
+    }
 }
 
 ServerPod::ServerPod() : server(80) {
@@ -202,9 +217,13 @@ ServerPod::ServerPod() : server(80) {
     dnsServer->start(53, "*", WiFi.softAPIP());
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
-    // Start ElegantOTA  //TODO : ça ne semble pas marcher !
-    ElegantOTA.begin(&server);
-    Serial.println("|-ElegantOTA started");
+    // Start OTA
+    //ElegantOTA.begin(&server);
+    //Serial.println("|-ElegantOTA started");
+    OTAUpdates.Begin(&server);
+    PRETTY_OTA_SET_CURRENT_BUILD_TIME_AND_DATE();// Set current build time and date
+    OTAUpdates.OnStart(onOTAUpdateStart);// Set callback
+    Serial.println("|-PrettyOTA started"); 
 
     //start the web server
     attachHandlers(&server); //attach the handlers to the server
