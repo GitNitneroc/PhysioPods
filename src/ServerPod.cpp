@@ -34,7 +34,8 @@
 using namespace Messages;
 
 #define MAX_CLIENTS 4 //The maximum number of clients that can connect to the server
-
+//this is the URL to access the server from the hotspot
+#define LOCAL_IP_URL "http://192.168.1.1/static/index.html"
 #define LIMIT_AP_START_ATTEMPTS 100 //The number of attempts a serverpod makes to start the AP before restarting
 
 //ServerPod* ServerPod::instance = nullptr;
@@ -63,6 +64,31 @@ bool ServerPod::initializeSPIFFS(){
     return true;
 }
 
+void ServerPod::prepareCaptivePortal(AsyncWebServer* server){
+   //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
+    // Required
+    server->on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
+    server->on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
+
+    // Background responses: Probably not all are Required, but some are. Others might speed things up?
+    // A Tier (commonly used by modern systems)
+    server->on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // android captive portal redirect
+    server->on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // microsoft redirect
+    server->on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });  // apple call home
+    server->on("/library/test/success.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // legacy apple call home
+    server->on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });	   // firefox captive portal call home
+    server->on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
+    server->on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
+
+    server->on("/generate204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });
+
+    // B Tier (uncommon)
+    //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
+    //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
+    //  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
+    //  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(LOCAL_IP_URL);});
+}
+
 void ServerPod::attachHandlers(AsyncWebServer* server){
     Serial.println("|-Adding the web handlers to the server...");
     //handlers for the web server
@@ -76,7 +102,6 @@ void ServerPod::attachHandlers(AsyncWebServer* server){
     server->addHandler(new SSIDHandler()); //Handles the ssid change request
 }
 
-//TODO reorganize the constructor, it's too long
 ServerPod::ServerPod() : server(80) {
     dnsServer = nullptr;
     //generate a random session id
@@ -117,7 +142,7 @@ ServerPod::ServerPod() : server(80) {
         ESP.restart();
     }
 
-    WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
+    WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START); //when the AP starts, set the APStarted flag to true
 
     // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
 	esp_wifi_stop();
@@ -128,6 +153,7 @@ ServerPod::ServerPod() : server(80) {
 	esp_wifi_start();
 
     uint8_t i = 0;
+    //wait for the AP to start
     while (!APStarted ){
         i++;
         delay(100);
@@ -144,8 +170,7 @@ ServerPod::ServerPod() : server(80) {
     //set the IP address of the hotspot
     Serial.println("  |-Setting softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
-    //this is the URL to access the server from the hotspot
-    #define LOCAL_IP_URL "http://192.168.1.1/static/index.html"
+    
     IPAddress NMask(255, 255, 255, 0);
     WiFi.softAPConfig(Ip, Ip, NMask);
     #ifdef isDebug
@@ -153,28 +178,7 @@ ServerPod::ServerPod() : server(80) {
     Serial.println(WiFi.softAPIP());
     #endif
 
-    //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
-    // Required
-    server.on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
-    server.on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
-
-    // Background responses: Probably not all are Required, but some are. Others might speed things up?
-    // A Tier (commonly used by modern systems)
-    server.on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // android captive portal redirect
-    server.on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // microsoft redirect
-    server.on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });  // apple call home
-    server.on("/library/test/success.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // legacy apple call home
-    server.on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });	   // firefox captive portal call home
-    server.on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
-    server.on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
-
-    server.on("/generate204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });
-
-    // B Tier (uncommon)
-    //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
-    //  server.on("/service/update2/json",[](AsyncWebServerRequest *request){request->send(200);}); //firefox?
-    //  server.on("/chat",[](AsyncWebServerRequest *request){request->send(404);}); //No stop asking Whatsapp, there is no internet connection
-    //  server.on("/startpage",[](AsyncWebServerRequest *request){request->redirect(LOCAL_IP_URL);});
+    prepareCaptivePortal(&server); //prepare the captive portal
 
     // return 404 to webpage icon
     server.on("/favicon.ico", [](AsyncWebServerRequest *request) { request->send(404); });	// webpage icon
@@ -204,6 +208,7 @@ ServerPod::ServerPod() : server(80) {
 
     //start the web server
     attachHandlers(&server); //attach the handlers to the server
+    prepareCaptivePortal(&server); //prepare the captive portal
     Serial.println("|-Web server starting...");
     server.begin();
     

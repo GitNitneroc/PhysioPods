@@ -28,6 +28,7 @@ private :
     static void DNSLoop(void * vpParameters);
 
     void attachHandlers(AsyncWebServer* server);
+    void prepareCaptivePortal(AsyncWebServer *server);
     bool initializeSPIFFS(); //tries to initialize SPIFFS, and returns true if index.html is found
 
 public :
