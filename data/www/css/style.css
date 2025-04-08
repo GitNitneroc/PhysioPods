@@ -367,5 +367,6 @@ tr:nth-child(even) {
 .mode-description {
     padding-inline: var(--def-margin);
     text-align: center;
+    text-wrap-style: balance;
     margin-top: 0;
 }

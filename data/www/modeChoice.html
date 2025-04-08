@@ -156,16 +156,21 @@
 				</div>
 				<div id="mode2Details" style="display:none">
 					<!-- <h2>FairyLights</h2> -->
-					<p>Pods will get lit one by one, there is no interaction with user.</p>
+					<p class="mode-description">Pods will get lit one by one, there is no interaction with user.</p>
 					<form action="/launchMode">
-						<div class="row">
-							<fieldset class="w-100">
-								<input type="hidden" id="mode" name="mode" value="FL">
-								<label for="timeByPod">Time by pod (ms):</label>
-								<input type="range" id="timeByPod" name="timeByPod" min="0" max="5000" value="500" oninput="this.nextElementSibling.value = this.value"><output>100</output><br/>
-							</fieldset>
+						<input type="hidden" id="mode" name="mode" value="FL">
+						<div class="card">
+							<div class='card-content'>
+								<div class="row">
+									<fieldset>
+										<label for="timeByPod">Time by pod (ms):</label>
+										<input type="range" class="w-100" id="timeByPod" name="timeByPod" min="0" max="5000" value="500" oninput="this.nextElementSibling.value = this.value">
+										<output>100</output>
+									</fieldset>
+								</div>
+								<button type="submit" class="solid w-100">Launch</button>
+							</div>
 						</div>
-						<input type="submit" class="btn primary w-100" value="Launch">
 					</form>
 				</div>
 				<div id="mode3Details" style="display:none">
