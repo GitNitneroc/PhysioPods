@@ -175,7 +175,8 @@
 				</div>
 				<div id="mode3Details" style="display:none">
 					<!-- <h2>Color War</h2> -->
-					<p class="mode-description">This can be played in multiplayer.<br/>The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points.</p>
+					<p class="mode-description">This can be played in multiplayer.</p>
+					<p class="mode-description">The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points.</p>
 					<form action="/launchMode">
 						<input type="hidden" id="mode" name="mode" value="CW">
 						<div class="card">
@@ -207,8 +208,8 @@
 				</div>
 				<div id="mode4Details" style="display:none">
 					<!-- <h2>Chase</h2> -->
-					<p>Press a pod to turn on the next one. Go as fast as possible !</p>
-					<p>You can create your own sequence here, by selecting colors, then clicking on the pods you wand to light sequentially</p>
+					<p class="mode-description">Press a pod to turn on the next one. Go as fast as possible !</p>
+					<p class="mode-description">You can create your own sequence here, by selecting colors, then clicking on the pods you wand to light sequentially</p>
 					<!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
 					<form action="/launchMode" onsubmit="validateCycle()">
 						<input type="hidden" id="mode" name="mode" value="Chase">
