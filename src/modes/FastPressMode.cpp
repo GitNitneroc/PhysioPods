@@ -9,13 +9,14 @@
 //TODO : re-tester les decoys.
 //TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
 
-void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, uint8_t nColors) {
+void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, bool avoidRepeat, uint8_t nColors) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
     this->timeLimit = timeLimit;
     this->limit = limit;
     this->useDecoy = useDecoy;
     this->nColors = nColors;
+    this->avoidRepeat = avoidRepeat;
 
     this->generateColors(); //create the colors array ([0] is the error color)
 
@@ -32,7 +33,7 @@ void FastPressMode::generateColors() {
     }
 }
 
-FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0};
+FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0,0};
 
 bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     
@@ -41,6 +42,7 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     const AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
     const AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
     const AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
+    const AsyncWebParameter* avoidRepeatParam = request->getParam("avoidRepeat"); //optional avoid repeat or not
     const AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
 
     if (minIntervalParam == NULL || maxIntervalParam == NULL || limitParam == NULL || nColorsParam == NULL || limitationParam == NULL){
@@ -59,6 +61,11 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     if (useDecoyParam != NULL){
         useDecoy = useDecoyParam->value().equals("1");
     }
+    bool avoidRepeat = false; //default value for avoidRepeat
+    if (avoidRepeatParam != NULL){
+        avoidRepeat = avoidRepeatParam->value().equals("1");
+    }
+    //check the parameters
 
     #ifdef isDebug
     DebugPrintln("minInterval : "+ String(minInterval)+" tenth of sec");
@@ -66,10 +73,11 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     DebugPrintln(timeLimit?"timeLimited":"tryLimited");
     DebugPrintln("limit : "+ String(limit));
     DebugPrintln("useDecoy : "+ String(useDecoy));
+    DebugPrintln("avoidRepeat : "+ String(avoidRepeat));
     DebugPrintln("nColors : "+ String(nColors));
     #endif
 
-    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, nColors, timeLimit};
+    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, avoidRepeat, nColors, timeLimit};
 
     PhysioPodMode::modeConstructor = generateMode;
 
@@ -81,7 +89,7 @@ PhysioPodMode* FastPressMode::generateMode() {
     #ifdef isDebug
     DebugPrintln("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.nColors);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.avoidRepeat, FastPressMode::parameters.nColors);//this is in ms
     return newMode;
 }
 
@@ -130,6 +138,7 @@ FastPressMode::FastPressMode() {
     pressDelay = 0;
     currentTry = 0;
     podToPress = 0;
+    lastPodPressed = 255; //no last pod pressed
     interval = 0;
     timer = 0;
     timeLimit = false;
@@ -255,6 +264,7 @@ void FastPressMode::reset() {
     pressDelay = 0;
     currentTry = 0;
     startTimer = 0;
+    lastPodPressed = 255; //no last pod pressed
 }
 
 /*
@@ -271,8 +281,20 @@ void FastPressMode::updatePodToPress() {
     } else {
         isDecoy = false;
     }
-    //choose the pod to press
-    podToPress = random(ServerPod::getInstance()->peersNum+1);//number of peers + 1
+    //choose the pod to press :
+    if (avoidRepeat && ServerPod::getInstance()->peersNum > 0 && lastPodPressed != 255){
+        //we should avoid the last pod pressed, there are at least 2 pods, and there has been a previous pod pressed
+        lastPodPressed = podToPress; //save the last pod pressed
+        podToPress = random(ServerPod::getInstance()->peersNum); //number of peers + 1 for the server, -1 for the last pod pressed
+        if (podToPress >= lastPodPressed){
+            podToPress++;
+        }
+    }else{
+        //choose any pod
+        lastPodPressed = podToPress; //save the last pod pressed
+        podToPress = random(ServerPod::getInstance()->peersNum+1);//number of peers + 1
+    }
+    //if we are using decoys, we should not use the same pod as the decoy
     interval = random(minInterval, maxInterval);
     timer = millis();
     state = DURING_INTERVAL;
