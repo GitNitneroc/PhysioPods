@@ -1,5 +1,6 @@
 #include "ServerPod.h"
 #include "ClientPod.h"
+#include "debugPrint.h"
 
 
 PhysioPod* pod = nullptr;
@@ -17,7 +18,6 @@ bool shouldBeClient = false;
 void createPod();
 
 void setup(){
-    //NOTE : until Serverpod is created, we don't know if there is a WebSerial or not, since there is no server yet. So let's stick to Serial for now
     Serial.begin(115200);
     #ifdef isDebug
     //TODO : remove this, it's just a stupid delay to facilitate debugging of the first steps
@@ -26,11 +26,11 @@ void setup(){
     #endif
     
     #ifdef isDebug
-    Serial.print("Booting, version ");
-    Serial.println(VERSION);
-    Serial.println("compiled " __DATE__ " " __TIME__ );
-    Serial.print("Executing on core ");
-    Serial.println(xPortGetCoreID());
+    DebugPrint("Booting, version ");
+    DebugPrintln(VERSION);
+    DebugPrintln("compiled " __DATE__ " " __TIME__ );
+    DebugPrint("Executing on core ");
+    DebugPrintln(xPortGetCoreID());
     #endif
 
     PhysioPod::initLEDs(); //initialize the LEDs, this cannot be done in createPod because we don't know if we are a server or a client yet
@@ -43,12 +43,12 @@ void setup(){
 
     shouldBeClient = PhysioPod::searchOtherPhysioWiFi();//this is a blocking call
     if (shouldBeClient){
-        Serial.println("Server found ! Starting as a client...");
+        DebugPrintln("Server found ! Starting as a client...");
     }else{
-        Serial.println("No server found ! Starting as a server...");
+        DebugPrintln("No server found ! Starting as a server...");
     }
 
-    Serial.println("Creating the pod...");
+    DebugPrintln("Creating the pod...");
     createPod(); //pod should not be nullptr anymore
 }
 

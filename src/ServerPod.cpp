@@ -37,8 +37,7 @@
 using namespace Messages;
 
 #define MAX_CLIENTS 4 //The maximum number of clients that can connect to the server
-//this is the URL to access the server from the hotspot
-#define LOCAL_IP_URL "http://192.168.1.1/static/index.html"
+#define LOCAL_IP_URL "http://192.168.1.1/static/index.html" //this is the URL to access the server from the hotspot
 #define LIMIT_AP_START_ATTEMPTS 100 //The number of attempts a serverpod makes to start the AP before restarting
 
 //ServerPod* ServerPod::instance = nullptr;
@@ -54,24 +53,23 @@ void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
 
 bool ServerPod::initializeSPIFFS(){
     //start the SPIFFS
-    //WebSerial is not started yet, let's stick to Serial
     if(!SPIFFS.begin(true)){
-        Serial.println("An Error has occurred while mounting SPIFFS, rebooting...");
+        DebugPrintln("An Error has occurred while mounting SPIFFS, rebooting...");
         return false;        
     }
     //test a file
     if (!SPIFFS.exists("/www/index.html")) {
-        Serial.println("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
+        DebugPrintln("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
         return false;
     }    
     #ifdef isDebug
-    Serial.println("|-SPIFFS mounted successfully");
+    DebugPrintln("|-SPIFFS mounted successfully");
     #endif
     return true;
 }
 
 void ServerPod::prepareCaptivePortal(AsyncWebServer* server){
-   //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
+    //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
     // Required
     server->on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
     server->on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
@@ -109,7 +107,7 @@ void ServerPod::attachHandlers(AsyncWebServer* server){
 }
 
 //this is a callback when the OTA update starts
-//this is used to unmount the SPIFFS filesystem if the OTA update is going to update the filesystem
+//used to unmount the SPIFFS filesystem if the OTA update is going to update the filesystem
 void onOTAUpdateStart(NSPrettyOTA::UPDATE_MODE updateMode)
 {
     // Is the filesystem going to be updated?
@@ -125,12 +123,12 @@ ServerPod::ServerPod() : server(80) {
     //generate a random session id
     sessionId = random(0, 65536);
     
-    Serial.println("Starting as a server");
+    DebugPrintln("Starting as a server");
 
     //initialize the control
     PhysioPod::CreateControl();
     control->initialize(onControlPressed);
-    Serial.println("|-Control initialized");
+    DebugPrintln("|-Control initialized");
 
     PhysioPodMode* mode = nullptr;
     instance = this;
@@ -138,7 +136,7 @@ ServerPod::ServerPod() : server(80) {
     //initialize SPIFFS
     if (!initializeSPIFFS()){
         //if the SPIFFS failed to start, restart the device
-        Serial.println("Failed to start the SPIFFS, restarting the device");
+        DebugPrintln("Failed to start the SPIFFS, restarting the device");
         ESP.restart();
     }
 
@@ -147,16 +145,16 @@ ServerPod::ServerPod() : server(80) {
     delay(1000); //not sure if this is necessary
 
     #ifdef isDebug
-    Serial.print("|-SSID : ");
+    DebugPrint("|-SSID : ");
     #endif
     String ssid = getSSIDFromPreferences();
 
     //initialize the WiFi hotspot
-    Serial.print("|-Hotsport starting...");
+    DebugPrint("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
     if(!WiFi.softAP(ssid,password,1,0,MAX_CLIENTS)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
-        Serial.println("\nFailed to start the hotspot, restarting the device");
+        DebugPrintln("\nFailed to start the hotspot, restarting the device");
         ESP.restart();
     }
 
@@ -175,25 +173,25 @@ ServerPod::ServerPod() : server(80) {
     while (!APStarted ){
         i++;
         delay(100);
-        Serial.print(".");
+        DebugPrint(".");
         if (i > LIMIT_AP_START_ATTEMPTS){
             //if the hotspot failed to start, restart the device
-            Serial.println("\nFailed to start the hotspot, restarting the device");
+            DebugPrintln("\nFailed to start the hotspot, restarting the device");
             ESP.restart();
         }
     }
     WiFi.removeEvent(WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
-    Serial.println("\n  |-HotSpot started");
+    DebugPrintln("\n  |-HotSpot started");
 
     //set the IP address of the hotspot
-    Serial.println("  |-Setting softAPConfig");
+    DebugPrintln("  |-Setting softAPConfig");
     IPAddress Ip(192, 168, 1, 1);
     
     IPAddress NMask(255, 255, 255, 0);
     WiFi.softAPConfig(Ip, Ip, NMask);
     #ifdef isDebug
-    Serial.print("    |-AP IP address: ");
-    Serial.println(WiFi.softAPIP());
+    DebugPrint("    |-AP IP address: ");
+    DebugPrintln(WiFi.softAPIP());
     #endif
 
     prepareCaptivePortal(&server); //prepare the captive portal
@@ -204,17 +202,17 @@ ServerPod::ServerPod() : server(80) {
     // the catch all
 	server.onNotFound([](AsyncWebServerRequest *request) {
 		request->redirect(LOCAL_IP_URL);
-		Serial.print("server.onNotFound ");
-		Serial.print(request->host());	// This gives some insight into whatever was being requested on the serial monitor
-		Serial.print(" ");
-		Serial.print(request->url());
-		Serial.print(" sent redirect to ");
-        Serial.print( LOCAL_IP_URL);
-        Serial.println();
+		DebugPrint("server.onNotFound ");
+		DebugPrint(request->host());	// This gives some insight into whatever was being requested on the serial monitor
+		DebugPrint(" ");
+		DebugPrint(request->url());
+		DebugPrint(" sent redirect to ");
+        DebugPrint( LOCAL_IP_URL);
+        DebugPrintln();
 	});
 
     //start the DNS server
-    Serial.println("|-DNS server starting...");
+    DebugPrintln("|-DNS server starting...");
     dnsServer = new DNSServer();
     dnsServer->setTTL(3600);
     dnsServer->start(53, "*", WiFi.softAPIP());
@@ -222,34 +220,34 @@ ServerPod::ServerPod() : server(80) {
 
     // Start OTA
     //ElegantOTA.begin(&server);
-    //Serial.println("|-ElegantOTA started");
+    //DebugPrintln("|-ElegantOTA started");
     OTAUpdates.Begin(&server);
     PRETTY_OTA_SET_CURRENT_BUILD_TIME_AND_DATE();// Set current build time and date
     OTAUpdates.OnStart(onOTAUpdateStart);// Set callback
-    Serial.println("|-PrettyOTA started"); 
+    DebugPrintln("|-PrettyOTA started"); 
 
     // Start WebSerial
     #ifdef isDebug
-    Serial.println("|-WebSerial starting...");
+    DebugPrintln("|-WebSerial starting...");
     WebSerial.begin(&server);
     //webserial could also accept incomming messages
     WebSerial.onMessage([](uint8_t *data, size_t len) {
-        Serial.printf("Received %lu bytes from WebSerial: ", len);
-        Serial.write(data, len);
-        Serial.println();
-        WebSerial.println("Received Data...");
+        DebugPrintf("Received %lu bytes from WebSerial: ", len);
+        DebugWrite(data, len);
+        DebugPrintln();
+        DebugPrintln("Received Data...");
         String d = "";
         for(size_t i = 0; i < len; i++){
             d += char(data[i]);
         }
-        WebSerial.println(d);
+        DebugPrintln(d);
     });
     #endif
 
     //start the web server
     attachHandlers(&server); //attach the handlers to the server
     prepareCaptivePortal(&server); //prepare the captive portal
-    Serial.println("|-Web server starting...");
+    DebugPrintln("|-Web server starting...");
     server.begin();
     
     server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
@@ -303,22 +301,22 @@ ServerPod::ServerPod() : server(80) {
     esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) message, sizeof(message));
     //for debug purposes convert to SSIDMessage
     SSIDMessage* msg = (SSIDMessage*)message;
-    Serial.print("Broadcasting message of type ");
-    Serial.print(msg->type);
-    Serial.print(" with sessionId ");
-    Serial.println(msg->sessionId);
-    Serial.print("SSID : ");
-    Serial.println(msg->ssid);
+    DebugPrint("Broadcasting message of type ");
+    DebugPrint(msg->type);
+    DebugPrint(" with sessionId ");
+    DebugPrintln(msg->sessionId);
+    DebugPrint("SSID : ");
+    DebugPrintln(msg->ssid);
     
-    //Serial.println(sizeof(message));
+    //DebugPrintln(sizeof(message));
     if (result == ESP_OK) {
         #ifdef isDebug
-        Serial.println("Message broadcasted");
+        DebugPrintln("Message broadcasted");
         #endif
     } else {
         #ifdef isDebug
-        Serial.print("Error sending the ESP-NOW message : ");
-        Serial.println(esp_err_to_name(result));
+        DebugPrint("Error sending the ESP-NOW message : ");
+        DebugPrintln(esp_err_to_name(result));
         #endif
     }
 } */
@@ -450,9 +448,9 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
     default:
         DebugPrint("Received a message of unknown length from ");
         for (int i = 0; i < 6; i++) {
-            //Serial.printf("%02X", sender_addr[i]);
+            //DebugPrintf("%02X", sender_addr[i]);
             DebugPrintf("%02X", sender_addr[i]);
-            if (i<5) Serial.print(":");
+            if (i<5) DebugPrint(":");
         }
         DebugPrintln();
         break;
