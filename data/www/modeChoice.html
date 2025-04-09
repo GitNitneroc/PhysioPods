@@ -208,35 +208,39 @@
 				</div>
 				<div id="mode4Details" style="display:none">
 					<!-- <h2>Chase</h2> -->
-					<p class="mode-description">Press a pod to turn on the next one. Go as fast as possible !</p>
+					<p class="mode-description">Press a pod to turn on the next one. Go as fast as possible!</p>
 					<p class="mode-description">You can create your own sequence here, by selecting colors, then clicking on the pods you wand to light sequentially</p>
 					<!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
 					<form action="/launchMode" onsubmit="validateCycle()">
 						<input type="hidden" id="mode" name="mode" value="Chase">
 						<input type="hidden" id="cycleInput" name="cycle" value="">
-						<div class="row">
-							<div class="col w-100">
-								<h4>Choose a Color :</h4>
+						<div class="card">
+							<div class="card-header"><h2>Choose a Color</h2></div>
+							<div class='card-content'>
 								<!-- TODO : Améliorer ça pour que le choix de couleurs prenne toute la largeur de la page -->
-								<div id="chaseColors" class="row center">
+								<div id="chaseColors" class="row">
 								</div>
-								<h4>Click on those buttons to create your cycle:</h4>
-								<div class="col w-100" id="ChaseButtons"></div>
-								<div class="card col w-100" id="ChaseCycle"></div>
-								<fieldset class="w-100">
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header"><h2>Click on those buttons to create your cycle</h2></div>
+							<div class='card-content'>
+								<div class="row" id="ChaseButtons"></div>
+								<div class="col w-100" id="ChaseCycle"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Repeat</h2></div>
+							<div class='card-content'>
+								<fieldset>
 									<legend>Repeat</legend>
 									<label for="cycles">Cycles :</label>
 									<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" >
 								</fieldset>
-							</div>
-						</div>
-						
-						<div class="row">
-							<div class="6 col">
-								<input type="button" class="btn w-100" value="Erase Cycle" onclick="emptyChaseCycle()">
-							</div>
-							<div class="6 col">
-								<input type="submit" class="btn primary w-100" value="Launch">
+								<div class="row">
+									<button type="button" onclick="emptyChaseCycle()">Erase Cycle</button>
+									<button type="submit" class="solid">Launch</button>
+								</div>
 							</div>
 						</div>
 					</form>
@@ -274,7 +278,11 @@
 				//update the chaseButtonsColors
 				let chaseButtons = document.getElementById("ChaseButtons").children;
 				for (let i = 0; i < chaseButtons.length; i++) {
-					chaseButtons[i].style.backgroundColor = "hsl("+window.chaseColor * 360 / 7+", 100%, 50%)";
+					const h = window.chaseColor * 360 / 7;
+					const color = `hsl(${h}, 100%, 50%)`;
+					chaseButtons[i].style.backgroundColor = color;
+					chaseButtons[i].style.borderColor = color;
+					chaseButtons[i].style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
 				}
 			}
 
@@ -283,10 +291,6 @@
 					let chaseColors = document.getElementById("chaseColors");
 					for (let i = 0; i < chaseColors.children.length; i++) {
 						chaseColors.children[i].innerHTML = "";
-						if (i== window.chaseColor){
-							chaseColors.children[i].classList.remove('6');
-							chaseColors.children[i].classList.add('1');
-						}
 					}
 				}
 			}
@@ -301,25 +305,25 @@
 				//create the colors
 				for (let i = 0; i < 7; i++) {
 					let newColor = document.createElement("button");
-					newColor.classList.add("btn", "1", "col");
 					newColor.colorId = i;
-					newColor.style.backgroundColor = "hsl("+i * 360 / 7+", 100%, 50%)";
-					newColor.style.margin = "5px";
+					const h = i * 360 / 7;
+					const color = `hsl(${h}, 100%, 50%)`;
+					newColor.style.backgroundColor = color;
+					newColor.style.borderColor = color;
+					newColor.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
 					newColor.onclick = chaseColorChange;
 					newColor.type = "button";
 					chaseColors.appendChild(newColor);
 					if (i == window.chaseColor){
 						//select the default color
 						newColor.innerHTML = "Selected";
-						newColor.classList.remove('1');
-						newColor.classList.add('6');
 					}
 				}
 			}
 
 			async function createChaseUI(){
 				createChaseColors();
-				let nPods = await getNumPods();
+				let nPods = 3; // await getNumPods();
 				createChaseButtons(nPods);
 				createChaseCycle(nPods);
 			}
@@ -349,18 +353,19 @@
 
 			function createChaseButtons(nPods){
 				let chaseButtonsDiv = document.getElementById("ChaseButtons");
-				chaseButtonsDiv.style.display = "block";
 				while (chaseButtonsDiv.firstChild) {
 					chaseButtonsDiv.removeChild(chaseButtonsDiv.firstChild);
 				}
 				for (let i = 0; i < nPods; i++) {
-					let newPod = document.createElement("input");
+					let newPod = document.createElement("button");
 					newPod.type = "button";
-					newPod.classList.add(...["col","2","btn"]);
-					newPod.value = "Pod "+(i+1) ;
+					newPod.innerHTML = "Pod "+(i+1) ;
 					newPod.podId = i;
-					newPod.style.margin = "5px";
-					newPod.style.backgroundColor = "hsl("+window.chaseColor * 360 / 7+", 100%, 50%)";
+					const h = window.chaseColor * 360 / 7;
+					const color = `hsl(${h}, 100%, 50%)`;
+					newPod.style.backgroundColor = color;
+					newPod.style.borderColor = color;
+					newPod.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
 					newPod.onclick = function(){
 						addPodToChaseCycle(this.podId);
 					}
