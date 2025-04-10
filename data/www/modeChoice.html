@@ -6,6 +6,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods</title>
         <link rel="stylesheet" href="./css/style.css">
+		<script>
+			function updateButtonColor(button, h) {
+				const color = `hsl(${h}, 100%, 50%)`;
+				button.style.backgroundColor = color;
+				button.style.borderColor = color;
+				button.style.color = 'black';
+				//will set the button label's color black or white depending
+				//on the background's luminosity to ensure readability.
+				//If css lch() function not supported, fallback to black.
+				button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+			}
+		</script>
     </head>
     <body> 
 		<header>
@@ -115,7 +127,7 @@
 							let nColorsInput = document.getElementById("fastPressNColors");
 							let nColors = parseInt(nColorsInput.value)+1;
 							const buttonsContainer = document.getElementById("fastPressButtonsContainer");
-							let existingButtons = document.getElementsByClassName("fpColorsButton");
+							const existingButtons = buttonsContainer.children;
 							while(existingButtons[0]) {
 								if (buttonsContainer) {
 									buttonsContainer.removeChild(existingButtons[0]);
@@ -123,20 +135,13 @@
 							}
 							for(let i = 0; i < nColors; i++) {
 								let button = document.createElement("button");
-								if (i==0){
+								if (i === 0){
 									button.textContent = "Errors";
-								}else{
+								} else {
 									button.textContent = i;
 								}
-								button.classList.add(...["fpColorsButton"]);
 								const h = i * 360 / nColors;
-								const color = `hsl(${h}, 100%, 50%)`;
-								button.style.backgroundColor = color;
-								button.style.borderColor = color;
-								//will set the button label's color black or white depending
-								//on the background's luminosity to ensure readability.
-								//If css lch() function not supported, fallback to black.
-								button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+								this.updateButtonColor(button, h);
 								if (buttonsContainer) {
 									buttonsContainer.appendChild(button);
 								}
@@ -226,7 +231,7 @@
 							<div class="card-header"><h2>Click on those buttons to create your cycle</h2></div>
 							<div class='card-content'>
 								<div class="row" id="ChaseButtons"></div>
-								<div class="col w-100" id="ChaseCycle"></div>
+								<div class="row" id="ChaseCycle"></div>
 							</div>
 						</div>
 						<div class="card">
@@ -268,21 +273,16 @@
 				cycleInput.value = cycle.join(",");
 			}
 
-			function chaseColorChange(){
+			function chaseColorChange() {
 				unselectChaseColor();
 				//select
 				this.innerHTML = "Selected";
-				this.classList.remove('1');
-				this.classList.add('6');
 				window.chaseColor = this.colorId;
 				//update the chaseButtonsColors
 				let chaseButtons = document.getElementById("ChaseButtons").children;
 				for (let i = 0; i < chaseButtons.length; i++) {
 					const h = window.chaseColor * 360 / 7;
-					const color = `hsl(${h}, 100%, 50%)`;
-					chaseButtons[i].style.backgroundColor = color;
-					chaseButtons[i].style.borderColor = color;
-					chaseButtons[i].style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+					updateButtonColor(chaseButtons[i], h);
 				}
 			}
 
@@ -307,10 +307,7 @@
 					let newColor = document.createElement("button");
 					newColor.colorId = i;
 					const h = i * 360 / 7;
-					const color = `hsl(${h}, 100%, 50%)`;
-					newColor.style.backgroundColor = color;
-					newColor.style.borderColor = color;
-					newColor.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+					updateButtonColor(newColor, h);
 					newColor.onclick = chaseColorChange;
 					newColor.type = "button";
 					chaseColors.appendChild(newColor);
@@ -329,15 +326,15 @@
 			}
 
 			function addPodToChaseCycle(podId){
-				let chaseCycleDiv = document.getElementById("ChaseCycle");
-				let newPod = document.createElement("input");
+				const chaseCycleDiv = document.getElementById("ChaseCycle");
+				const newPod = document.createElement("button");
 				newPod.type = "button";
-				newPod.classList.add(...["col","2","btn"]);
-				newPod.style.backgroundColor = "hsl("+window.chaseColor * 360 / 7+", 100%, 50%)";
-				newPod.value = podId+1 ;
+				newPod.classList.add(...["pod"]);
+				const h = window.chaseColor * 360 / 7;
+				updateButtonColor(newPod, h);
+				newPod.innerHTML = podId+1 ;
 				newPod.podId = podId;
 				newPod.colorId = window.chaseColor;
-				newPod.style.margin = "5px";
 				newPod.onclick = function(){
 					this.parentNode.removeChild(this);
 				}
@@ -362,10 +359,7 @@
 					newPod.innerHTML = "Pod "+(i+1) ;
 					newPod.podId = i;
 					const h = window.chaseColor * 360 / 7;
-					const color = `hsl(${h}, 100%, 50%)`;
-					newPod.style.backgroundColor = color;
-					newPod.style.borderColor = color;
-					newPod.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+					updateButtonColor(newPod, h);
 					newPod.onclick = function(){
 						addPodToChaseCycle(this.podId);
 					}
@@ -375,7 +369,6 @@
 
 			function createChaseCycle(nPods){
 				let chaseCycleDiv = document.getElementById("ChaseCycle");
-				chaseCycleDiv.style.display = "block";
 				emptyChaseCycle();
 				for (let i = 0; i < nPods; i++) {
 					let newPod = document.createElement("input");
@@ -435,10 +428,7 @@
 					button.textContent = "Team " + (i + 1);
 					button.classList.add(...["teamButton"]);
 					const h = i * 360 / nTeams;
-					const color = `hsl(${h}, 100%, 50%)`;
-					button.style.backgroundColor = color;
-					button.style.borderColor = color;
-					button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
+					updateButtonColor(button, h);
 					if (buttonsContainer) {
 						buttonsContainer.appendChild(button);
 					}
