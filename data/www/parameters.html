@@ -5,58 +5,59 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods Parameters</title>
-        <link rel="stylesheet" href="./css/lit.css">
+        <link rel="stylesheet" href="./css/style.css">
     </head>
     <body> 
-        <div class="c">
-			<div class="card">
-                <h1>PhysioPods</h1>
-                <hr>
-                <div class="row">
-					<div class="3 col"><a href="/static/index.html">Home</a></div>
-                    <div class="3 col"><a href="/static/modeChoice.html">Choose a mode</a></div>
-                    <div class="3 col"><a href="/static/results.html">Results</a></div>
-                    <div class="3 col"><b>Parameters</b></div>
-                </div>
-                <hr>
-            </div>
-			<div class="row card" id="Warning" style="display:none">
-				<b>Warning</b>
-				<p>This page contains important settings, and should not be used when a mode is under use.</p>
-				<button name='stop' id='modeStop' class="btn w-100 primary" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+        <header>
+            <h1>PhysioPods</h1>
+            <nav>
+                <a href="/static/index.html">Home</a>
+                <a href="/static/modeChoice.html">Choose a mode</a>
+                <a href="/static/results.html">Results</a>
+                <a>Parameters</a>
+            </nav>
+        </header>
+        <main>
+			<div class="card" id="Warning" style="display:none">
+				<div class="card-header warning"><h2 class="center">Warning</div>
+				<div class='card-content'>
+					<p class="mode-description">This page contains important settings, and should not be used when a mode is under use.</p>
+					<button name='stop' id='modeStop' class="solid w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+				</div>
 			</div>
 			<div id="Parameters" style="display:none">
+				<div class="card" >
+					<div class="card-header"><h2">Wifi</div>
+					<div class='card-content'>
+						<p class="mode-description">You can change the WiFi ssid here. This can be useful if you want to separate pods: pods on different WiFi won't link.</p>
+						<p class="mode-description">All the pods currently cycling will be affected and will restart</p>
+						<p class="mode-description">Changing the password is not supported yet: if lost, your pods would be unusable.</p>
+					</div>
+				</div>	
 				<div class="card" id="WiFiParams" >
-					<div class="row">
-						<div class="col">
-							<h4>WiFi</h4>
-							<p>You can change the WiFi ssid here. This can be useful if you want to separate pods: pods on different WiFi won't link.</p>
-							<p>All the pods currently cycling will be affected and will restart</p>
-							<p>Changing the password is not supported yet: if lost, your pods would be unusable.</p>
-							<form action="/ssid">
-								<fieldset>
-									<legend>WiFi Name :</legend>
-									<label id="ssidLabel" for="ssid">PhysioPods1</label><br>
-									<input type="number" id="ssid" name="ssid" min="1" value="1" required>
-								</fieldset>
-								<input type="submit" id='ssidSubmit' class="btn primary w-100" value="Set Name">
-							</form>
-						</div>
+					<div class="card-header"><h2">Wifi Name</div>
+					<div class='card-content'>
+						<form action="/ssid" class="col">
+							<fieldset>
+								<legend>WiFi Name</legend>
+								<label id="ssidLabel" for="ssid">PhysioPods1</label>
+								<input type="number" id="ssid" name="ssid" min="1" value="1" required>
+							</fieldset>
+							<button type="submit" id='ssidSubmit' class="solid w-100">Set Name</button>
+						</form>
 					</div>
 				</div>
-				<div class="card">
-					<div class="row">
-						<div class="col">
-							<h4>Update</h4>
-							<p>Use this link to update the software. This will only update the pod that is cycling fast. Other pods should be updated one by one, in the same way.</p>
-							<form action⁼"/update">
-								<input type="submit" class="btn primary w-100" value="OTA Update">
-							</form>
-						</div>
+				<div class="card" id="WiFiParams" >
+					<div class="card-header"><h2">Update</div>
+					<div class='card-content'>
+						<p class="mode-description">Use this link to update the software. This will only update the pod that is cycling fast. Other pods should be updated one by one, in the same way.</p>
+						<form action="/update">
+							<button type="submit" class="solid w-100">OTA Update</button>
+						</form>
 					</div>
 				</div>
 			</div>
-		</div>
+		</main>
         <script>
 			//function isValidSSID(str) { return /^[a-zA-Z0-9()_-]{1,32}$/g.test(str); }
 

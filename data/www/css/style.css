@@ -290,6 +290,11 @@ div:has(> input[type="checkbox"]) {
     background-color: var(--color-primary);
 }
 
+.card-header.warning {
+    color: black;
+    background-color: var(--color-warning);
+}
+
 .card-content {
     padding: var(--def-margin);
     display: flex;
