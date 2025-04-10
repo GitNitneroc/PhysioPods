@@ -31,6 +31,7 @@
 
     --def-button-height: 42px;
     --tab-button-height: 32px;
+    --pod-button-height: 24px;
 
     --loader-size: 32px;
     --loader-size-int: 26px;
@@ -177,8 +178,26 @@ button.danger {
     color: var(--color-danger);
 }
 
-button.fpColorsButton {
-    color: black;
+button.pod {
+    min-height: var(--pod-button-height);
+    height: var(--pod-button-height);
+    flex: initial;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    position: relative;
+
+    &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: calc(130%);
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0; 
+        height: 0; 
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 4px solid var(--color-primary);
+    }
 }
 
 /** Mouse devices only */
@@ -292,6 +311,7 @@ tr:nth-child(even) {
 /** Utils */
 .row {
     flex: 1;
+    flex-wrap: wrap;
     display: flex;
     gap: var(--def-margin);
     align-items: center;
