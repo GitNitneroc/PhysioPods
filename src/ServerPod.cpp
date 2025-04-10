@@ -133,7 +133,6 @@ ServerPod::ServerPod() : server(80) {
     PhysioPodMode* mode = nullptr;
     instance = this;
 
-    //initialize SPIFFS
     if (!initializeSPIFFS()){
         //if the SPIFFS failed to start, restart the device
         DebugPrintln("Failed to start the SPIFFS, restarting the device");
@@ -142,7 +141,7 @@ ServerPod::ServerPod() : server(80) {
 
     //stop the WiFi client just to be sure
     WiFi.disconnect();
-    delay(1000); //not sure if this is necessary
+    delay(100); //This seems necessary: I have more trouble with serial monitoring if I don't wait a bit
 
     #ifdef isDebug
     DebugPrint("|-SSID : ");
@@ -150,8 +149,15 @@ ServerPod::ServerPod() : server(80) {
     String ssid = getSSIDFromPreferences();
 
     //initialize the WiFi hotspot
-    DebugPrint("|-Hotsport starting...");
     WiFi.mode(WIFI_AP_STA);
+    //set the IP address of the hotspot
+    DebugPrintln("|-Setting softAPConfig");
+    IPAddress Ip(192, 168, 1, 1);
+    WiFi.softAPConfig(Ip, Ip, IPAddress(255, 255, 255, 0), IPAddress(192, 168, 1, 2)); //set the IP address of the hotspot, the gateway, the subnet mask, the DHCP address could help on some phones (http://github.com/espressif/arduino-esp32/issues/4423)
+    DebugPrint("|-AP IP address: ");
+    DebugPrintln(WiFi.softAPIP());
+    DebugPrint("|-Hotsport starting...");
+    
     if(!WiFi.softAP(ssid,password,1,0,MAX_CLIENTS)){//SSID, password, channel, hidden, max connection
         //if the hotspot failed to start, restart the device
         DebugPrintln("\nFailed to start the hotspot, restarting the device");
@@ -160,7 +166,7 @@ ServerPod::ServerPod() : server(80) {
 
     WiFi.onEvent(ServerPod::OnAPStart, WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START); //when the AP starts, set the APStarted flag to true
 
-    // Disable AMPDU RX on the ESP32 WiFi to fix a bug on Android
+    // Disable AMPDU RX on the ESP32 WiFi to fix a bug with disconnections on Android
 	esp_wifi_stop();
 	esp_wifi_deinit();
 	wifi_init_config_t my_config = WIFI_INIT_CONFIG_DEFAULT();
@@ -182,17 +188,6 @@ ServerPod::ServerPod() : server(80) {
     }
     WiFi.removeEvent(WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
     DebugPrintln("\n  |-HotSpot started");
-
-    //set the IP address of the hotspot
-    DebugPrintln("  |-Setting softAPConfig");
-    IPAddress Ip(192, 168, 1, 1);
-    
-    IPAddress NMask(255, 255, 255, 0);
-    WiFi.softAPConfig(Ip, Ip, NMask);
-    #ifdef isDebug
-    DebugPrint("    |-AP IP address: ");
-    DebugPrintln(WiFi.softAPIP());
-    #endif
 
     prepareCaptivePortal(&server); //prepare the captive portal
 
