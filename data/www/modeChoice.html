@@ -323,7 +323,7 @@
 
 			async function createChaseUI(){
 				createChaseColors();
-				let nPods = 3; // await getNumPods();
+				let nPods = await getNumPods();
 				createChaseButtons(nPods);
 				createChaseCycle(nPods);
 			}
