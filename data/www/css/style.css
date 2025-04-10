@@ -301,11 +301,11 @@ div:has(> input[type="checkbox"]) {
 td, th {
     text-align: left;
     padding: 1em;
-    border-bottom: solid var(--light);
+    border-bottom: solid var(--color-primary-shade);
 }
 
 tr:nth-child(even) {
-    background-color: var(--light);
+    background-color: var(--color-primary-shade);
 }
 
 /** Utils */
