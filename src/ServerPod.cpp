@@ -209,8 +209,9 @@ ServerPod::ServerPod() : server(80) {
     //start the DNS server
     DebugPrintln("|-DNS server starting...");
     dnsServer = new DNSServer();
-    dnsServer->setTTL(3600);
-    dnsServer->start(53, "*", WiFi.softAPIP());
+    dnsServer->setTTL(3600); //set the TTL to 1 hour
+    dnsServer->setErrorReplyCode(DNSReplyCode::ServerFailure);//set the error reply code to server failure default is DNSReplyCode::NonExistentDomain but ServerFailure should make clients send less retries
+    dnsServer->start(53, "*", WiFi.softAPIP()); //start the DNS server on port 53, redirect all requests to the IP address of the hotspot
     xTaskCreate( DNSLoop, "DNSLoop", 2048, NULL, 1, NULL); //start the DNS loop in a separate task, no handle is required since we don't need to stop it
 
     // Start OTA
