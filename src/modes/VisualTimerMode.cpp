@@ -23,7 +23,9 @@ void VisualTimerMode::stop() {
     #ifdef isDebug
     DebugPrintln("VisualTimerMode stopped");
     #endif
-    ServerPod::setPodLightState(255, false); //turn off the pods' light
+    //ServerPod::setPodLightState(255, false); //turn off the pods' light
+    //Make a final flash of the light to indicate the end of the session
+    ServerPod::setOwnLightState(true, CRGB(0, 255, 0), LightMode::PULSE_ON_OFF_LONG);
     PhysioPodMode::stop();
 }
 
