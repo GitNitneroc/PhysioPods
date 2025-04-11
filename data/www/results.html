@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods Results</title>
-        <link rel="stylesheet" href="./css/lit.css">
+        <link rel="stylesheet" href="./css/style.css">
         <script type="text/javascript">
             function displayScores(data) {
                 if (data.length == 0) {
@@ -110,23 +110,21 @@
         </script>
     </head>
     <body onload="loadScores()">
-        <div class="c">
-            <div class="card">
-                <h1>PhysioPods</h1>
-                <hr>
-                <div class="row">
-					<div class="3 col"><a href="/static/index.html">Home</a></div>
-                    <div class="3 col"><a href="/static/modeChoice.html">Choose a mode</a></div>
-                    <div class="3 col"><b>Results</b></div>
-                    <div class="3 col"><a href="/static/parameters.html">Parameters</a></div>
-                </div>
-                <hr>
-            </div>
-            <button class="btn primary w-100" onclick='loadScores()'>Refresh scores</button>
+        <header>
+            <h1>PhysioPods</h1>
+            <nav>
+                <a href="/static/index.html">Home</a>
+                <a href="/static/modeChoice.html">Choose a mode</a>
+                <a>Results</a>
+                <a href="/static/parameters.html">Parameters</a>
+            </nav>
+        </header>
+        <main class="padding">
+            <button class="solid w-100" onclick='loadScores()'>Refresh scores</button>
             <table class="w-100" id="results">
                 <thead>
                     <tr>
-                        <th>Loading</th>
+                        <th><span class="loader small"></span> Loading...</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -135,6 +133,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </main>
     </body>
 </html>
