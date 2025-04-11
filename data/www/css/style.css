@@ -115,6 +115,10 @@ main {
     background-color: white;
 }
 
+main.v-center {
+    justify-content: center;
+}
+
 /** Typography */
 h1, h2, h3 {
     font-weight: 400;
@@ -290,9 +294,18 @@ div:has(> input[type="checkbox"]) {
     background-color: var(--color-primary);
 }
 
+.card-header.success {
+    color: black;
+    background-color: var(--color-success);
+}
+
 .card-header.warning {
     color: black;
     background-color: var(--color-warning);
+}
+
+.card-header.danger {
+    background-color: var(--color-danger);
 }
 
 .card-content {
