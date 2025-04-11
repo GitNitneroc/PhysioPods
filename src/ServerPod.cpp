@@ -206,6 +206,7 @@ ServerPod::ServerPod() : server(80) {
         DebugPrintln();
 	});
 
+    //TODO : try to use mDNS instead of the DNS server
     //start the DNS server
     DebugPrintln("|-DNS server starting...");
     dnsServer = new DNSServer();
