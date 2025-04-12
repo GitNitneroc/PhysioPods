@@ -26,17 +26,12 @@
 				</div>
 			</div>
 			<div id="Parameters" style="display:none">
-				<div class="card" >
-					<div class="card-header"><h2>Wifi</h2></div>
+				<div class="card" id="WiFiParams" >
+					<div class="card-header"><h2>Wifi Name</h2></div>
 					<div class='card-content'>
 						<p class="mode-description">You can change the WiFi ssid here. This can be useful if you want to separate pods: pods on different WiFi won't link.</p>
 						<p class="mode-description">All the pods currently cycling will be affected and will restart</p>
 						<p class="mode-description">Changing the password is not supported yet: if lost, your pods would be unusable.</p>
-					</div>
-				</div>	
-				<div class="card" id="WiFiParams" >
-					<div class="card-header"><h2>Wifi Name</h2></div>
-					<div class='card-content'>
 						<form action="/ssid" class="col">
 							<fieldset>
 								<legend>WiFi Name</legend>
@@ -51,18 +46,15 @@
 					<div class="card-header"><h2>Consult logs</h2></div>
 					<div class='card-content'>
 						<p class="mode-description">Use this link to monitor logs</p>
-						<form action="/update">
-							<button type="submit" class="solid w-100">Web Serial</button>
-						</form>
+						<button class="solid" onclick="window.location.href='/webserial'">WebSerial</button>
 					</div>
 				</div>
 				<div class="card" id="OTA" >
 					<div class="card-header"><h2>Update</h2></div>
 					<div class='card-content'>
-						<p class="mode-description">Use this link to update the software. This will only update the pod that is cycling fast. Other pods should be updated one by one, in the same way.</p>
-						<form action="/update">
-							<button type="submit" class="solid w-100">OTA Update</button>
-						</form>
+						<p class="mode-description">Use this link to update the software.</p>
+						<p class="mode-description">This will only update the pod that is cycling fast. Other pods should be updated one by one, in the same way.</p>
+						<button class="solid" onclick="window.location.href='/update'">Pretty OTA</button>
 					</div>
 				</div>
 			</div>
