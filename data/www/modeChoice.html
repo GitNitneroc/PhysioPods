@@ -255,21 +255,24 @@
 				</div>
 				<div id="mode5Details" style="display:none">
 					<!-- <h2>HIIT Timer</h2> -->
-					<p>HIIT timer, with a countdown for exercise and rest</p>
-					<p>This mode is only displayed on the serverPod</p>
+					<p class="mode-description">HIIT timer, with a countdown for exercise and rest</p>
+					<p class="mode-description">This mode is only displayed on the serverPod</p>
 					<form action="/launchMode">
 						<input type="hidden" id="mode" name="mode" value="Visual Timer">
-						<div class="row">
-							<fieldset class="w-100">
-								<label for="work">Work (sec):</label>
-								<input type="number" id="work" name="work" min="1" max="65536" value="30" ><br/>
-								<label for="rest">Rest (sec):</label>
-								<input type="number" id="rest" name="rest" min="1" max="65536" value="30" ><br/>
-								<label for="cycles">Cycles:</label>
-								<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" ><br/>
-							</fieldset>
+						<div class="card">
+							<div class="card-header"><h2 aria-hidden="true">Choose a Color</h2></div>
+							<div class='card-content'>
+								<fieldset>
+									<label for="work">Work (sec):</label>
+									<input type="number" id="work" name="work" min="1" max="65536" value="30" ><br/>
+									<label for="rest">Rest (sec):</label>
+									<input type="number" id="rest" name="rest" min="1" max="65536" value="30" ><br/>
+									<label for="cycles">Cycles:</label>
+									<input type="number" id="cycles" name="cycles" min="1" max="255" value="5" ><br/>
+								</fieldset>
+							</div>
 						</div>
-						<input type="submit" class="btn primary w-100" value="Launch">
+						<button type="submit" class="solid w-100">Launch</button>
 					</form>
 			</div>
         </main>
