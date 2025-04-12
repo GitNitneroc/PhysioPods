@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "scoreStorage.h"
+#include "debugPrint.h"
 
 String* ScoreStorage::scores[3] = {nullptr, nullptr, nullptr};
 
@@ -16,15 +17,15 @@ void ScoreStorage::init()
  */
 void ScoreStorage::updateScore(String* score){
     #ifdef isDebug
-    Serial.print("updating this score : ");
-    Serial.println(*score);
-    Serial.println("The old scores");
+    DebugPrint("updating this score : ");
+    DebugPrintln(*score);
+    DebugPrintln("The old scores");
     //print all scores
     for (uint8_t i=0; i<3; i++){
         if (scores[i] != nullptr){
-            Serial.println(*scores[i]);
+            DebugPrintln(*scores[i]);
         } else {
-            Serial.println("NULL");
+            DebugPrintln("NULL");
         }
     }
     #endif
@@ -33,13 +34,13 @@ void ScoreStorage::updateScore(String* score){
     }
     scores[0] = score;
     #ifdef isDebug
-    Serial.println("The new scores : ");
+    DebugPrintln("The new scores : ");
     //print all scores
     for (uint8_t i=0; i<3; i++){
         if (scores[i] != nullptr){
-            Serial.println(*scores[i]);
+            DebugPrintln(*scores[i]);
         } else {
-            Serial.println("NULL");
+            DebugPrintln("NULL");
         }
     }
     #endif
@@ -52,15 +53,15 @@ void ScoreStorage::updateScore(String* score){
  */
 void ScoreStorage::addScore(String* score){
     #ifdef isDebug
-    Serial.print("Adding this score to storage : ");
-    Serial.println(*score);
-    Serial.println("The old scores");
+    DebugPrint("Adding this score to storage : ");
+    DebugPrintln(*score);
+    DebugPrintln("The old scores");
     //print all scores
     for (uint8_t i=0; i<3; i++){
         if (scores[i] != nullptr){
-            Serial.println(*scores[i]);
+            DebugPrintln(*scores[i]);
         } else {
-            Serial.println("NULL");
+            DebugPrintln("NULL");
         }
     }
     #endif
@@ -70,13 +71,13 @@ void ScoreStorage::addScore(String* score){
     scores[1] = scores[0];
     scores[0] = score;
     #ifdef isDebug
-    Serial.println("The new scores : ");
+    DebugPrintln("The new scores : ");
     //print all scores
     for (uint8_t i=0; i<3; i++){
         if (scores[i] != nullptr){
-            Serial.println(*scores[i]);
+            DebugPrintln(*scores[i]);
         } else {
-            Serial.println("NULL");
+            DebugPrintln("NULL");
         }
     }
     #endif

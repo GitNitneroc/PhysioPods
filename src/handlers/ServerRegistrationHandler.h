@@ -11,7 +11,7 @@ public:
     ServerRegistrationHandler();
     virtual ~ServerRegistrationHandler() {}
 
-    bool canHandle(AsyncWebServerRequest *request);
+    bool canHandle(AsyncWebServerRequest *request) const override;
 
     void handleRequest(AsyncWebServerRequest *request);
     

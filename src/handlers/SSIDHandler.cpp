@@ -11,6 +11,7 @@
 #include <Preferences.h>
 #include "Messages.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 /*
     * This is a request handler to change the SSID of the ESP32.
@@ -18,10 +19,10 @@
 SSIDHandler::SSIDHandler() {
 }
 
-bool SSIDHandler::canHandle(AsyncWebServerRequest *request){
+bool SSIDHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/ssid") {
         #ifdef isDebug
-        Serial.println("SSIDHandler request !");
+        DebugPrintln("SSIDHandler request !");
         #endif
         return true;
     }
@@ -32,24 +33,24 @@ void SSIDHandler::handleRequest(AsyncWebServerRequest *request) {
     //start the response
     AsyncResponseStream *response = request->beginResponseStream("text/plain");
 
-    AsyncWebParameter* ssidParam = request->getParam("ssid");
+    const AsyncWebParameter* ssidParam = request->getParam("ssid");
     if (ssidParam == nullptr){
         response->print("No ssid parameter found");
-        Serial.println("No ssid parameter found");
+        DebugPrintln("No ssid parameter found");
         request->send(response);
     }else{
         //get the ssid
         int ssid = ssidParam->value().toInt();
         if (ssid < 0 || ssid > 255){
             response->print("Invalid ssid value");
-            Serial.println("Invalid ssid value");
+            DebugPrintln("Invalid ssid value");
             request->send(response);
             return;
         }
         //change the ssid in eeprom
         #ifdef isDebug
-        Serial.print("Changing preferences ssid to ");
-        Serial.println(ssid);
+        DebugPrint("Changing preferences ssid to ");
+        DebugPrintln(ssid);
         #endif
         Preferences preferences;    
         preferences.begin("PhysioPod", false);
@@ -62,7 +63,7 @@ void SSIDHandler::handleRequest(AsyncWebServerRequest *request) {
         ssidMessage.ssid = (uint8_t)ssid;
         esp_now_send(ServerPod::ip_addr_broadcast, (uint8_t*)&ssidMessage, sizeof(Messages::SSIDMessage));
         #ifdef isDebug
-        Serial.println("SSID sent to the pods");
+        DebugPrintln("SSID sent to the pods");
         #endif
         
         //send the response
@@ -72,7 +73,7 @@ void SSIDHandler::handleRequest(AsyncWebServerRequest *request) {
         request->send(response);
 
         #ifdef isDebug
-        Serial.println("Restarting the pod...");
+        DebugPrintln("Restarting the pod...");
         #endif
         //restart the pod
         esp_restart();

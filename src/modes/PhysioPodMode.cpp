@@ -1,4 +1,5 @@
 #include "PhysioPodMode.h"
+#include "debugPrint.h"
 using namespace Messages;
 
 PhysioPodMode* PhysioPodMode::currentMode = nullptr;
@@ -16,7 +17,7 @@ void PhysioPodMode::setControl(PhysioPodControl *control) {
 */
 void PhysioPodMode::stop() {
     #ifdef isDebug
-    Serial.println("PhysioPodMode : Mode is currently stopping...");
+    DebugPrintln("PhysioPodMode : Mode is currently stopping...");
     #endif
     /* //let's clean things up
     esp_now_unregister_recv_cb(); */
@@ -27,7 +28,7 @@ void PhysioPodMode::stop() {
 
 void PhysioPodMode::start() {
     #ifdef isDebug
-    Serial.println("Starting mode...");
+    DebugPrintln("Starting mode...");
     #endif
 /*     //register the callback
     esp_now_register_recv_cb(this->OnDataReceived); */

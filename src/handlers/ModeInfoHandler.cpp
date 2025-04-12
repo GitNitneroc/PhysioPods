@@ -7,6 +7,7 @@
 #include <ESP8266WiFi.h>
 #endif
 
+#include "debugPrint.h"
 #include <esp_now.h>
 #include "modes/PhysioPodMode.h"
 
@@ -16,10 +17,10 @@
 ModeInfoHandler::ModeInfoHandler() {
 }
 
-bool ModeInfoHandler::canHandle(AsyncWebServerRequest *request){
+bool ModeInfoHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/modeInfo") {
         #ifdef isDebug
-        Serial.println("ModeInfoHandler request !");
+        DebugPrintln("ModeInfoHandler request !");
         #endif
         return true;
     }
@@ -37,11 +38,11 @@ void ModeInfoHandler::handleRequest(AsyncWebServerRequest *request) {
         response->print("}");
         //for debug, print to console the same thing :
         #ifdef isDebug
-        Serial.print("{\"mode\":\"");
-        Serial.print(PhysioPodMode::currentMode->getName());
-        Serial.print("\", \"isRunning\":");
-        Serial.print(PhysioPodMode::currentMode->isRunning() ? "true" : "false");
-        Serial.print("}\n");
+        DebugPrint("{\"mode\":\"");
+        DebugPrint(PhysioPodMode::currentMode->getName());
+        DebugPrint("\", \"isRunning\":");
+        DebugPrint(PhysioPodMode::currentMode->isRunning() ? "true" : "false");
+        DebugPrint("}\n");
         #endif
 
     }else{

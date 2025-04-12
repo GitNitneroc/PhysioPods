@@ -2,6 +2,7 @@
 #include "ESPAsyncWebServer.h"
 #include "modes/PhysioPodMode.h"
 #include "Arduino.h"
+#include "debugPrint.h"
 
 /*
     * This is a request handler to get the scores in JSON format
@@ -9,10 +10,10 @@
 ScoreJSONHandler::ScoreJSONHandler() {
 }
 
-bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request){
+bool ScoreJSONHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/score") {
         #ifdef isDebug
-        Serial.println("ScoreJSONHandler request !");
+        DebugPrintln("ScoreJSONHandler request !");
         #endif
         return true;
     }
@@ -26,7 +27,7 @@ void ScoreJSONHandler::handleRequest(AsyncWebServerRequest *request) {
     if (PhysioPodMode::currentMode != nullptr){
         if (PhysioPodMode::currentMode->isRunning()){
             #ifdef isDebug
-            Serial.println("There is a mode under use : Updating score !");
+            DebugPrintln("There is a mode under use : Updating score !");
             #endif
             ScoreStorage::updateScore(PhysioPodMode::currentMode->returnScore());
         }
@@ -35,8 +36,8 @@ void ScoreJSONHandler::handleRequest(AsyncWebServerRequest *request) {
     //return the scores
     String s = ScoreStorage::getAllJSON();
     #ifdef isDebug
-        Serial.print("Sending back scores as JSON : ");
-        Serial.println(s);
+        DebugPrint("Sending back scores as JSON : ");
+        DebugPrintln(s);
     #endif
     response->print(s);
     request->send(response);

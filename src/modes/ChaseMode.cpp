@@ -1,5 +1,6 @@
 #include "ChaseMode.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 //TODO : avant de passer au prochain, il faut un pulse, pour qu'on sache que l'appui est bien pris en compte
 
@@ -50,16 +51,16 @@ ChaseParameters ChaseMode::parameters = {0};
 
 bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
 
-    AsyncWebParameter* cyclesParam = request->getParam("cycles");
+    const AsyncWebParameter* cyclesParam = request->getParam("cycles");
     if (cyclesParam == NULL) {
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         return false;
     }
     int cycles = cyclesParam->value().toInt();
 
-    AsyncWebParameter* cycleParam = request->getParam("cycle");
+    const AsyncWebParameter* cycleParam = request->getParam("cycle");
     if (cycleParam == NULL) {
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         return false;
     }
     String cycleString = cycleParam->value();
@@ -76,9 +77,9 @@ bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
             String pair = cycleString.substring(start, i);
             int delimiterPos = pair.indexOf('-');
             parameters.cycle[j] = pair.substring(0, delimiterPos).toInt();
-            Serial.print("cycle "+String(j)+" : "+String(parameters.cycle[j]));
+            DebugPrint("cycle "+String(j)+" : "+String(parameters.cycle[j]));
             parameters.colors[j] = pair.substring(delimiterPos + 1).toInt();
-            Serial.println(" color "+String(parameters.colors[j]));
+            DebugPrintln(" color "+String(parameters.colors[j]));
             j++;
             start = i + 1;
         }
@@ -87,9 +88,9 @@ bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
     parameters.cycleLength = j;
 
     #ifdef isDebug
-    Serial.println("cycles : "+ String(cycles));
-    Serial.println("cycle length : "+ String(parameters.cycleLength));
-    Serial.println("cycle : "+ cycleString);
+    DebugPrintln("cycles : "+ String(cycles));
+    DebugPrintln("cycle length : "+ String(parameters.cycleLength));
+    DebugPrintln("cycle : "+ cycleString);
     #endif
 
     ChaseMode::parameters = parameters;
@@ -100,7 +101,7 @@ bool ChaseMode::testRequestParameters(AsyncWebServerRequest *request) {
 PhysioPodMode* ChaseMode::generateMode() {
     ChaseMode* newMode = new ChaseMode();
     #ifdef isDebug
-    Serial.println("Mode created, initializing...");
+    DebugPrintln("Mode created, initializing...");
     #endif
     newMode->initialize(ChaseMode::parameters.cycles, ChaseMode::parameters.cycle, ChaseMode::parameters.colors, ChaseMode::parameters.cycleLength);
     return newMode;
@@ -124,7 +125,7 @@ void ChaseMode::onPodPressed(uint8_t id) {
             currentStep++;
             ServerPod::setPodLightState(id,true, CRGB::Green, LightMode::PULSE_ON_OFF_SHORT); //light the pod green for a short time to indicate success, it will turn off automatically
             #ifdef isDebug
-            Serial.println("Pod "+String(id)+" pressed, go to step id "+String(currentStep)+"(pod "+String(cycle[currentStep])+",color "+String(colors[currentStep])+") (len="+String(cycleLength)+")");
+            DebugPrintln("Pod "+String(id)+" pressed, go to step id "+String(currentStep)+"(pod "+String(cycle[currentStep])+",color "+String(colors[currentStep])+") (len="+String(cycleLength)+")");
             #endif
             
             if (currentStep >= cycleLength) {
@@ -132,12 +133,12 @@ void ChaseMode::onPodPressed(uint8_t id) {
                 this->currentStep = 0;
                 this->currentCycle++;
                 #ifdef isDebug
-                Serial.println("Cycle "+String(this->currentCycle)+" completed !");
+                DebugPrintln("Cycle "+String(this->currentCycle)+" completed !");
                 #endif
                 if (this->currentCycle >= this->cycles) {
                     //the last cycle was completed
                     #ifdef isDebug
-                        Serial.println("All cycles completed ! Let's stop ChaseMode");
+                        DebugPrintln("All cycles completed ! Let's stop ChaseMode");
                     #endif
                     ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);//end of game
                     stop();

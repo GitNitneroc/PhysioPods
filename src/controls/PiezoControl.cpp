@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "PhysioPodControl.h"
 #include "PiezoControl.h"
+#include "debugPrint.h"
 
 #ifndef PIEZO_THRESHOLD
 #define PIEZO_THRESHOLD 100 //default value, should be adjusted in platformio.ini
@@ -14,7 +15,7 @@ PiezoControl::PiezoControl(byte pin){
     this->state = false;
     this->lastDebounceTime = 0;
     this->onPressedCallback = nullptr;
-    Serial.println("PiezoControl created");
+    DebugPrintln("PiezoControl created");
 }
 
 void PiezoControl::initialize(void (*callback)()){
@@ -26,17 +27,17 @@ void PiezoControl::initialize(void (*callback)()){
 
 bool PiezoControl::checkControl(){
     bool newState = analogRead(pin)> PIEZO_THRESHOLD;
-    /* Serial.print(">piezzo:");
-    Serial.println(analogRead(pin)); */
+    /* DebugPrint(">piezzo:");
+    DebugPrintln(analogRead(pin)); */
     if (newState!=state){
-        Serial.printf(">piezzo:%d\n", analogRead(pin));    
+        DebugPrintf(">piezzo:%d\n", analogRead(pin));    
         //check if enough time has passed since the last change
         if (millis() - lastDebounceTime > debounceDelay){
             lastDebounceTime = millis();
             state = !state;
             #ifdef isDebug
-            Serial.print("Piezo state changed : ");
-            Serial.println(state ? "HIGH" : "LOW");
+            DebugPrint("Piezo state changed : ");
+            DebugPrintln(state ? "HIGH" : "LOW");
             #endif
             //notify the pod that the button is pressed
             if (!state){
@@ -44,7 +45,7 @@ bool PiezoControl::checkControl(){
             }
         }
         #ifdef isDebug
-        Serial.println("Ignored a bounce !");
+        DebugPrintln("Ignored a bounce !");
         #endif
     }
     return state;

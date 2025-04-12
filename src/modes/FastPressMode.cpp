@@ -2,19 +2,21 @@
 #include "controls/PhysioPodControl.h"
 #include "esp_now.h"
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 #define DECOY_PROBABILITY 5 // 1/5 chance of having a decoy
 
 //TODO : re-tester les decoys.
 //TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
 
-void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, uint8_t nColors) {
+void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, bool avoidRepeat, uint8_t nColors) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
     this->timeLimit = timeLimit;
     this->limit = limit;
     this->useDecoy = useDecoy;
     this->nColors = nColors;
+    this->avoidRepeat = avoidRepeat;
 
     this->generateColors(); //create the colors array ([0] is the error color)
 
@@ -31,19 +33,20 @@ void FastPressMode::generateColors() {
     }
 }
 
-FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0};
+FastPressModeParameters FastPressMode::parameters = {0,0,0,0,0,0,0};
 
 bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     
-    AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
-    AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
-    AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
-    AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
-    AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
-    AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
+    const AsyncWebParameter* minIntervalParam = request->getParam("minInterval");
+    const AsyncWebParameter* maxIntervalParam = request->getParam("maxInterval");
+    const AsyncWebParameter* limitParam = request->getParam("limit"); //number of seconds or number of tries
+    const AsyncWebParameter* limitationParam = request->getParam("limitation"); //0 for time, 1 for tries
+    const AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
+    const AsyncWebParameter* avoidRepeatParam = request->getParam("avoidRepeat"); //optional avoid repeat or not
+    const AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
 
     if (minIntervalParam == NULL || maxIntervalParam == NULL || limitParam == NULL || nColorsParam == NULL || limitationParam == NULL){
-        Serial.println("could not read a parameter");
+        DebugPrintln("could not read a parameter");
         //NB : the decoy parameter is optional
         return false;
     }
@@ -58,17 +61,23 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     if (useDecoyParam != NULL){
         useDecoy = useDecoyParam->value().equals("1");
     }
+    bool avoidRepeat = false; //default value for avoidRepeat
+    if (avoidRepeatParam != NULL){
+        avoidRepeat = avoidRepeatParam->value().equals("1");
+    }
+    //check the parameters
 
     #ifdef isDebug
-    Serial.println("minInterval : "+ String(minInterval)+" tenth of sec");
-    Serial.println("maxInterval : "+ String(maxInterval)+" tenth of sec");
-    Serial.println(timeLimit?"timeLimited":"tryLimited");
-    Serial.println("limit : "+ String(limit));
-    Serial.println("useDecoy : "+ String(useDecoy));
-    Serial.println("nColors : "+ String(nColors));
+    DebugPrintln("minInterval : "+ String(minInterval)+" tenth of sec");
+    DebugPrintln("maxInterval : "+ String(maxInterval)+" tenth of sec");
+    DebugPrintln(timeLimit?"timeLimited":"tryLimited");
+    DebugPrintln("limit : "+ String(limit));
+    DebugPrintln("useDecoy : "+ String(useDecoy));
+    DebugPrintln("avoidRepeat : "+ String(avoidRepeat));
+    DebugPrintln("nColors : "+ String(nColors));
     #endif
 
-    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, nColors, timeLimit};
+    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, avoidRepeat, nColors, timeLimit};
 
     PhysioPodMode::modeConstructor = generateMode;
 
@@ -78,31 +87,31 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
 PhysioPodMode* FastPressMode::generateMode() {
     FastPressMode* newMode = new FastPressMode();
     #ifdef isDebug
-    Serial.println("Mode created, initializing...");
+    DebugPrintln("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.nColors);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.avoidRepeat, FastPressMode::parameters.nColors);//this is in ms
     return newMode;
 }
 
 void FastPressMode::onPodPressed(uint8_t id){
     #ifdef isDebug
-    Serial.println("FastPressMode : pod "+String(id)+" pressed");
+    DebugPrintln("FastPressMode : pod "+String(id)+" pressed");
     #endif
 
     switch (state){
     case WAIT_FOR_PRESS:{
         #ifdef isDebug
-        Serial.println("Press happening during state : wait for press");
+        DebugPrintln("Press happening during state : wait for press");
         #endif
         if (id == podToPress){
             #ifdef isDebug
-            Serial.println("Correct pod pressed !");
+            DebugPrintln("Correct pod pressed !");
             #endif
             ServerPod::setPodLightState(podToPress,false);
             onSuccess(id);
         } else {
             #ifdef isDebug
-            Serial.println("Wrong pod pressed !");
+            DebugPrintln("Wrong pod pressed !");
             #endif
             //the user pressed the wrong pod
             onError(id);
@@ -111,7 +120,7 @@ void FastPressMode::onPodPressed(uint8_t id){
     }
     case DURING_INTERVAL:{
         #ifdef isDebug
-        Serial.println("Press happening during interval");
+        DebugPrintln("Press happening during interval");
         #endif
         //the user pressed a pod too early
         onError(id);
@@ -129,6 +138,7 @@ FastPressMode::FastPressMode() {
     pressDelay = 0;
     currentTry = 0;
     podToPress = 0;
+    lastPodPressed = 255; //no last pod pressed
     interval = 0;
     timer = 0;
     timeLimit = false;
@@ -138,7 +148,7 @@ FastPressMode::FastPressMode() {
 void FastPressMode::stop() {
     state = STOPPED;
     #ifdef isDebug
-    Serial.println("FastPressMode stopped");
+    DebugPrintln("FastPressMode stopped");
     #endif
     //make sure each pod is off
     ServerPod::setPodLightState(255,false);
@@ -156,13 +166,13 @@ void FastPressMode::onSuccess(uint8_t pod) {
     pressDelay += millis() - timer;
     currentTry++;
     #ifdef isDebug
-    Serial.println("Success ! score : "+String(score));
+    DebugPrintln("Success ! score : "+String(score));
     #endif
     if (currentTry < limit){ //TODO : this is not the only condition to stop the game
         updatePodToPress();
     } else {
         #ifdef isDebug
-        Serial.println("FastPressMode : game over after "+String(currentTry)+" limit !");
+        DebugPrintln("FastPressMode : game over after "+String(currentTry)+" limit !");
         #endif
         ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);
         //the game is over
@@ -183,7 +193,7 @@ void FastPressMode::update() {
     if(timeLimit && millis()-startTimer >= limit*1000){
         if (state != STOPPED){
             #ifdef isDebug
-            Serial.println("FastPressMode : game over after "+String(limit)+" seconds !");
+            DebugPrintln("FastPressMode : game over after "+String(limit)+" seconds !");
             #endif
             ServerPod::setPodLightState(255,true, CRGB::Green, LightMode::PULSE_ON_OFF_LONG);
             //little hack to let the time to display this flash
@@ -204,12 +214,12 @@ void FastPressMode::update() {
         case DURING_INTERVAL:{
             if (millis()- timer >= interval){
                 #ifdef isDebug
-                Serial.println("FastPressMode interval over");
+                DebugPrintln("FastPressMode interval over");
                 #endif
                 //This is different if this is a decoy or not
                 if (isDecoy && !decoyIsLit){ //decoy is Lit ne sert en fait à rien on pourrait mettre isDecoy à false après avoir défini un nouveau pod et un nouvel interval
                     #ifdef isDebug
-                    Serial.println("Decoy pod lit");
+                    DebugPrintln("Decoy pod lit");
                     #endif
                     ServerPod::setPodLightState(podToPress,true, CRGB::Blue, LightMode::SIMPLE);
                     timer = millis(); //we reset the timer
@@ -223,7 +233,7 @@ void FastPressMode::update() {
                     CRGB randomColor = colors[randomColorIndex];
 
                     #ifdef isDebug
-                    Serial.println("target pod lit in color : "+String(randomColorIndex));
+                    DebugPrintln("target pod lit in color : "+String(randomColorIndex));
                     #endif
                     
                     //the interval is over and we are not in a decoy, we should light the pod
@@ -254,6 +264,7 @@ void FastPressMode::reset() {
     pressDelay = 0;
     currentTry = 0;
     startTimer = 0;
+    lastPodPressed = 255; //no last pod pressed
 }
 
 /*
@@ -262,7 +273,7 @@ void FastPressMode::reset() {
 */
 void FastPressMode::updatePodToPress() {
     #ifdef isDebug
-    Serial.println("Updating pod to press");
+    DebugPrintln("Updating pod to press");
     #endif
     //choose if this is a decoy
     if (useDecoy && random(0,DECOY_PROBABILITY) == 0){
@@ -270,13 +281,25 @@ void FastPressMode::updatePodToPress() {
     } else {
         isDecoy = false;
     }
-    //choose the pod to press
-    podToPress = random(ServerPod::getInstance()->peersNum+1);//number of peers + 1
+    //choose the pod to press :
+    if (avoidRepeat && ServerPod::getInstance()->peersNum > 0 && lastPodPressed != 255){
+        //we should avoid the last pod pressed, there are at least 2 pods, and there has been a previous pod pressed
+        lastPodPressed = podToPress; //save the last pod pressed
+        podToPress = random(ServerPod::getInstance()->peersNum); //number of peers + 1 for the server, -1 for the last pod pressed
+        if (podToPress >= lastPodPressed){
+            podToPress++;
+        }
+    }else{
+        //choose any pod
+        lastPodPressed = podToPress; //save the last pod pressed
+        podToPress = random(ServerPod::getInstance()->peersNum+1);//number of peers + 1
+    }
+    //if we are using decoys, we should not use the same pod as the decoy
     interval = random(minInterval, maxInterval);
     timer = millis();
     state = DURING_INTERVAL;
     #ifdef isDebug //TODO : this is not the only end of game condition
-    Serial.printf("Try %d/%d ! Pod to press : %d... in %d ms !\n",currentTry, limit, podToPress, interval);
+    DebugPrintf("Try %d/%d ! Pod to press : %d... in %d ms !\n",currentTry, limit, podToPress, interval);
     #endif
 }
 

@@ -17,6 +17,7 @@ struct FastPressModeParameters {
     long maxInterval;
     uint16_t limit;
     bool useDecoy;
+    bool avoidRepeat; //true if the same pod should not be pressed twice in a row
     uint8_t nColors;
     bool timeLimit; //true if the mode has a time limit, false if it has a try limit
 };
@@ -35,11 +36,13 @@ private:
     bool isDecoy;
     bool decoyIsLit;
     bool timeLimit;
+    bool avoidRepeat; //true if the same pod should not be pressed twice in a row
     uint16_t limit;
     uint currentTry;
     int score;
     uint errors;
     uint8_t podToPress;
+    uint8_t lastPodPressed; //used to avoid activating the same pod twice in a row
     bool useDecoy;
     State state;
 
@@ -57,7 +60,7 @@ public:
 
     static bool testRequestParameters(AsyncWebServerRequest *request);
     static PhysioPodMode* generateMode();
-    void initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, uint8_t nColors); 
+    void initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, bool avoidRepeat, uint8_t nColors); 
     void start();
     void stop();
     void update();

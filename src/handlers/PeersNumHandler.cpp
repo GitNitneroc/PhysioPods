@@ -9,14 +9,15 @@
 
 #include <esp_now.h>
 #include "ServerPod.h"
+#include "debugPrint.h"
 
 PeersNumHandler::PeersNumHandler() {
 }
 
-bool PeersNumHandler::canHandle(AsyncWebServerRequest *request){
+bool PeersNumHandler::canHandle(AsyncWebServerRequest *request) const{
     if (request->url()=="/peers") {
         #ifdef isDebug
-        Serial.println("PeersNumHandler request !");
+        DebugPrintln("PeersNumHandler request !");
         #endif
         return true;
     }
@@ -30,9 +31,9 @@ void PeersNumHandler::handleRequest(AsyncWebServerRequest *request) {
     response->print(ServerPod::peersNum);
     response->print("}\n");
 
-    /* Serial.print("{\"peers\":");
-    Serial.print(ServerPod::peersNum);
-    Serial.print("}\n"); */
+    /* DebugPrint("{\"peers\":");
+    DebugPrint(ServerPod::peersNum);
+    DebugPrint("}\n"); */
     //send the response
     request->send(response);
 }

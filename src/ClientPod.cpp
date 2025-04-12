@@ -11,6 +11,8 @@
 
 #include <esp_now.h>
 
+#include "debugPrint.h"
+
 #include "Messages.h"
 using namespace Messages;
 
@@ -22,12 +24,12 @@ uint8_t ClientPod::serverTimer = 0;
 ClientPod::ClientPod() {
     instance = this; //initialize the instance, so that the static method can access non-static members
 
-    Serial.println("Starting as a client");
+    DebugPrintln("Starting as a client");
     String ssid = PhysioPod::getSSIDFromPreferences(); 
     //check if we are already connected to the PhysioPod network
     if (WiFi.status() == WL_CONNECTED && WiFi.SSID() == ssid){
         #ifdef isDebug
-        Serial.println("|-Already connected to the PhysioPod network !");
+        DebugPrintln("|-Already connected to the PhysioPod network !");
         #endif
     }else{
         WiFi.mode(WIFI_STA);
@@ -35,15 +37,15 @@ ClientPod::ClientPod() {
         delay(100);
 
         #ifdef isDebug
-        Serial.print("|-Connecting to WiFi as a client");
+        DebugPrint("|-Connecting to WiFi as a client");
         #endif
         if (PhysioPod::searchOtherPhysioWiFi()){
             #ifdef isDebug
-            Serial.println("  |-Connected to WiFi");
+            DebugPrintln("  |-Connected to WiFi");
             #endif
         }else{
             #ifdef isDebug
-            Serial.println("  |-Failed to connect to WiFi, restarting the device");
+            DebugPrintln("  |-Failed to connect to WiFi, restarting the device");
             #endif
             ESP.restart();
         }
@@ -53,19 +55,19 @@ ClientPod::ClientPod() {
     WiFiClient client;
     if (!client.connect("192.168.1.1", 80)){
         #ifdef isDebug
-        Serial.println("Failed to connect to server, restarting the device");
+        DebugPrintln("Failed to connect to server, restarting the device");
         #endif
         ESP.restart();
     }
     #ifdef isDebug
-    Serial.println("|-Connected to server");
+    DebugPrintln("|-Connected to server");
     #endif
     client.print("GET /serverRegistration?mac="+WiFi.macAddress()+"&version="+VERSION+" HTTP/1.1\r\nConnection: close\r\n\r\n");
     while (client.connected()){
         if (client.available()){
             //this is the response header, we don't need it
             String line = client.readStringUntil('\n');
-            /* Serial.println(line); */
+            /* DebugPrintln(line); */
             if (line == "\r"){
                 break;
             }
@@ -74,11 +76,11 @@ ClientPod::ClientPod() {
     //this is the response body, the server mac address and id
     String line = client.readStringUntil('\n');
     #ifdef isDebug
-    Serial.println("  |-Server mac address : "+line);
+    DebugPrintln("  |-Server mac address : "+line);
     #endif
     if (WiFi.macAddress()==line){
         #ifdef isDebug
-        Serial.println("This Pod has the same mac address as the server, restarting...");
+        DebugPrintln("This Pod has the same mac address as the server, restarting...");
         #endif
         displayError();
     }
@@ -86,7 +88,7 @@ ClientPod::ClientPod() {
     //parse the server mac address
     if (sscanf(line.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &serverMac[0], &serverMac[1], &serverMac[2], &serverMac[3], &serverMac[4], &serverMac[5]) != 6) {
         #ifdef isDebug
-        Serial.println("Failed to parse server mac address, restarting the device");
+        DebugPrintln("Failed to parse server mac address, restarting the device");
         #endif
         displayError();
     }
@@ -94,26 +96,26 @@ ClientPod::ClientPod() {
     line = client.readStringUntil('\n');
     if (line == ""){
         #ifdef isDebug
-        Serial.println("No session id provided, restarting the device");
+        DebugPrintln("No session id provided, restarting the device");
         #endif
         ESP.restart();
     }
     sessionId = line.toInt();
     #ifdef isDebug
-    Serial.println("  |-Session id : "+String(sessionId));
+    DebugPrintln("  |-Session id : "+String(sessionId));
     #endif
 
     //read clientId now
     line = client.readStringUntil('\n');
     if (line == ""){
         #ifdef isDebug
-        Serial.println("No client id provided, restarting the device");
+        DebugPrintln("No client id provided, restarting the device");
         #endif
         ESP.restart();
     }
     id = line.toInt();
     #ifdef isDebug
-    Serial.println("  |-Pod id : "+String(id));
+    DebugPrintln("  |-Pod id : "+String(id));
     #endif
 
     //disconnect from the http
@@ -123,13 +125,13 @@ ClientPod::ClientPod() {
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {
         #ifdef isDebug
-        Serial.println("Error initializing ESP-NOW, restarting the device");
+        DebugPrintln("Error initializing ESP-NOW, restarting the device");
         #endif
         ESP.restart();
     }
     uint32_t version = 0;
     esp_now_get_version(&version);
-    Serial.println("|-ESP-NOW v"+String(version)+" initialized");
+    DebugPrintln("|-ESP-NOW v"+String(version)+" initialized");
 
     //add the server mac address to the peers
     esp_now_peer_info_t peerInfo;
@@ -138,10 +140,10 @@ ClientPod::ClientPod() {
     memset(&peerInfo, 0, sizeof(peerInfo)); //this seems to be necessary !
     memcpy(peerInfo.peer_addr, serverMac, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK){
-        Serial.println("Failed to add server as peer, restarting the device");
+        DebugPrintln("Failed to add server as peer, restarting the device");
         ESP.restart();
     }else{
-        Serial.println("  |-Server added as peer");
+        DebugPrintln("  |-Server added as peer");
     }
 
     esp_now_register_recv_cb(this->OnDataReceived);
@@ -149,14 +151,14 @@ ClientPod::ClientPod() {
     //start the ping task
     serverTimer = 0;
     xTaskCreate(PingServer,"PingTask", 2000, NULL, 1, NULL); //TODO measure more precisely how much memory is needed
-    Serial.println("  |-Ping Task created");
+    DebugPrintln("  |-Ping Task created");
 
     //initialize the control
     PhysioPod::CreateControl();
     control->initialize(onControlPressed);
-    Serial.println("|-Control initialized");
+    DebugPrintln("|-Control initialized");
 
-    Serial.println("ClientPod seems ready !");
+    DebugPrintln("ClientPod seems ready !");
 }
 
 /*
@@ -175,12 +177,12 @@ void ClientPod::PingServer(void * pvParameters){
         esp_err_t result = esp_now_send(static_cast<ClientPod*>(instance)->serverMac, reinterpret_cast<uint8_t*>(&pingMsg), sizeof(PingMessage));
         if (result == ESP_OK) {
             #ifdef isDebug
-            //Serial.println("Sent the ping message");
+            //DebugPrintln("Sent the ping message");
             #endif
         } else {
             #ifdef isDebug
-            Serial.print("Error sending the ping message: ");
-            Serial.println(esp_err_to_name(result));
+            DebugPrint("Error sending the ping message: ");
+            DebugPrintln(esp_err_to_name(result));
             #endif
         }
 
@@ -192,9 +194,9 @@ void ClientPod::PingServer(void * pvParameters){
                 restartDelay = 0;
             }
             #ifdef isDebug
-            Serial.print("Server didn't respond to the ping, restarting the device in ");
-            Serial.print(restartDelay);
-            Serial.println(" seconds");
+            DebugPrint("Server didn't respond to the ping, restarting the device in ");
+            DebugPrint(restartDelay);
+            DebugPrintln(" seconds");
             #endif
             delay(restartDelay*1000+PING_INTERVAL);//This delay is to avoid all the pods restarting at the same time
             //PING_INTERVAL is added to make sure the client with id 1 has detected the timeout too
@@ -218,7 +220,7 @@ void ClientPod::displayError(){
 
 void ClientPod::onControlPressed(){
     #ifdef isDebug
-    Serial.println("This pods' Control is activated !");
+    DebugPrintln("This pods' Control is activated !");
     #endif
     //Create a message
     ControlMessage message;
@@ -229,12 +231,12 @@ void ClientPod::onControlPressed(){
     esp_err_t result = esp_now_send(((ClientPod*)instance)->serverMac, (uint8_t *) &message, sizeof(ControlMessage));
     if (result == ESP_OK) {
         #ifdef isDebug
-        Serial.println("Sent the control press message");
+        DebugPrintln("Sent the control press message");
         #endif
     } else {
         #ifdef isDebug
-        Serial.print("Error sending the control press message : ");
-        Serial.println(esp_err_to_name(result));
+        DebugPrint("Error sending the control press message : ");
+        DebugPrintln(esp_err_to_name(result));
         #endif
     }
 }
@@ -242,21 +244,21 @@ void ClientPod::onControlPressed(){
 // callback function that will be executed when data is received
 void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data, int len) {
     parsedMessage message = getMessageType(sender_addr, data, len);
-    //Serial.println(len);
+    //DebugPrintln(len);
     switch (message.type){
         case ERROR:
-            Serial.println("Error parsing the message (maybe wrong session)");
+            DebugPrintln("Error parsing the message (maybe wrong session)");
             break;
         case NOT_FOR_ME:
             break;
         case LED:{
             LEDMessage* ledMessage = (LEDMessage*)message.messageData;
             #ifdef isDebug
-            Serial.println("Received a LED message");
-            Serial.println("-Target pod : "+String(ledMessage->id));
-            Serial.println("-State : "+String(ledMessage->state));
-            Serial.println("-Color : "+String(ledMessage->r)+","+String(ledMessage->g)+","+String(ledMessage->b));
-            Serial.println("-Mode : "+String(ledMessage->mode));
+            DebugPrintln("Received a LED message");
+            DebugPrintln("-Target pod : "+String(ledMessage->id));
+            DebugPrintln("-State : "+String(ledMessage->state));
+            DebugPrintln("-Color : "+String(ledMessage->r)+","+String(ledMessage->g)+","+String(ledMessage->b));
+            DebugPrintln("-Mode : "+String(ledMessage->mode));
             #endif
             PhysioPod::setOwnLightState(ledMessage->state, CRGB(ledMessage->r, ledMessage->g, ledMessage->b), static_cast<LightMode>(ledMessage->mode));
             break;
@@ -264,14 +266,14 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         case ID_REORG:{
             IdReorgMessage* reorgMessage = (IdReorgMessage*)message.messageData;
             #ifdef isDebug
-            Serial.println("Received an ID reorganization message");
-            Serial.println("-Old id : "+String(reorgMessage->oldId));
-            Serial.println("-New id : "+String(reorgMessage->newId));
+            DebugPrintln("Received an ID reorganization message");
+            DebugPrintln("-Old id : "+String(reorgMessage->oldId));
+            DebugPrintln("-New id : "+String(reorgMessage->newId));
             #endif
             if (reorgMessage->oldId == ((ClientPod*)instance)->id){
                 ((ClientPod*)instance)->id = reorgMessage->newId;
                 #ifdef isDebug
-                Serial.println("This pod's id has changed");
+                DebugPrintln("This pod's id has changed");
                 #endif
             }
             break;
@@ -285,8 +287,8 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
         case SSID:{
             SSIDMessage* ssidMessage = (SSIDMessage*)message.messageData;
             #ifdef isDebug
-            Serial.println("Received an SSID message");
-            Serial.println("-SSID : "+String(ssidMessage->ssid));
+            DebugPrintln("Received an SSID message");
+            DebugPrintln("-SSID : "+String(ssidMessage->ssid));
             #endif
             //update the ssid in the preferences
             Preferences preferences;

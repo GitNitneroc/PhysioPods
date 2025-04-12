@@ -1,6 +1,7 @@
 #include "CaptiveRequestHandler.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
+#include "debugPrint.h"
 
 /*
     * This is a request handler for the captive portal.
@@ -9,10 +10,10 @@
 CaptiveRequestHandler::CaptiveRequestHandler() {
 }
 
-bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request){
+bool CaptiveRequestHandler::canHandle(AsyncWebServerRequest *request) const{
     #ifdef isDebug
-    Serial.print("CaptiveRequestHandler received request: ");
-    Serial.println(request->url());
+    DebugPrint("CaptiveRequestHandler received request: ");
+    DebugPrintln(request->url());
     #endif
     return true;
 }
