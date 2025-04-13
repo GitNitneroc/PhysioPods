@@ -33,7 +33,7 @@ void VisualTimerMode::update() {
     if (state == VisualTimerState::IDLE) {
         //go to the working state
         state = VisualTimerState::WORKING;
-        ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::CYCLE_FAST); //turn on the pod light with a red color
+        ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
     }
 
     //TODO : pour l'instant afficher du rouge quand il faut bosser et du bleu au repos
@@ -43,7 +43,7 @@ void VisualTimerMode::update() {
             state = VisualTimerState::RESTING;
             timer = millis();
             ServerPod::setPodLightState(255, false); //turn off the pods' light
-            ServerPod::setOwnLightState(true, CRGB(0, 0, 255), LightMode::CYCLE_SLOW); //turn on the pod light with a blue color
+            ServerPod::setOwnLightState(true, CRGB(0, 0, 255), LightMode::UNLOADING_BAR, restTime); //turn on the pod light with a blue color
             #ifdef isDebug
             DebugPrintln("Switching to rest state");
             #endif
@@ -64,7 +64,7 @@ void VisualTimerMode::update() {
             }
             state = VisualTimerState::WORKING;
             timer = millis();
-            ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::CYCLE_FAST); //turn on the pod light with a red color
+            ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
             #ifdef isDebug
             DebugPrintln("Switching to work state");
             #endif

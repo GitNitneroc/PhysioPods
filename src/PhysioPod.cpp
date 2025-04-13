@@ -304,6 +304,46 @@ void PhysioPod::manageOwnLight(void* vParameters){
                 vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
             }
             break;
+        case LightMode::UNLOADING_BAR:
+            if (PhysioPod::lightState){
+                unsigned long time = millis();
+                DebugPrintln("Unloading LED mode");
+                FastLED.showColor(PhysioPod::lightColor);//turn on the lights
+                uint8_t numUnLit = NUM_LEDS;
+                while (true){
+                    if ((millis()-time)/1000<lightModeSpecificData){ //lightModeSpecificData is the time (in seconds) to fill the bar
+                        //progress bar, compute the number of unlit LEDs
+                        uint8_t newNumUnLit = NUM_LEDS * (millis() - time) / (lightModeSpecificData * 1000);
+                        if (numUnLit != newNumUnLit){
+                            //DebugPrintln("Unloading LED mode, number of unlit LEDs : "+String(newNumUnLit));
+                            //number has changed, update the LEDs
+                            numUnLit = newNumUnLit;
+                            fill_solid(PhysioPod::leds, NUM_LEDS, CRGB::Black); //turn off all the LEDs
+                            fill_solid(PhysioPod::leds, NUM_LEDS-numUnLit, PhysioPod::lightColor);//turn on remaining leds
+                            FastLED.show();
+                        }
+                        
+                    }else{
+                        //the bar might not be empty yet because of rounding errors
+                        if (numUnLit>0){
+                            //fill the rest of the bar
+                            numUnLit = 0;
+                            fill_solid(PhysioPod::leds, NUM_LEDS, CRGB::Black);
+                            FastLED.show();
+                        }
+                        //DebugPrintln("Unloading LED mode, finished filling the bar");
+                        //stop the loading bar
+                    }
+                    if(PhysioPod::lightChanged){
+                        DebugPrintln("Exiting Unloading LED mode!");
+                        break;
+                    }
+                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                }
+            }else{
+                vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
+            }
+            break;
         case LightMode::LOADING_BAR:
             if (PhysioPod::lightState){
                 unsigned long time = millis();
@@ -311,20 +351,19 @@ void PhysioPod::manageOwnLight(void* vParameters){
                 FastLED.showColor(CRGB::Black);//turn off the lights
                 uint8_t numLit = 0;
                 while (true){
-                    if ((millis()-time)/1000<lightModeSpecificData){ //lightModeSpecificData is the time in seconds to fill the bar
-                        //progress bar
-                        numLit = NUM_LEDS * (millis() - time) / (lightModeSpecificData * 1000);
-                        fill_solid(PhysioPod::leds, numLit, PhysioPod::lightColor);
-                        /*
-                        Serial.print(">time:");
-                        Serial.println(millis()-time);
-                        Serial.print(">numLit:");
-                        Serial.println(numLit);*/
-                        FastLED.show();
+                    if ((millis()-time)/1000<lightModeSpecificData){ //lightModeSpecificData is the time (in seconds) to fill the bar
+                        uint8_t newNumLit = NUM_LEDS * (millis() - time) / (lightModeSpecificData * 1000);
+                        if (numLit != newNumLit){
+                            //number has changed, update the LEDs
+                            numLit = newNumLit;
+                            fill_solid(PhysioPod::leds, numLit, PhysioPod::lightColor);//turn on remaining leds
+                            FastLED.show();
+                        }
                     }else{
                         //the bar might not be full yet because of rounding errors
                         if (numLit<NUM_LEDS){
                             //fill the rest of the bar
+                            numLit = NUM_LEDS;
                             fill_solid(PhysioPod::leds, NUM_LEDS, PhysioPod::lightColor);
                             FastLED.show();
                         }
