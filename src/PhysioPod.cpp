@@ -13,6 +13,7 @@ PhysioPod* PhysioPod::instance = nullptr;
 CRGB PhysioPod::leds[NUM_LEDS];
 CRGB PhysioPod::lightColor = CRGB::Black;
 LightMode PhysioPod::lightMode = LightMode::SIMPLE;
+uint16_t PhysioPod::lightModeSpecificData = 0;
 bool PhysioPod::lightState = false;
 bool PhysioPod::lightChanged = false;
 
@@ -86,7 +87,7 @@ void PhysioPod::initLEDs(){
 void PhysioPod::manageOwnLight(void* vParameters){
     while(true){
         if (PhysioPod::lightChanged){
-            printf("The light has changed to Mode: %d State: %d\n", PhysioPod::lightMode, PhysioPod::lightState);
+            DebugPrintf("The light has changed to Mode: %d State: %d\n", PhysioPod::lightMode, PhysioPod::lightState);
 
             //erase Leds to start fresh
             PhysioPod::lightChanged = false;
@@ -303,6 +304,43 @@ void PhysioPod::manageOwnLight(void* vParameters){
                 vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
             }
             break;
+        case LightMode::LOADING_BAR:
+            if (PhysioPod::lightState){
+                unsigned long time = millis();
+                DebugPrintln("Loading LED mode");
+                FastLED.showColor(CRGB::Black);//turn off the lights
+                uint8_t numLit = 0;
+                while (true){
+                    if ((millis()-time)/1000<lightModeSpecificData){ //lightModeSpecificData is the time in seconds to fill the bar
+                        //progress bar
+                        numLit = NUM_LEDS * (millis() - time) / (lightModeSpecificData * 1000);
+                        fill_solid(PhysioPod::leds, numLit, PhysioPod::lightColor);
+                        /*
+                        Serial.print(">time:");
+                        Serial.println(millis()-time);
+                        Serial.print(">numLit:");
+                        Serial.println(numLit);*/
+                        FastLED.show();
+                    }else{
+                        //the bar might not be full yet because of rounding errors
+                        if (numLit<NUM_LEDS){
+                            //fill the rest of the bar
+                            fill_solid(PhysioPod::leds, NUM_LEDS, PhysioPod::lightColor);
+                            FastLED.show();
+                        }
+                        //DebugPrintln("Loading LED mode, finished filling the bar");
+                        //stop the loading bar
+                    }
+                    if(PhysioPod::lightChanged){
+                        DebugPrintln("Exiting Loading LED mode!");
+                        break;
+                    }
+                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                }
+            }else{
+                vTaskDelay(10 / portTICK_PERIOD_MS); //add a small delay, this is useful when the lights are off
+            }
+            break;
         
         default:
             DebugPrintln("Unknown Light mode !");
@@ -329,65 +367,10 @@ void PhysioPod::CreateControl(){
     PhysioPodMode::setControl(control);
 }
 
-/* older version of the searchOtherPhysioWiFi function, that used a wifi scan... it was too slow, but could be interesting to select the best channel
-bool PhysioPod::SearchOtherPhysioWiFi(){
-    #ifdef isDebug
-    DebugPrintln("Scanning for other PhysioPods...");
-    #endif
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);
-
-    WiFi.scanNetworks(true);
-    bool LEDState = true;
-    int n=-2;
-    while (true){ 
-        n=WiFi.scanComplete();//-2 means it was not asked to scan, -1 means it is scanning, 0+ are the number of networks found
-        if (n>=0){
-            break;
-        }
-        #ifdef USE_NEOPIXEL
-        setOwnLightState(LEDState, 4,75,13);
-        #else
-        setOwnLightState(LEDState);
-        #endif
-        LEDState = !LEDState;
-        delay(200);
-    }
-    setOwnLightState(false);
-    bool found = false;
-    DebugPrintln("Found "+String(n)+" networks");
-
-    //remark : this could help to find the best channel
-    for (int i = 0; i < n; i++){
-        #ifdef isDebug
-        DebugPrint(" - "+WiFi.SSID(i));
-        DebugPrintln(" (channel "+String(WiFi.channel(i))+")");
-        #endif
-        if (WiFi.SSID(i) == ssid){
-            #ifdef isDebug
-            DebugPrintln(" ! Found a PhysioPod network !");
-            #endif
-            found = true;
-            //break; We could break here, but displaying the channel could be interesting
-        }
-    }
-    WiFi.scanDelete();
-    WiFi.disconnect();
-    delay(100);
-    return found;
-}
-*/
-
-void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode) {
-    /* #ifdef isDebug
-    DebugPrint(">Available memory:");
-    DebugPrintln(ESP.getFreeHeap());
-    DebugPrintf("-Setting the rgb led to state %d, with color : %d,%d,%d. Mode = %d\n", state, color.r, color.g, color.b, mode);
-    #endif */
-
+void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode, uint16_t modeSpecific){ 
     lightState = state;
     lightColor = color;
     lightMode = mode;
     lightChanged = true;
+    lightModeSpecificData = modeSpecific;
 }

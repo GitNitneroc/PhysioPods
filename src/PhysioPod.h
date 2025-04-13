@@ -37,8 +37,8 @@ public :
     static LightMode lightMode;
     static bool lightState;
     static CRGB lightColor;
+    static uint16_t lightModeSpecificData; //this is used to store the mode specific data, like the speed of the light
     static bool lightChanged; //this is used by SetOwnLightState to signify something in the light has changed
-    
 
     /*
         * This function is called to search for other PhysioPods
@@ -70,7 +70,7 @@ public :
     uint16_t getSessionId();
 
     /* This is used to set this pod light on or off*/
-    static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE);
+    static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE, uint16_t modeSpecific = 0);
 
     /* This will turn on/off and animate lights */
     static void manageOwnLight(void *param);

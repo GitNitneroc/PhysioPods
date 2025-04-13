@@ -51,6 +51,7 @@ namespace Messages{
         *r : the red value of the LED
         *g : the green value of the LED
         *b : the blue value of the LED
+        *modeSpecific : some data that could be used in the specific mode
     */
     struct LEDMessage {
         const MessageType type = MessageType::LED;
@@ -61,6 +62,7 @@ namespace Messages{
         uint8_t r;
         uint8_t g;
         uint8_t b;
+        uint16_t modeSpecific;
     };
 
     /*

@@ -47,7 +47,7 @@ public :
     /* This can be called to start the specified PhysioPodMode*/
     static void startMode(PhysioPodMode* newMode);
     static void onControlPressed(); //The callback for when the control is pressed
-    static void setPodLightState(uint8_t podId, bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE);
+    static void setPodLightState(uint8_t podId, bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE, uint16_t modeSpecific = 0);
 
     /* static void broadcastMessage(const void* message); */
 
