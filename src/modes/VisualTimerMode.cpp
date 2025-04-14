@@ -25,7 +25,7 @@ void VisualTimerMode::stop() {
     #endif
     //ServerPod::setPodLightState(255, false); //turn off the pods' light
     //Make a final flash of the light to indicate the end of the session
-    ServerPod::setOwnLightState(true, CRGB(0, 255, 0), LightMode::PULSE_ON_OFF_LONG);
+    ServerPod::setPodLightState(255, true, CRGB(0, 255, 0), LightMode::PULSE_ON_OFF_LONG);
     PhysioPodMode::stop();
 }
 
@@ -33,7 +33,7 @@ void VisualTimerMode::update() {
     if (state == VisualTimerState::IDLE) {
         //go to the working state
         state = VisualTimerState::WORKING;
-        ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
+        ServerPod::setPodLightState(255, true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
     }
 
     if (state == VisualTimerState::WORKING) {
@@ -42,14 +42,14 @@ void VisualTimerMode::update() {
             state = VisualTimerState::RESTING;
             timer = millis();
             ServerPod::setPodLightState(255, false); //turn off the pods' light
-            ServerPod::setOwnLightState(true, CRGB(0, 0, 255), LightMode::UNLOADING_BAR, restTime); //turn on the pod light with a blue color
+            ServerPod::setPodLightState(255,true, CRGB(0, 0, 255), LightMode::UNLOADING_BAR, restTime); //turn on the pod light with a blue color
             #ifdef isDebug
             DebugPrintln("Switching to rest state");
             #endif
         }else{
             //update the pod light to indicate the time left
             //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
-            //ServerPod::setOwnLightState(true, CRGB(brightness, 0, 0), LightMode::SIMPLE); //turn on the pod light with a red color
+            //ServerPod::setPodLightState(true, CRGB(brightness, 0, 0), LightMode::SIMPLE); //turn on the pod light with a red color
         }
     } else if (state == VisualTimerState::RESTING) {
         if (millis() - timer >= restTime*1000) {
@@ -62,14 +62,14 @@ void VisualTimerMode::update() {
             }
             state = VisualTimerState::WORKING;
             timer = millis();
-            ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
+            ServerPod::setPodLightState(255, true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
             #ifdef isDebug
             DebugPrintln("Switching to work state");
             #endif
         }else{
             //update the pod light to indicate the time left
             //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
-            //ServerPod::setOwnLightState(true, CRGB(0,brightness, 0), LightMode::SIMPLE); //turn on the pod light with a red color
+            //ServerPod::setPodLightState(true, CRGB(0,brightness, 0), LightMode::SIMPLE); //turn on the pod light with a red color
         }
     }
 }
