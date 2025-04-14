@@ -36,7 +36,6 @@ void VisualTimerMode::update() {
         ServerPod::setOwnLightState(true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
     }
 
-    //TODO : pour l'instant afficher du rouge quand il faut bosser et du bleu au repos
     if (state == VisualTimerState::WORKING) {
         if (millis() - timer >= workTime*1000) {
             //switch to rest state
@@ -49,7 +48,6 @@ void VisualTimerMode::update() {
             #endif
         }else{
             //update the pod light to indicate the time left
-            uint8_t brightness = map(millis() - timer, 0, workTime*1000, 255, 0);
             //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
             //ServerPod::setOwnLightState(true, CRGB(brightness, 0, 0), LightMode::SIMPLE); //turn on the pod light with a red color
         }
@@ -70,7 +68,6 @@ void VisualTimerMode::update() {
             #endif
         }else{
             //update the pod light to indicate the time left
-            uint8_t brightness = map(millis() - timer, 0, restTime*1000, 255, 0);
             //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
             //ServerPod::setOwnLightState(true, CRGB(0,brightness, 0), LightMode::SIMPLE); //turn on the pod light with a red color
         }

@@ -308,7 +308,7 @@ void PhysioPod::manageOwnLight(void* vParameters){
             if (PhysioPod::lightState){
                 unsigned long time = millis();
                 DebugPrintln("Unloading LED mode");
-                FastLED.showColor(PhysioPod::lightColor);//turn on the lights
+                FastLED.showColor(PhysioPod::lightColor);//turn on all the lights
                 uint8_t numUnLit = NUM_LEDS;
                 while (true){
                     if ((millis()-time)/1000<lightModeSpecificData){ //lightModeSpecificData is the time (in seconds) to fill the bar
