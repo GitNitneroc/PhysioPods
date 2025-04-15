@@ -46,10 +46,9 @@
                     <form action="/launchMode" onsubmit="fastPressSubmitCheck()">
                         <input type="hidden" id="mode" name="mode" value="FP" />
                         <div class="card">
-                            <div class="card-header"><h2 aria-hidden="true">Delay</h2></div>
+                            <div class="card-header"><h2>Delay</h2></div>
                             <div class="card-content">
                                 <fieldset>
-                                    <legend>Delay</legend>
                                     <label id="minTimeLabel" for="minInterval">Min time:</label>
                                     <input
                                         type="range"
@@ -76,10 +75,9 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><h2 aria-hidden="true">Program</h2></div>
+                            <div class="card-header"><h2>Program</h2></div>
                             <div class="card-content">
                                 <fieldset class="col">
-                                    <legend>Program</legend>
                                     <div>
                                         <span>End of game:</span>
                                         <div class="row">
@@ -120,10 +118,9 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><h2 aria-hidden="true">Colors</h2></div>
+                            <div class="card-header"><h2>Colors</h2></div>
                             <div class="card-content">
                                 <fieldset>
-                                    <legend>Colors</legend>
                                     <label for="fastPressNColors">Number of colors:</label>
                                     <input
                                         type="number"
@@ -238,10 +235,9 @@
                     <form action="/launchMode">
                         <input type="hidden" id="mode" name="mode" value="CW" />
                         <div class="card">
-                            <div class="card-header"><h2 aria-hidden="true">General</h2></div>
+                            <div class="card-header"><h2">General</h2></div>
                             <div class="card-content">
                                 <fieldset>
-                                    <legend>General</legend>
                                     <label for="duration">Game Duration (sec):</label>
                                     <input type="number" id="duration" name="duration" min="1" max="65536" value="60" />
                                     <label for="nteams">Number of teams:</label>
@@ -259,10 +255,9 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><h2 aria-hidden="true">Chaos</h2></div>
+                            <div class="card-header"><h2>Chaos</h2></div>
                             <div class="card-content">
                                 <fieldset>
-                                    <legend>Chaos</legend>
                                     <p class="mode-description">
                                         The probability of a change of color for one of the pods, each 1/100th of a sec. At 0 the pods
                                         won&apos;t change colors by theirselves.
@@ -354,8 +349,8 @@
                     return false;
                 }
                 //create the cycle input
-                for (let i = 0; i < chaseCycleDiv.children.length; i++) {
-                    cycle.push(chaseCycleDiv.children[i].podId + "-" + chaseCycleDiv.children[i].colorId);
+                for (const child of chaseCycleDiv.children) {
+                    cycle.push(child.podId + "-" + child.colorId);
                 }
                 cycleInput.value = cycle.join(",");
             }
@@ -366,18 +361,18 @@
                 this.innerHTML = "Selected";
                 window.chaseColor = this.colorId;
                 //update the chaseButtonsColors
-                let chaseButtons = document.getElementById("ChaseButtons").children;
-                for (let i = 0; i < chaseButtons.length; i++) {
+                const chaseButtons = document.getElementById("ChaseButtons").children;
+                for (const child of chaseButtons) {
                     const h = (window.chaseColor * 360) / 7;
-                    updateButtonColor(chaseButtons[i], h);
+                    updateButtonColor(child, h);
                 }
             }
 
             function unselectChaseColor() {
                 if (window.chaseColor != undefined) {
-                    let chaseColors = document.getElementById("chaseColors");
-                    for (let i = 0; i < chaseColors.children.length; i++) {
-                        chaseColors.children[i].innerHTML = "";
+                    const chaseColors = document.getElementById("chaseColors");
+                    for (const child of chaseColors) {
+                        child.innerHTML = "";
                     }
                 }
             }
@@ -455,10 +450,8 @@
             }
 
             function createChaseCycle(nPods) {
-                let chaseCycleDiv = document.getElementById("ChaseCycle");
                 emptyChaseCycle();
                 for (let i = 0; i < nPods; i++) {
-                    let newPod = document.createElement("input");
                     addPodToChaseCycle(i);
                 }
             }
@@ -488,15 +481,15 @@
                 window.currentSelection = button;
                 //show the details
                 let divs = document.getElementById("details").children;
-                for (let i = 0; i < divs.length; i++) {
+                for (const div of divs) {
                     //is it a div ?
-                    if (divs[i].tagName != "DIV") {
+                    if (div.tagName != "DIV") {
                         continue;
                     }
-                    if (divs[i].id == toShowId) {
-                        divs[i].style.display = "block";
+                    if (div.id == toShowId) {
+                        div.style.display = "block";
                     } else {
-                        divs[i].style.display = "none";
+                        div.style.display = "none";
                     }
                 }
             }
