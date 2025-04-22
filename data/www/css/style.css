@@ -177,6 +177,12 @@ button.solid {
     border-color: var(--color-primary);
 }
 
+button.clear {
+    background-color: transparent;
+    border-color: transparent;
+    text-transform: none;
+}
+
 button.success {
     color: var(--color-success-dark);
 }
@@ -219,16 +225,6 @@ fieldset {
     border: none;
     margin: 0;
     padding: 0;
-}
-
-fieldset > legend:not(:focus):not(:active) {
-    position: absolute;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    width: 1px;
-    height: 1px;
-    white-space: nowrap;
 }
 
 /** Forms */

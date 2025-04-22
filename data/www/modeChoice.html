@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>PhysioPods</title>
         <link rel="stylesheet" href="./css/style.css" />
+        <link rel="stylesheet" href="./css/modes.css" />
         <script>
             function updateButtonColor(button, h) {
                 const color = `hsl(${h}, 100%, 50%)`;
@@ -30,18 +31,17 @@
             </nav>
         </header>
         <main>
-            <nav class="sub-navigation padding-inline" aria-label="mode-choice-menu">
+            <nav id="mode-choice-menu" class="sub-navigation padding-inline" aria-label="mode-choice-menu">
                 <div class="button-group">
-                    <button id="1" onclick='show(this.id,"mode1Details")'>Fast Press</button>
-                    <button id="2" onclick='show(this.id,"mode2Details")'>Fairy Lights</button>
-                    <button id="3" onclick='show(this.id,"mode3Details");displayColorWarTeams();'>Color War</button>
-                    <button id="4" onclick='show(this.id,"mode4Details");createChaseUI();'>Chase</button>
-                    <button id="5" onclick='show(this.id,"mode5Details")'>HIIT Timer</button>
+                    <button id="1" class="solid" onclick="show(this.id, this.innerHTML)">Fast Press</button>
+                    <button id="2" class="solid" onclick="show(this.id, this.innerHTML)">Fairy Lights</button>
+                    <button id="3" class="solid" onclick="show(this.id, this.innerHTML);displayColorWarTeams();">Color War</button>
+                    <button id="4" class="solid" onclick="show(this.id, this.innerHTML);createChaseUI();">Chase</button>
+                    <button id="5" class="solid" onclick="show(this.id, this.innerHTML)">HIIT Timer</button>
                 </div>
             </nav>
-            <div id="details">
-                <div id="mode1Details" style="display: none">
-                    <!-- <h2>FastPress</h2> -->
+            <div id="modes-container">
+                <div id="mode-1" style="display: none">
                     <p class="mode-description">When it's activated, hit the pod as soon as possible!</p>
                     <form action="/launchMode" onsubmit="fastPressSubmitCheck()">
                         <input type="hidden" id="mode" name="mode" value="FP" />
@@ -198,7 +198,7 @@
                         }
                     </script>
                 </div>
-                <div id="mode2Details" style="display: none">
+                <div id="mode-2" style="display: none">
                     <!-- <h2>FairyLights</h2> -->
                     <p class="mode-description">Pods will get lit one by one, there is no interaction with user.</p>
                     <form action="/launchMode">
@@ -226,7 +226,7 @@
                         </div>
                     </form>
                 </div>
-                <div id="mode3Details" style="display: none">
+                <div id="mode-3" style="display: none">
                     <!-- <h2>Color War</h2> -->
                     <p class="mode-description">This can be played in multiplayer.</p>
                     <p class="mode-description">
@@ -270,7 +270,7 @@
                         </div>
                     </form>
                 </div>
-                <div id="mode4Details" style="display: none">
+                <div id="mode-4" style="display: none">
                     <!-- <h2>Chase</h2> -->
                     <p class="mode-description">Press a pod to turn on the next one. Go as fast as possible!</p>
                     <p class="mode-description">
@@ -309,7 +309,7 @@
                         </div>
                     </form>
                 </div>
-                <div id="mode5Details" style="display: none">
+                <div id="mode-5" style="display: none">
                     <!-- <h2>HIIT Timer</h2> -->
                     <p class="mode-description">HIIT timer, with a countdown for exercise and rest</p>
                     <p class="mode-description">This mode is only displayed on the serverPod</p>
@@ -326,9 +326,9 @@
                                     <label for="cycles">Cycles:</label>
                                     <input type="number" id="cycles" name="cycles" min="1" max="255" value="5" /><br />
                                 </fieldset>
+                                <button type="submit" class="solid w-100">Launch</button>
                             </div>
                         </div>
-                        <button type="submit" class="solid w-100">Launch</button>
                     </form>
                 </div>
             </div>
@@ -469,28 +469,39 @@
                     });
             }
 
-            function show(buttonId, toShowId) {
+            function show(id = undefined, title = undefined) {
                 //unselect old button
-                if (window.currentSelection) {
-                    window.currentSelection.classList.remove("solid");
-                }
-                //select the current button
-                let button = document.getElementById(buttonId);
-                button.classList.add("solid");
-                window.currentSelection = button;
+                // if (window.currentSelection) {
+                //     window.currentSelection.classList.remove("solid");
+                // }
+                // //select the current button
+                // let button = document.getElementById(id);
+                // button.classList.add("solid");
+                // window.currentSelection = button;
+
                 //show the details
-                let divs = document.getElementById("details").children;
+                const divs = document.getElementById("modes-container").children;
                 for (const div of divs) {
                     //is it a div ?
-                    if (div.tagName != "DIV") {
+                    if (div.tagName !== "DIV") {
                         continue;
                     }
-                    if (div.id == toShowId) {
+                    if (div.id === `mode-${id}`) {
+                        if (div.getElementsByClassName("mode-header").length === 0) {
+                            const header = `<div class="mode-header">
+                                <nav aria-label="back-navigation"><button type="button" class="clear" onclick="show()">&lt; Back</button></nav>
+                                <h2 class="center">${title}</h2>
+                            </div>`;
+                            div.insertAdjacentHTML("afterbegin", header);
+                        }
                         div.style.display = "block";
                     } else {
                         div.style.display = "none";
                     }
                 }
+
+                const modeChoiceMenu = document.getElementById("mode-choice-menu");
+                modeChoiceMenu.style.display = id ? "none" : "block";
             }
 
             function displayColorWarTeams() {
