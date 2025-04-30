@@ -43,6 +43,10 @@ void VisualTimerMode::update() {
             timer = millis();
             ServerPod::setPodLightState(255, false); //turn off the pods' light
             ServerPod::setPodLightState(255,true, CRGB(0, 0, 255), LightMode::UNLOADING_BAR, restTime); //turn on the pod light with a blue color
+            /* Test code for the buzzer 
+            pinMode(10, OUTPUT); //set the pin to output mode
+            digitalWrite(10, HIGH); //set the pin to high to turn on the buzzer
+            tone(10, 3000,1000); */
             #ifdef isDebug
             DebugPrintln("Switching to rest state");
             #endif
@@ -55,6 +59,10 @@ void VisualTimerMode::update() {
         if (millis() - timer >= restTime*1000) {
             //switch to work state
             currentCircle++;
+            /* Test code for the buzzer
+            pinMode(10, OUTPUT); //set the pin to output mode
+            digitalWrite(10, HIGH); //set the pin to high to turn on the buzzer
+            tone(10, 3000,1000); */
             if (currentCircle >= numberOfCycles) {
                 //stop the mode
                 stop();
