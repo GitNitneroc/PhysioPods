@@ -37,7 +37,12 @@
 using namespace Messages;
 
 #define MAX_CLIENTS 4 //The maximum number of clients that can connect to the server
-#define LOCAL_IP_URL "http://192.168.1.1/static/index.html" //this is the URL to access the server from the hotspot
+#define LOCAL_IP "http://192.168.1.1"
+#define LOCAL_URL "/static/index.html"
+#define LOCAL_OTA_URL "/update" //The URL for the OTA update
+#define LOCAL_IP_URL LOCAL_IP LOCAL_URL 
+#define LOCAL_OTA_IP_URL LOCAL_IP LOCAL_OTA_URL
+
 #define LIMIT_AP_START_ATTEMPTS 100 //The number of attempts a serverpod makes to start the AP before restarting
 
 //ServerPod* ServerPod::instance = nullptr;
@@ -54,37 +59,40 @@ void ServerPod::OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info){
 bool ServerPod::initializeSPIFFS(){
     //start the SPIFFS
     if(!SPIFFS.begin(true)){
-        DebugPrintln("An Error has occurred while mounting SPIFFS, rebooting...");
+        DebugPrintln("An Error has occurred while mounting SPIFFS filesystem");
         return false;        
     }
     //test a file
     if (!SPIFFS.exists("/www/index.html")) {
-        DebugPrintln("index.html was not found, are you sure you uploaded the filesystem image ? Rebooting...");
+        DebugPrintln("index.html was not found, you probably forgot to upload the files to SPIFFS");
         return false;
-    }    
+    }
+    staticFilesEnabled = true; //set the static files to be served    
     #ifdef isDebug
     DebugPrintln("|-SPIFFS mounted successfully");
     #endif
     return true;
 }
 
-void ServerPod::prepareCaptivePortal(AsyncWebServer* server){
+void ServerPod::prepareCaptivePortal(AsyncWebServer* server, bool sendToOTA){
     //captive portal for the server from https://github.com/CDFER/Captive-Portal-ESP32/tree/main
     // Required
     server->on("/connecttest.txt", [](AsyncWebServerRequest *request) { request->redirect("http://logout.net"); });	// windows 11 captive portal workaround
     server->on("/wpad.dat", [](AsyncWebServerRequest *request) { request->send(404); });								// Honestly don't understand what this is but a 404 stops win 10 keep calling this repeatedly and panicking the esp32 :)
 
+    const char* redirection = sendToOTA ? LOCAL_OTA_IP_URL : LOCAL_IP_URL;
+
     // Background responses: Probably not all are Required, but some are. Others might speed things up?
     // A Tier (commonly used by modern systems)
-    server->on("/generate_204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // android captive portal redirect
-    server->on("/redirect", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // microsoft redirect
-    server->on("/hotspot-detect.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });  // apple call home
-    server->on("/library/test/success.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });		   // legacy apple call home
-    server->on("/canonical.html", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });	   // firefox captive portal call home
+    server->on("/generate_204", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });		   // android captive portal redirect
+    server->on("/redirect", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });			   // microsoft redirect
+    server->on("/hotspot-detect.html", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });  // apple call home
+    server->on("/library/test/success.html", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });		   // legacy apple call home
+    server->on("/canonical.html", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });	   // firefox captive portal call home
     server->on("/success.txt", [](AsyncWebServerRequest *request) { request->send(200); });					   // firefox captive portal call home
-    server->on("/ncsi.txt", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });			   // windows call home
+    server->on("/ncsi.txt", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });			   // windows call home
 
-    server->on("/generate204", [](AsyncWebServerRequest *request) { request->redirect(LOCAL_IP_URL); });
+    server->on("/generate204", [redirection](AsyncWebServerRequest *request) { request->redirect(redirection); });
 
     // B Tier (uncommon)
     //  server.on("/chrome-variations/seed",[](AsyncWebServerRequest *request){request->send(200);}); //chrome captive portal call home
@@ -134,14 +142,13 @@ ServerPod::ServerPod() : server(80) {
     instance = this;
 
     if (!initializeSPIFFS()){
-        //if the SPIFFS failed to start, restart the device
-        DebugPrintln("Failed to start the SPIFFS, restarting the device");
-        ESP.restart();
+        DebugPrintln("/!\\Problem with SPIFFS, the files won't be served");
+        //TODO : AFFICHER LES LEDS EN ROUGE CLIGNOTANT ?
     }
 
     //stop the WiFi client just to be sure
     WiFi.disconnect();
-    delay(100); //This seems necessary: I have more trouble with serial monitoring if I don't wait a bit
+    delay(100); //This seems necessary, but I have more trouble with serial monitoring if I don't wait a bit
 
     #ifdef isDebug
     DebugPrint("|-SSID : ");
@@ -189,21 +196,24 @@ ServerPod::ServerPod() : server(80) {
     WiFi.removeEvent(WiFiEvent_t::ARDUINO_EVENT_WIFI_AP_START);
     DebugPrintln("\n  |-HotSpot started");
 
-    prepareCaptivePortal(&server); //prepare the captive portal
+    if (staticFilesEnabled){
+        prepareCaptivePortal(&server); //prepare the captive portal
+    }else{
+        prepareCaptivePortal(&server,true); //prepare the captive portal
+    }
+    
 
     // return 404 to webpage icon
     server.on("/favicon.ico", [](AsyncWebServerRequest *request) { request->send(404); });	// webpage icon
 
     // the catch all
-	server.onNotFound([](AsyncWebServerRequest *request) {
-		request->redirect(LOCAL_IP_URL);
+	server.onNotFound([this](AsyncWebServerRequest *request) {
+        request->redirect(this->staticFilesEnabled ? LOCAL_IP_URL : LOCAL_OTA_IP_URL); //redirect to the index.html page if local files are enabled, else redirect to OTA
 		DebugPrint("server.onNotFound ");
 		DebugPrint(request->host());	// This gives some insight into whatever was being requested on the serial monitor
-		DebugPrint(" ");
 		DebugPrint(request->url());
-		DebugPrint(" sent redirect to ");
-        DebugPrint( LOCAL_IP_URL);
-        DebugPrintln();
+		DebugPrint(" this was redirected to ");
+        DebugPrintln(this->staticFilesEnabled ? LOCAL_IP_URL : LOCAL_OTA_IP_URL);
 	});
 
     //TODO : try to use mDNS instead of the DNS server
@@ -247,8 +257,13 @@ ServerPod::ServerPod() : server(80) {
     DebugPrintln("|-Web server starting...");
     server.begin();
     
-    server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
-    DebugPrintln("|-Static files server initialised...");
+    if (staticFilesEnabled){
+        //serve the static files from SPIFFS
+        DebugPrintln("|-Serving static files...");
+        server.serveStatic("/static/", SPIFFS, "/www/").setDefaultFile("/www/index.html").setCacheControl("max-age=6000"); //cache for 100 minutes
+    }else{
+
+    }
 
     // Init ESP-NOW
     if (esp_now_init() != ESP_OK) {

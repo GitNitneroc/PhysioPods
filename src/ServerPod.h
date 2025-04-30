@@ -26,9 +26,10 @@ private :
     static void OnAPStart(WiFiEvent_t event, WiFiEventInfo_t info);
     static void CheckClientTimeouts(void * vpParameters);
     static void DNSLoop(void * vpParameters);
-
+    
+    bool staticFilesEnabled = false; //if false, the static files are not served
     void attachHandlers(AsyncWebServer* server);
-    void prepareCaptivePortal(AsyncWebServer *server);
+    void prepareCaptivePortal(AsyncWebServer *server, bool sendToOTA = false);
     bool initializeSPIFFS(); //tries to initialize SPIFFS, and returns true if index.html is found
 
 public :
