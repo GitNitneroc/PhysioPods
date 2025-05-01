@@ -6,48 +6,52 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>PhysioPods</title>
         <link rel="stylesheet" href="./css/style.css" />
+        <link rel="stylesheet" href="./css/modes.css" />
+        <script src="./js/common.js"></script>
         <script type="text/javascript">
-            function getModeInfo() {
-                fetch("/modeInfo")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.mode != null) {
-                            document.getElementById("modeName").innerHTML = data.mode;
-                            document.getElementById("modeStatus").innerHTML = data.isRunning ? "Running" : "Stopped";
-                            document.getElementById("modeStatus").style.visibility = "visible";
-                            document.getElementById("modeLaunch").style.visibility = "visible";
-                            document.getElementById("modeStop").style.visibility = "visible";
-                        } else {
-                            document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
-                            document.getElementById("modeStatus").style.visibility = "hidden";
-                            document.getElementById("modeLaunch").style.visibility = "hidden";
-                            document.getElementById("modeStop").style.visibility = "hidden";
-                        }
-                    });
+            function updateModeInfo(){
+                getModeInfo().then((data) => {
+                    if (data && data.mode != null) {
+                        document.getElementById("modeInfo").style.display = "block";
+                        document.getElementById("modeName").innerHTML = data.mode;
+                        document.getElementById("modeStatus").innerHTML = data.isRunning ? "Running" : "Stopped";
+                        document.getElementById("modeStatus").style.visibility = "visible";
+                        document.getElementById("modeLaunch").style.visibility = "visible";
+                        document.getElementById("modeStop").style.display = data.isRunning ? "block" : "none";
+                    } else {
+                        document.getElementById("modeInfo").style.display = "none";
+                        /* document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
+                        document.getElementById("modeStatus").style.visibility = "hidden";
+                        document.getElementById("modeLaunch").style.visibility = "hidden";
+                        document.getElementById("modeStop").style.visibility = "hidden";*/
+                    } 
+                });
             }
 
-            function getPeers() {
-                fetch("/peers")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        document.getElementById("peers").innerHTML = data.peers + 1;
-                    });
+            function updateButtonColor(button, h) {
+                const color = `hsl(${h}, 100%, 50%)`;
+                button.style.backgroundColor = color;
+                button.style.borderColor = color;
+                button.style.color = "black";
+                //will set the button label's color black or white depending
+                //on the background's luminosity to ensure readability.
+                //If css lch() function not supported, fallback to black.
+                button.style.color = `lch(from ${color} round((100 - l), 100) 0 0)`;
             }
         </script>
     </head>
-    <body onload="getModeInfo();getPeers()">
+    <body onload="updateModeInfo()">
         <header>
             <h1>PhysioPods</h1>
             <nav aria-label="main-menu">
                 <a>Home</a>
-                <a href="/static/modeChoice.html">Choose a mode</a>
                 <a href="/static/results.html">Results</a>
                 <a href="/static/parameters.html">Parameters</a>
             </nav>
         </header>
         <main>
-            <div class="card" id="modeInfo">
-                <div class="card-header"><h2>Current Mode information</h2></div>
+            <div class="card" id="modeInfo" >
+                <!--<div class="card-header"><h2>Current Mode information</h2></div>-->
                 <div class="card-content">
                     <div class="row">
                         <div id="modeName">Mode: <span class="loader small"></span> Loading...</div>
@@ -58,97 +62,510 @@
                     </div>
                     <div class="row">
                         <div id="modeStop">
-                            <button name="stop" class="w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+                            <button name="stop" class="w-100" onclick='fetch("/modeStop").then(updateModeInfo())'>Stop Now</button>
                         </div>
                         <div id="modeLaunch">
-                            <button name="Restart" class="w-100 solid" onclick='fetch("/launchMode?restart=1").then(getModeInfo())'>
+                            <button name="Restart" class="w-100 solid" onclick='fetch("/launchMode?restart=1").then(updateModeInfo())'>
                                 Quick Relaunch
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header"><h2>LED control</h2></div>
-                <div class="card-content">
-                    <form class="row">
-                        <label for="lightMode">Choose a lighting mode:</label>
-                        <div>
-                            <select id="lightMode" name="lightMode">
-                                <option value="0">Simple</option>
-                                <option value="1">Blink Fast</option>
-                                <option value="2">Blink Slow</option>
-                                <option value="3">Cycle Fast</option>
-                                <option value="4">Cycle Slow</option>
-                                <option value="5">Fast Rainbow</option>
-                                <option value="6">Slow Rainbow</option>
-                                <option value="7">Short Pulse</option>
-                                <option value="8">Long Pulse</option>
-                                <option value="9">Loading Bar</option>
-                                <option value="10">Unloading Bar</option>
-                            </select>
+            <nav id="mode-choice-menu" class="sub-navigation padding-inline" aria-label="mode-choice-menu">
+                <div class="button-group">
+                    <button id="1" class="solid" onclick="show(this.id, this.innerHTML)">Fast Press</button>
+                    <button id="2" class="solid" onclick="show(this.id, this.innerHTML)">Fairy Lights</button>
+                    <button id="3" class="solid" onclick="show(this.id, this.innerHTML);displayColorWarTeams();">Color War</button>
+                    <button id="4" class="solid" onclick="show(this.id, this.innerHTML);createChaseUI();">Chase</button>
+                    <button id="5" class="solid" onclick="show(this.id, this.innerHTML)">HIIT Timer</button>
+                </div>
+            </nav>
+            <div id="modes-container">
+                <div id="mode-1" style="display: none">
+                    <p class="mode-description">When it's activated, hit the pod as soon as possible!</p>
+                    <form action="/launchMode" onsubmit="fastPressSubmitCheck()">
+                        <input type="hidden" id="mode" name="mode" value="FP" />
+                        <div class="card">
+                            <div class="card-header"><h2>Delay</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <label id="minTimeLabel" for="minInterval">Min time:</label>
+                                    <input
+                                        type="range"
+                                        class="w-100"
+                                        id="minInterval"
+                                        name="minInterval"
+                                        min="1"
+                                        max="200"
+                                        value="10"
+                                        oninput="fastPressParametersChange()"
+                                    />
+                                    <label id="maxTimeLabel" for="maxInterval">Max time:</label>
+                                    <input
+                                        type="range"
+                                        class="w-100"
+                                        id="maxInterval"
+                                        name="maxInterval"
+                                        min="0"
+                                        max="200"
+                                        value="30"
+                                        oninput="fastPressParametersChange()"
+                                    />
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><h2>Program</h2></div>
+                            <div class="card-content">
+                                <fieldset class="col">
+                                    <div>
+                                        <span>End of game:</span>
+                                        <div class="row">
+                                            <div>
+                                                <input
+                                                    type="radio"
+                                                    id="time"
+                                                    name="limitation"
+                                                    value="0"
+                                                    checked="checked"
+                                                    onchange="fastPressLimitationChange()"
+                                                />
+                                                <label for="time">Time</label>
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type="radio"
+                                                    id="tries"
+                                                    name="limitation"
+                                                    value="1"
+                                                    onchange="fastPressLimitationChange()"
+                                                />
+                                                <label for="tries">Tries</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="limit" id="limit-text">Number of tries (1 to 255):</label>
+                                        <input type="number" id="limit" name="limit" value="30" min="1" max="255" />
+                                    </div>
+                                    <div>
+                                        <label for="decoy">Traps:</label>
+                                        <input type="checkbox" id="decoy" name="decoy" />
+                                        <label for="avoidRepeat">Don't repeat:</label>
+                                        <input type="checkbox" id="avoidRepeat" name="avoidRepeat" checked />
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><h2>Colors</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <label for="fastPressNColors">Number of colors:</label>
+                                    <input
+                                        type="number"
+                                        id="fastPressNColors"
+                                        name="fastPressNColors"
+                                        min="1"
+                                        max="8"
+                                        value="1"
+                                        oninput="displayFastPressColors()"
+                                    />
+                                </fieldset>
+                                <div id="fastPressButtonsContainer" class="row"></div>
+                            </div>
+                        </div>
+                        <div class="padding-inline">
+                            <button type="submit" class="solid w-100">Launch</button>
                         </div>
                     </form>
-                    <div class="row">
-                        <button
-                            name="LED"
-                            class="w-100 success"
-                            type="button"
-                            onclick='fetch("/LED?LED=ON&id=0&mode="+document.getElementById("lightMode").value)'
-                        >
-                            ServerPod LED ON
-                        </button>
-                        <button name="LED" class="w-100 danger" type="button" onclick='fetch("/LED?LED=OFF&id=0")'>
-                            ServerPod LED OFF
-                        </button>
-                    </div>
-                    <form class="row">
-                        <label for="podId">Specific pod (0 to 254):</label>
-                        <div>
-                            <input type="number" id="podId" name="podId" value="1" min="0" max="255" />
+                    <script>
+                        function fastPressParametersChange() {
+                            //update the labels
+                            let minLabel = document.getElementById("minTimeLabel");
+                            let maxLabel = document.getElementById("maxTimeLabel");
+                            let minElement = document.getElementById("minInterval");
+                            let maxElement = document.getElementById("maxInterval");
+                            minLabel.innerHTML = "Min time: " + parseInt(minElement.value) / 10 + "s";
+                            maxLabel.innerHTML = "Max time: " + (parseInt(maxElement.value) + parseInt(minElement.value)) / 10 + "s";
+                        }
+                        function fastPressLimitationChange() {
+                            //switch the text and the max value of the limit
+                            let limitText = document.getElementById("limit-text");
+                            let limit = document.getElementById("limit");
+                            limitText.innerHTML = document.getElementById("tries").checked ? "Tries (1 to 255):" : "Duration (sec):";
+                            limit.max = document.getElementById("tries").checked ? 255 : 65536;
+                        }
+
+                        //run it once to initialize
+                        fastPressLimitationChange();
+                        fastPressParametersChange();
+
+                        //displays the number of colors as buttons
+                        function displayFastPressColors() {
+                            let nColorsInput = document.getElementById("fastPressNColors");
+                            let nColors = parseInt(nColorsInput.value) + 1;
+                            const buttonsContainer = document.getElementById("fastPressButtonsContainer");
+                            const existingButtons = buttonsContainer.children;
+                            while (existingButtons[0]) {
+                                if (buttonsContainer) {
+                                    buttonsContainer.removeChild(existingButtons[0]);
+                                }
+                            }
+                            for (let i = 0; i < nColors; i++) {
+                                let button = document.createElement("button");
+                                if (i === 0) {
+                                    button.textContent = "Errors";
+                                } else {
+                                    button.textContent = i;
+                                }
+                                const h = (i * 360) / nColors;
+                                this.updateButtonColor(button, h);
+                                if (buttonsContainer) {
+                                    buttonsContainer.appendChild(button);
+                                }
+                            }
+                        }
+
+                        displayFastPressColors();
+
+                        function fastPressSubmitCheck() {
+                            //just make sure the minElement value is not 0
+                            let minElement = document.getElementById("minInterval");
+                            if (minElement.value == 0) {
+                                minElement.value = 1;
+                            }
+                        }
+                    </script>
+                </div>
+                <div id="mode-2" style="display: none">
+                    <!-- <h2>FairyLights</h2> -->
+                    <p class="mode-description">Pods will get lit one by one, there is no interaction with user.</p>
+                    <form action="/launchMode">
+                        <input type="hidden" id="mode" name="mode" value="FL" />
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="row">
+                                    <fieldset>
+                                        <label for="timeByPod">Time by pod (ms):</label>
+                                        <input
+                                            type="range"
+                                            class="w-100"
+                                            id="timeByPod"
+                                            name="timeByPod"
+                                            min="0"
+                                            max="5000"
+                                            value="500"
+                                            oninput="this.nextElementSibling.value = this.value"
+                                        />
+                                        <output>100</output>
+                                    </fieldset>
+                                </div>
+                                <button type="submit" class="solid w-100">Launch</button>
+                            </div>
                         </div>
                     </form>
-                    <div class="row">
-                        <div class="row">
-                            <button
-                                name="LED"
-                                class="w-100 success"
-                                value="ON"
-                                type="button"
-                                onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value+"&mode="+document.getElementById("lightMode").value)'
-                            >
-                                LED ON
-                            </button>
-                            <button
-                                name="LED"
-                                class="w-100 danger"
-                                value="OFF"
-                                type="button"
-                                onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'
-                            >
-                                LED OFF
-                            </button>
+                </div>
+                <div id="mode-3" style="display: none">
+                    <!-- <h2>Color War</h2> -->
+                    <p class="mode-description">This can be played in multiplayer.</p>
+                    <p class="mode-description">
+                        The pods will change colors randomly but also when pressed by a player. Each pod of your color gives you points.
+                    </p>
+                    <form action="/launchMode">
+                        <input type="hidden" id="mode" name="mode" value="CW" />
+                        <div class="card">
+                            <div class="card-header"><h2>General</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <label for="duration">Game Duration (sec):</label>
+                                    <input type="number" id="duration" name="duration" min="1" max="65536" value="60" />
+                                    <label for="nteams">Number of teams:</label>
+                                    <input
+                                        type="number"
+                                        id="nteams"
+                                        name="nteams"
+                                        min="2"
+                                        max="255"
+                                        value="2"
+                                        oninput="displayColorWarTeams()"
+                                    />
+                                </fieldset>
+                                <div id="teamButtonsContainer" class="row"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div>Control <span id="peers">0</span> pod(s):</div>
-                        <div class="row">
-                            <button
-                                name="LED"
-                                class="w-100 success"
-                                value="ON"
-                                type="button"
-                                onclick='fetch("/LED?LED=ON&id=255&mode="+document.getElementById("lightMode").value)'
-                            >
-                                ALL ON
-                            </button>
-                            <button name="LED" class="w-100 danger" value="OFF" type="button" onclick='fetch("/LED?LED=OFF&id=255")'>
-                                ALL OFF
-                            </button>
+                        <div class="card">
+                            <div class="card-header"><h2>Chaos</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <p class="mode-description">
+                                        The probability of a change of color for one of the pods, each 1/100th of a sec. At 0 the pods
+                                        won&apos;t change colors by theirselves.
+                                    </p>
+                                    <label for="probability">Probability:</label>
+                                    <input type="number" id="probability" name="probability" min="0" max="1" value="0.015" step="0.005" />
+                                </fieldset>
+                                <button type="submit" class="solid w-100">Launch</button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
+                </div>
+                <div id="mode-4" style="display: none">
+                    <!-- <h2>Chase</h2> -->
+                    <p class="mode-description">Press a pod to turn on the next one. Go as fast as possible!</p>
+                    <p class="mode-description">
+                        You can create your own sequence here, by selecting colors, then clicking on the pods you wand to light sequentially
+                    </p>
+                    <!-- TODO : rajouter une option pour générer une séquence aléatoire, avec un nombre de pods et de couleurs au choix-->
+                    <form action="/launchMode" onsubmit="validateCycle()">
+                        <input type="hidden" id="mode" name="mode" value="Chase" />
+                        <input type="hidden" id="cycleInput" name="cycle" value="" />
+                        <div class="card">
+                            <div class="card-header"><h2>Choose a Color</h2></div>
+                            <div class="card-content">
+                                <!-- TODO : Améliorer ça pour que le choix de couleurs prenne toute la largeur de la page -->
+                                <div id="chaseColors" class="row"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><h2>Click on those buttons to create your cycle</h2></div>
+                            <div class="card-content">
+                                <div class="row" id="ChaseButtons"></div>
+                                <div class="row" id="ChaseCycle"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><h2>Repeat</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <label for="cycles">Cycles :</label>
+                                    <input type="number" id="cycles" name="cycles" min="1" max="255" value="5" />
+                                </fieldset>
+                                <div class="row">
+                                    <button type="button" onclick="emptyChaseCycle()">Erase Cycle</button>
+                                    <button type="submit" class="solid">Launch</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div id="mode-5" style="display: none">
+                    <!-- <h2>HIIT Timer</h2> -->
+                    <p class="mode-description">HIIT timer, with a countdown for exercise and rest</p>
+                    <p class="mode-description">This mode is only displayed on the serverPod</p>
+                    <form action="/launchMode">
+                        <input type="hidden" id="mode" name="mode" value="Visual Timer" />
+                        <div class="card">
+                            <div class="card-header"><h2>Choose a Color</h2></div>
+                            <div class="card-content">
+                                <fieldset>
+                                    <label for="work">Work (sec):</label>
+                                    <input type="number" id="work" name="work" min="1" max="65536" value="30" /><br />
+                                    <label for="rest">Rest (sec):</label>
+                                    <input type="number" id="rest" name="rest" min="1" max="65536" value="30" /><br />
+                                    <label for="cycles">Cycles:</label>
+                                    <input type="number" id="cycles" name="cycles" min="1" max="255" value="5" /><br />
+                                </fieldset>
+                                <button type="submit" class="solid w-100">Launch</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
+        <script>
+            function validateCycle() {
+                let chaseCycleDiv = document.getElementById("ChaseCycle");
+                let cycleInput = document.getElementById("cycleInput");
+                let cycle = [];
+                //check if there is a cycle
+                if (chaseCycleDiv.children.length == 0) {
+                    alert("You need to create a cycle");
+                    return false;
+                }
+                if (chaseCycleDiv.children.length >= 512) {
+                    alert("This cycle is too long, please reduce it to 512 pods or less");
+                    return false;
+                }
+                //create the cycle input
+                for (const child of chaseCycleDiv.children) {
+                    cycle.push(child.podId + "-" + child.colorId);
+                }
+                cycleInput.value = cycle.join(",");
+            }
+
+            function chaseColorChange() {
+                unselectChaseColor();
+                //select
+                this.innerHTML = "Selected";
+                window.chaseColor = this.colorId;
+                //update the chaseButtonsColors
+                const chaseButtons = document.getElementById("ChaseButtons").children;
+                for (const child of chaseButtons) {
+                    const h = (window.chaseColor * 360) / 7;
+                    updateButtonColor(child, h);
+                }
+            }
+
+            function unselectChaseColor() {
+                if (window.chaseColor != undefined) {
+                    const chaseColors = document.getElementById("chaseColors");
+                    for (const child of chaseColors) {
+                        child.innerHTML = "";
+                    }
+                }
+            }
+
+            function createChaseColors() {
+                window.chaseColor = 3; //default color
+                let chaseColors = document.getElementById("chaseColors");
+                //start by emptying the div
+                while (chaseColors.firstChild) {
+                    chaseColors.removeChild(chaseColors.firstChild);
+                }
+                //create the colors
+                for (let i = 0; i < 7; i++) {
+                    let newColor = document.createElement("button");
+                    newColor.colorId = i;
+                    const h = (i * 360) / 7;
+                    updateButtonColor(newColor, h);
+                    newColor.onclick = chaseColorChange;
+                    newColor.type = "button";
+                    chaseColors.appendChild(newColor);
+                    if (i == window.chaseColor) {
+                        //select the default color
+                        newColor.innerHTML = "Selected";
+                    }
+                }
+            }
+
+            async function createChaseUI() {
+                createChaseColors();
+                let nPods = await getNumPods();
+                createChaseButtons(nPods);
+                createChaseCycle(nPods);
+            }
+
+            function addPodToChaseCycle(podId) {
+                const chaseCycleDiv = document.getElementById("ChaseCycle");
+                const newPod = document.createElement("button");
+                newPod.type = "button";
+                newPod.classList.add(...["pod"]);
+                const h = (window.chaseColor * 360) / 7;
+                updateButtonColor(newPod, h);
+                newPod.innerHTML = podId + 1;
+                newPod.podId = podId;
+                newPod.colorId = window.chaseColor;
+                newPod.onclick = function () {
+                    this.parentNode.removeChild(this);
+                };
+                chaseCycleDiv.appendChild(newPod);
+            }
+
+            function emptyChaseCycle() {
+                let chaseCycleDiv = document.getElementById("ChaseCycle");
+                while (chaseCycleDiv.firstChild) {
+                    chaseCycleDiv.removeChild(chaseCycleDiv.firstChild);
+                }
+            }
+
+            function createChaseButtons(nPods) {
+                let chaseButtonsDiv = document.getElementById("ChaseButtons");
+                while (chaseButtonsDiv.firstChild) {
+                    chaseButtonsDiv.removeChild(chaseButtonsDiv.firstChild);
+                }
+                for (let i = 0; i < nPods; i++) {
+                    let newPod = document.createElement("button");
+                    newPod.type = "button";
+                    newPod.innerHTML = "Pod " + (i + 1);
+                    newPod.podId = i;
+                    const h = (window.chaseColor * 360) / 7;
+                    updateButtonColor(newPod, h);
+                    newPod.onclick = function () {
+                        addPodToChaseCycle(this.podId);
+                    };
+                    chaseButtonsDiv.appendChild(newPod);
+                }
+            }
+
+            function createChaseCycle(nPods) {
+                emptyChaseCycle();
+                for (let i = 0; i < nPods; i++) {
+                    addPodToChaseCycle(i);
+                }
+            }
+
+            async function getNumPods() {
+                let nPods = 1;
+                return fetch("/peers")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        nPods += data.peers;
+                        return nPods;
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        return undefined;
+                    });
+            }
+
+            function show(id = undefined, title = undefined) {
+                //unselect old button
+                // if (window.currentSelection) {
+                //     window.currentSelection.classList.remove("solid");
+                // }
+                // //select the current button
+                // let button = document.getElementById(id);
+                // button.classList.add("solid");
+                // window.currentSelection = button;
+
+                //show the details
+                const divs = document.getElementById("modes-container").children;
+                for (const div of divs) {
+                    //is it a div ?
+                    if (div.tagName !== "DIV") {
+                        continue;
+                    }
+                    if (div.id === `mode-${id}`) {
+                        if (div.getElementsByClassName("mode-header").length === 0) {
+                            const header = `<div class="mode-header">
+                                <nav aria-label="back-navigation"><button type="button" class="clear" onclick="show()">&lt; Back</button></nav>
+                                <h2 class="center">${title}</h2>
+                            </div>`;
+                            div.insertAdjacentHTML("afterbegin", header);
+                        }
+                        div.style.display = "block";
+                    } else {
+                        div.style.display = "none";
+                    }
+                }
+
+                const modeChoiceMenu = document.getElementById("mode-choice-menu");
+                modeChoiceMenu.style.display = id ? "none" : "block";
+            }
+
+            function displayColorWarTeams() {
+                let nTeamsInput = document.getElementById("nteams");
+                let nTeams = nTeamsInput.value;
+                const buttonsContainer = document.getElementById("teamButtonsContainer");
+                let existingButtons = document.getElementsByClassName("teamButton");
+                while (existingButtons[0]) {
+                    if (buttonsContainer) {
+                        buttonsContainer.removeChild(existingButtons[0]);
+                    }
+                }
+                for (let i = 0; i < nTeams; i++) {
+                    let button = document.createElement("button");
+                    button.textContent = "Team " + (i + 1);
+                    button.classList.add(...["teamButton"]);
+                    const h = (i * 360) / nTeams;
+                    updateButtonColor(button, h);
+                    if (buttonsContainer) {
+                        buttonsContainer.appendChild(button);
+                    }
+                }
+            }
+        </script>
     </body>
 </html>
