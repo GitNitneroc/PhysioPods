@@ -1,44 +1,44 @@
-<!DOCTYPE html> 
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>PhysioPods</title>
-        <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/style.css" />
         <script type="text/javascript">
             function getModeInfo() {
                 fetch("/modeInfo")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.mode != null){
-                        document.getElementById("modeName").innerHTML = data.mode;
-                        document.getElementById("modeStatus").innerHTML = (data.isRunning?"Running":"Stopped");
-                        document.getElementById("modeStatus").style.visibility = "visible";
-                        document.getElementById("modeLaunch").style.visibility = "visible";
-                        document.getElementById("modeStop").style.visibility = "visible";
-                    }else{
-                        document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
-                        document.getElementById("modeStatus").style.visibility = "hidden";
-                        document.getElementById("modeLaunch").style.visibility = "hidden";
-                        document.getElementById("modeStop").style.visibility = "hidden";
-                    }
-                });
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.mode != null) {
+                            document.getElementById("modeName").innerHTML = data.mode;
+                            document.getElementById("modeStatus").innerHTML = data.isRunning ? "Running" : "Stopped";
+                            document.getElementById("modeStatus").style.visibility = "visible";
+                            document.getElementById("modeLaunch").style.visibility = "visible";
+                            document.getElementById("modeStop").style.visibility = "visible";
+                        } else {
+                            document.getElementById("modeName").innerHTML = "No mode has been used, use the menu to start one";
+                            document.getElementById("modeStatus").style.visibility = "hidden";
+                            document.getElementById("modeLaunch").style.visibility = "hidden";
+                            document.getElementById("modeStop").style.visibility = "hidden";
+                        }
+                    });
             }
 
             function getPeers() {
                 fetch("/peers")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("peers").innerHTML = data.peers+1;
-                });
+                    .then((response) => response.json())
+                    .then((data) => {
+                        document.getElementById("peers").innerHTML = data.peers + 1;
+                    });
             }
         </script>
     </head>
     <body onload="getModeInfo();getPeers()">
         <header>
             <h1>PhysioPods</h1>
-            <nav>
+            <nav aria-label="main-menu">
                 <a>Home</a>
                 <a href="/static/modeChoice.html">Choose a mode</a>
                 <a href="/static/results.html">Results</a>
@@ -47,25 +47,30 @@
         </header>
         <main>
             <div class="card" id="modeInfo">
-                <div class="card-header"><h2>Current Mode information</div>
-                <div class='card-content'>
-                    <div class='row'>
-                        <div id='modeName'>Mode: <span class="loader small"></span> Loading...</div>
-                        <div id='modeStatus'>Status: <span class="loader small"></span> Loading...</div>
-                    </div>
-                    <div class='row'>
-                        <div id='modeStop'>
-                            <button name='stop' class="w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+                <div class="card-header"><h2>Current Mode information</h2></div>
+                <div class="card-content">
+                    <div class="row">
+                        <div id="modeName">Mode: <span class="loader small"></span> Loading...</div>
+                        <div id="modeStatus">
+                            Status:
+                            <span class="loader small"></span> Loading...
                         </div>
-                        <div id='modeLaunch'>
-                            <button name='Restart' class="w-100 solid" onclick='fetch("/launchMode?restart=1").then(getModeInfo())'>Quick Relaunch</button>
+                    </div>
+                    <div class="row">
+                        <div id="modeStop">
+                            <button name="stop" class="w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
+                        </div>
+                        <div id="modeLaunch">
+                            <button name="Restart" class="w-100 solid" onclick='fetch("/launchMode?restart=1").then(getModeInfo())'>
+                                Quick Relaunch
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header"><h2>LED control</h2></div>
-                <div class='card-content'>
+                <div class="card-content">
                     <form class="row">
                         <label for="lightMode">Choose a lighting mode:</label>
                         <div>
@@ -85,26 +90,61 @@
                         </div>
                     </form>
                     <div class="row">
-                        <button name='LED' class="w-100 success" type='button' onclick='fetch("/LED?LED=ON&id=0&mode="+document.getElementById("lightMode").value)'>ServerPod LED ON</button>
-                        <button name='LED' class="w-100 danger" type='button' onclick='fetch("/LED?LED=OFF&id=0")'>ServerPod LED OFF</button>
+                        <button
+                            name="LED"
+                            class="w-100 success"
+                            type="button"
+                            onclick='fetch("/LED?LED=ON&id=0&mode="+document.getElementById("lightMode").value)'
+                        >
+                            ServerPod LED ON
+                        </button>
+                        <button name="LED" class="w-100 danger" type="button" onclick='fetch("/LED?LED=OFF&id=0")'>
+                            ServerPod LED OFF
+                        </button>
                     </div>
                     <form class="row">
                         <label for="podId">Specific pod (0 to 254):</label>
                         <div>
-                            <input type="number" id="podId" name="podId" value="1" min="0" max="255">
+                            <input type="number" id="podId" name="podId" value="1" min="0" max="255" />
                         </div>
                     </form>
                     <div class="row">
                         <div class="row">
-                            <button name='LED' class="w-100 success" value='ON' type='button' onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value+"&mode="+document.getElementById("lightMode").value)'>LED ON</button>
-                            <button name='LED' class="w-100 danger" value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'>LED OFF</button>
+                            <button
+                                name="LED"
+                                class="w-100 success"
+                                value="ON"
+                                type="button"
+                                onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value+"&mode="+document.getElementById("lightMode").value)'
+                            >
+                                LED ON
+                            </button>
+                            <button
+                                name="LED"
+                                class="w-100 danger"
+                                value="OFF"
+                                type="button"
+                                onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'
+                            >
+                                LED OFF
+                            </button>
                         </div>
                     </div>
                     <div class="row">
-                        <div>Control <span id='peers'>0</span> pod(s):</div>
+                        <div>Control <span id="peers">0</span> pod(s):</div>
                         <div class="row">
-                            <button name='LED' class="w-100 success" value='ON' type='button' onclick='fetch("/LED?LED=ON&id=255&mode="+document.getElementById("lightMode").value)'>ALL ON</button>
-                            <button name='LED' class="w-100 danger" value='OFF' type='button' onclick='fetch("/LED?LED=OFF&id=255")'>ALL OFF</button>
+                            <button
+                                name="LED"
+                                class="w-100 success"
+                                value="ON"
+                                type="button"
+                                onclick='fetch("/LED?LED=ON&id=255&mode="+document.getElementById("lightMode").value)'
+                            >
+                                ALL ON
+                            </button>
+                            <button name="LED" class="w-100 danger" value="OFF" type="button" onclick='fetch("/LED?LED=OFF&id=255")'>
+                                ALL OFF
+                            </button>
                         </div>
                     </div>
                 </div>

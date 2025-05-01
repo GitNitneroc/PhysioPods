@@ -1,0 +1,28 @@
+.mode-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--def-margin);
+
+    h2 {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    nav {
+        position: absolute;
+        left: 0;
+    }
+}
+
+.button-group {
+    display: grid;
+    gap: var(--def-margin);
+    grid-template-columns: repeat(auto-fit, minmax(10ch, 1fr));
+
+    button {
+        border-radius: var(--def-border-radius);
+        border-width: var(--def-border-width);
+        height: 10ch;
+    }
+}

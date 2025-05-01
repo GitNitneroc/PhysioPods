@@ -1,6 +1,7 @@
 /* Root variables and base styles */
 :root {
-    --font-family: "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
     --color-primary: #1d6ba3;
     --color-primary-shade: #3e92cc;
     --color-primary-dark: #072031;
@@ -8,7 +9,7 @@
 
     --color-secondary: #96c5b0;
     --color-secondary-contrast: #000000;
-    
+
     --color-success: #90e39a;
     --color-success-dark: #45914e;
     --color-warning: #fa824c;
@@ -37,7 +38,7 @@
     --loader-size-int: 26px;
     --loader-border-size: 2px;
 }
-  
+
 *,
 *::before,
 *::after {
@@ -76,10 +77,10 @@ header {
 }
 
 nav {
-   display: flex;
-   gap: 2px;
-   justify-content: space-evenly;
-   overflow: auto;
+    display: flex;
+    gap: 2px;
+    justify-content: space-evenly;
+    overflow: auto;
 }
 
 nav > a {
@@ -120,24 +121,26 @@ main.v-center {
 }
 
 /** Typography */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-weight: 400;
     margin: 0;
 }
 
-h1 { 
+h1 {
     font-size: 1.2rem;
     line-height: 1.6rem;
     font-weight: 500;
     margin: var(--def-padding) 0;
 }
 
-h2 { 
+h2 {
     font-size: 0.9rem;
     line-height: 1.1rem;
 }
 
-h3 { 
+h3 {
     font-size: 0.8rem;
     line-height: 1rem;
 }
@@ -174,6 +177,12 @@ button.solid {
     border-color: var(--color-primary);
 }
 
+button.clear {
+    background-color: transparent;
+    border-color: transparent;
+    text-transform: none;
+}
+
 button.success {
     color: var(--color-success-dark);
 }
@@ -191,13 +200,13 @@ button.pod {
     position: relative;
 
     &:not(:last-child)::after {
-        content: '';
+        content: "";
         position: absolute;
         left: calc(130%);
         top: 50%;
         transform: translateY(-50%);
-        width: 0; 
-        height: 0; 
+        width: 0;
+        height: 0;
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
         border-left: 4px solid var(--color-primary);
@@ -218,16 +227,6 @@ fieldset {
     padding: 0;
 }
 
-fieldset > legend:not(:focus):not(:active) {
-    position: absolute;
-    overflow: hidden;
-    clip: rect(0 0 0 0); 
-    clip-path: inset(50%);
-    width: 1px;
-    height: 1px;
-    white-space: nowrap; 
-}
-
 /** Forms */
 input {
     accent-color: var(--color-primary);
@@ -235,8 +234,8 @@ input {
     margin-block: var(--def-padding-half);
 }
 
-input[type='text'],
-input[type='number'],
+input[type="text"],
+input[type="number"],
 select {
     min-height: var(--def-button-height);
     border-radius: var(--def-border-radius);
@@ -250,8 +249,8 @@ select {
     border-color: var(--color-primary);
 }
 
-input[type='radio'],
-input[type='checkbox'] {
+input[type="radio"],
+input[type="checkbox"] {
     height: 20px;
     width: 20px;
 }
@@ -316,7 +315,8 @@ div:has(> input[type="checkbox"]) {
 }
 
 /* Tables */
-td, th {
+td,
+th {
     text-align: left;
     padding: 1em;
     border-bottom: solid var(--color-primary-shade);
@@ -375,7 +375,7 @@ tr:nth-child(even) {
 }
 
 .loader::after {
-    content: '';
+    content: "";
     position: absolute;
     left: 50%;
     top: 50%;
@@ -392,13 +392,13 @@ tr:nth-child(even) {
     --loader-size-int: 6px;
     --loader-border-size: 1px;
 }
-      
+
 @keyframes rotation {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     100% {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
 }
 

@@ -1,128 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>PhysioPods</title>
-        <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="./css/style.css" />
     </head>
     <body>
         <header>
             <h1>Stress Tests</h1>
-            <nav>
+            <nav aria-label="main-menu">
                 <a>Home</a>
-				<!-- <a href="/serverRegistration">Mac Address</a> -->
+                <!-- <a href="/serverRegistration">Mac Address</a> -->
                 <a href="/static/modeChoice.html">Choose a mode</a>
                 <a href="/static/results.html">Results</a>
                 <a href="/static/parameters.html">Parameters</a>
             </nav>
         </header>
-		<main>
-			<div class="card">
-                <div class='card-content'>
-					<form class="col">
-						<div>
-							<input type="checkbox" name="leds" value="leds" checked>
-							<label for="leds">LEDS ON/OFF</label>
-						</div>
-						<div>
-							<input type="checkbox" id="html" name="html" value="html" checked>
-							<label for="html">Pages statiques</label>
-						</div>
-						<div>
-							<input type="checkbox" id="dynamic" name="dynamic" value="dynamic" checked>
-							<label for="dynamic">Pages dynamiques (MAC, modeInfo, peers)</label>
-						</div>
-						<div>
-							<input type="checkbox" id="modes" name="modes" value="modes" checked>
-							<label for="modes">Arrête/Relance le dernier mode</label>
-						</div>
-						<div>
-							<label for="freq">Requêtes par minute :</label>
-							<input type="range" id="freq" name="freq" min="0" max="1000" value="60" oninput="this.nextElementSibling.value = this.value" class="w-100">
-							<output>60</output>
-						</div>
-						<button type="button" class="solid" onclick="startStressTest()">GO !</button>
-					</form>
-				</div>
-			</div>
-		</main>
+        <main>
+            <div class="card">
+                <div class="card-content">
+                    <form class="col">
+                        <div>
+                            <input type="checkbox" name="leds" value="leds" checked />
+                            <label for="leds">LEDS ON/OFF</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="html" name="html" value="html" checked />
+                            <label for="html">Pages statiques</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="dynamic" name="dynamic" value="dynamic" checked />
+                            <label for="dynamic">Pages dynamiques (MAC, modeInfo, peers)</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="modes" name="modes" value="modes" checked />
+                            <label for="modes">Arrête/Relance le dernier mode</label>
+                        </div>
+                        <div>
+                            <label for="freq">Requêtes par minute :</label>
+                            <input
+                                type="range"
+                                id="freq"
+                                name="freq"
+                                min="0"
+                                max="1000"
+                                value="60"
+                                oninput="this.nextElementSibling.value = this.value"
+                                class="w-100"
+                            />
+                            <output>60</output>
+                        </div>
+                        <button type="button" class="solid" onclick="startStressTest()">GO !</button>
+                    </form>
+                </div>
+            </div>
+        </main>
         <script>
-			var htmlOptions = ["index.html", "modeChoice.html", "results.html", "parameters.html"];
-			var dynamicOptions = ["serverRegistration", "modeInfo", "peers"];	
-			var stressing = false;
-			var leds = true;
-			var html = true;
-			var dynamic = true;
-			var modes = true;
+            var htmlOptions = ["index.html", "modeChoice.html", "results.html", "parameters.html"];
+            var dynamicOptions = ["serverRegistration", "modeInfo", "peers"];
+            var stressing = false;
+            var leds = true;
+            var html = true;
+            var dynamic = true;
+            var modes = true;
 
-			async function startStressTest() {
-				var freq = document.getElementById("freq").value;
-				
-				//change the button text and onclick to stopStressTest
-				document.getElementsByTagName("button")[0].innerText = "STOP !";
-				document.getElementsByTagName("button")[0].setAttribute("onclick", "stopStressTest()");
+            async function startStressTest() {
+                var freq = document.getElementById("freq").value;
 
-				stressing = true;
-				while (stressing){
-					leds = document.getElementsByName("leds")[0].checked;
-					html = document.getElementsByName("html")[0].checked;
-					dynamic = document.getElementsByName("dynamic")[0].checked;
-					modes = document.getElementsByName("modes")[0].checked;
-					await waitAndRunStressTest();
-				}
-			}
+                //change the button text and onclick to stopStressTest
+                document.getElementsByTagName("button")[0].innerText = "STOP !";
+                document.getElementsByTagName("button")[0].setAttribute("onclick", "stopStressTest()");
 
-			async function waitAndRunStressTest(){
-				var freq = document.getElementById("freq").value;
-				await new Promise(r => setTimeout(r, 60000/freq));
-				console.log("running stress test");
-				runStressTest();
-			}
+                stressing = true;
+                while (stressing) {
+                    leds = document.getElementsByName("leds")[0].checked;
+                    html = document.getElementsByName("html")[0].checked;
+                    dynamic = document.getElementsByName("dynamic")[0].checked;
+                    modes = document.getElementsByName("modes")[0].checked;
+                    await waitAndRunStressTest();
+                }
+            }
 
-			function runStressTest(){
-				//pick leds html or modes randomly if they are checked
-				var options = [];
-				if (leds) {
-					options.push("led");
-				}
-				if (html) {
-					options.push("html");
-				}
-				if (dynamic) {
-					options.push("dynamic");
-				}	
-				if (modes) {
-					options.push("mode");
-				}
-				var option = options[Math.floor(Math.random() * options.length)];
-				if (option == "led") {
-					//id should be random : 0 or 255
-					let id = Math.floor(Math.random() * 2) * 255;
-					let mode = Math.floor(Math.random() * 7);
-					let state = (Math.floor(Math.random() * 2) == 0) ? "ON" : "OFF";
-					fetch("/LED?LED="+state+"&id="+id+"&mode="+mode);
-				} else if (option == "html") {
-					fetch("/static/"+htmlOptions[Math.floor(Math.random() * htmlOptions.length)]);
-				} else if (option == "dynamic") {
-					fetch("/"+dynamicOptions[Math.floor(Math.random() * dynamicOptions.length)]);
-				} else if (option == "mode") {
-					if (Math.floor(Math.random() * 2) == 0) {
-						fetch("/modeStop");
-					} else {
-						fetch("/launchMode?restart=1");
-					}
-					fetch("/modeStop");
-				}
-			}
+            async function waitAndRunStressTest() {
+                var freq = document.getElementById("freq").value;
+                await new Promise((r) => setTimeout(r, 60000 / freq));
+                console.log("running stress test");
+                runStressTest();
+            }
 
-			function stopStressTest() {
-				//change the button text and onclick to startStressTest
-				document.getElementsByTagName("button")[0].innerText = "GO !";
-				document.getElementsByTagName("button")[0].setAttribute("onclick", "startStressTest()");
-			}
-			
+            function runStressTest() {
+                //pick leds html or modes randomly if they are checked
+                var options = [];
+                if (leds) {
+                    options.push("led");
+                }
+                if (html) {
+                    options.push("html");
+                }
+                if (dynamic) {
+                    options.push("dynamic");
+                }
+                if (modes) {
+                    options.push("mode");
+                }
+                var option = options[Math.floor(Math.random() * options.length)];
+                if (option == "led") {
+                    //id should be random : 0 or 255
+                    let id = Math.floor(Math.random() * 2) * 255;
+                    let mode = Math.floor(Math.random() * 7);
+                    let state = Math.floor(Math.random() * 2) == 0 ? "ON" : "OFF";
+                    fetch("/LED?LED=" + state + "&id=" + id + "&mode=" + mode);
+                } else if (option == "html") {
+                    fetch("/static/" + htmlOptions[Math.floor(Math.random() * htmlOptions.length)]);
+                } else if (option == "dynamic") {
+                    fetch("/" + dynamicOptions[Math.floor(Math.random() * dynamicOptions.length)]);
+                } else if (option == "mode") {
+                    if (Math.floor(Math.random() * 2) == 0) {
+                        fetch("/modeStop");
+                    } else {
+                        fetch("/launchMode?restart=1");
+                    }
+                    fetch("/modeStop");
+                }
+            }
+
+            function stopStressTest() {
+                //change the button text and onclick to startStressTest
+                document.getElementsByTagName("button")[0].innerText = "GO !";
+                document.getElementsByTagName("button")[0].setAttribute("onclick", "startStressTest()");
+            }
         </script>
     </body>
 </html>
