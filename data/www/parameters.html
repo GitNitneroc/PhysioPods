@@ -6,8 +6,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>PhysioPods Parameters</title>
         <link rel="stylesheet" href="./css/style.css">
+		<script src="./js/common.js"></script>
+		<script type="text/javascript">
+			function updatePeersCount() {
+				getPeers().then(n => {
+					if (isNaN(n)) {
+						return;
+					}
+					document.getElementById("peers").innerText = n+1;
+				});
+			}
+		</script>
     </head>
-    <body> 
+    <body onload="updatePeersCount()"> 
         <header>
             <h1>PhysioPods</h1>
             <nav aria-label="main-menu">
@@ -24,12 +35,93 @@
 					<button name='stop' id='modeStop' class="solid w-100" onclick='fetch("/modeStop").then(getModeInfo())'>Stop Now</button>
 				</div>
 			</div>
+			<div class="card">
+                <div class="card-header"><h2>Manual LED control</h2></div>
+                <div class="card-content">
+                    <form class="row">
+                        <label for="lightMode">Lighting mode:</label>
+                        <div>
+                            <select id="lightMode" name="lightMode">
+                                <option value="0">Simple</option>
+                                <option value="1">Blink Fast</option>
+                                <option value="2">Blink Slow</option>
+                                <option value="3">Cycle Fast</option>
+                                <option value="4">Cycle Slow</option>
+                                <option value="5">Fast Rainbow</option>
+                                <option value="6">Slow Rainbow</option>
+                                <option value="7">Short Pulse</option>
+                                <option value="8">Long Pulse</option>
+                                <option value="9">Loading Bar</option>
+                                <option value="10">Unloading Bar</option>
+                            </select>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <button
+                            name="LED"
+                            class="w-100 success"
+                            type="button"
+                            onclick='fetch("/LED?LED=ON&id=0&mode="+document.getElementById("lightMode").value)'
+                        >
+                            ServerPod LED ON
+                        </button>
+                        <button name="LED" class="w-100 danger" type="button" onclick='fetch("/LED?LED=OFF&id=0")'>
+                            ServerPod LED OFF
+                        </button>
+                    </div>
+                    <form class="row">
+                        <label for="podId">Specific pod (0 to 254):</label>
+                        <div>
+                            <input type="number" id="podId" name="podId" value="1" min="0" max="255" />
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="row">
+                            <button
+                                name="LED"
+                                class="w-100 success"
+                                value="ON"
+                                type="button"
+                                onclick='fetch("/LED?LED=ON&id="+document.getElementById("podId").value+"&mode="+document.getElementById("lightMode").value)'
+                            >
+                                LED ON
+                            </button>
+                            <button
+                                name="LED"
+                                class="w-100 danger"
+                                value="OFF"
+                                type="button"
+                                onclick='fetch("/LED?LED=OFF&id="+document.getElementById("podId").value)'
+                            >
+                                LED OFF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>Control <span id="peers">0</span> pod(s):</div>
+                        <div class="row">
+                            <button
+                                name="LED"
+                                class="w-100 success"
+                                value="ON"
+                                type="button"
+                                onclick='fetch("/LED?LED=ON&id=255&mode="+document.getElementById("lightMode").value)'
+                            >
+                                ALL ON
+                            </button>
+                            <button name="LED" class="w-100 danger" value="OFF" type="button" onclick='fetch("/LED?LED=OFF&id=255")'>
+                                ALL OFF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+			</div>
 			<div id="Parameters" style="display:none">
 				<div class="card" id="WiFiParams" >
 					<div class="card-header"><h2>Wifi Name</h2></div>
 					<div class='card-content'>
 						<p class="mode-description">You can change the WiFi ssid here. This can be useful if you want to separate pods: pods on different WiFi won't link.</p>
-						<p class="mode-description">All the pods currently cycling will be affected and will restart</p>
+						<p class="mode-description">All the pods currently that started cycling when you landed on this page will be affected and will restart</p>
 						<p class="mode-description">Changing the password is not supported yet: if lost, your pods would be unusable.</p>
 						<form action="/ssid" class="col">
 							<fieldset>

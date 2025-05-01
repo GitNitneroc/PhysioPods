@@ -10,7 +10,6 @@
     * }
 */
 async function getModeInfo() {
-    return {mode: "none", isRunning: false};
     const response = await fetch("/modeInfo");
     const data = await response.json();
     return data;
@@ -23,7 +22,7 @@ async function getModeInfo() {
     * NOTE : the server is not counting itself as a peer, so the number of pods is peers + 1
 */
 async function getPeers() {
-    return {peers: 0};
+    return 0;
     const response = await fetch("/peers");
     const data = await response.json();
     return data.peers;
