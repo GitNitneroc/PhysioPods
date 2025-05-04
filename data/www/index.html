@@ -411,7 +411,7 @@
             function unselectChaseColor() {
                 if (window.chaseColor != undefined) {
                     const chaseColors = document.getElementById("chaseColors");
-                    for (const child of chaseColors) {
+                    for (const child of chaseColors.children) {
                         child.innerHTML = "";
                     }
                 }
