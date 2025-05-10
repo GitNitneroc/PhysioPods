@@ -77,6 +77,21 @@ parsedMessage Messages::getMessageType(const uint8_t * sender_addr, const uint8_
             message.messageData = ssidMessage;
             break;
         }
+        case MessageType::BUZZER:{
+            DebugPrintln("Buzzer message received");
+            message.type = MessageType::BUZZER;
+            BuzzerMessage* buzzerMessage = (BuzzerMessage*)data;
+            //check sessionId
+            if (buzzerMessage->sessionId != PhysioPod::getInstance()->getSessionId()){
+                message.type = MessageType::ERROR;
+            }
+            //check message Id
+            if (buzzerMessage->id != PhysioPod::getInstance()->getId() && buzzerMessage->id != 255){
+                message.type = MessageType::NOT_FOR_ME;
+            }
+            message.messageData = buzzerMessage;
+            break;
+        }
         default:
             DebugPrintln("Unknown message received");
             message.type = MessageType::ERROR;

@@ -16,7 +16,7 @@ VisualTimerMode::VisualTimerMode() {
     restTime = 0;
     workTime = 0;
     numberOfCycles = 0;
-    currentCircle = 0;
+    currentCycle = 0;
 }
 
 void VisualTimerMode::stop() {
@@ -30,10 +30,12 @@ void VisualTimerMode::stop() {
 }
 
 void VisualTimerMode::update() {
+    //the idle state is used to wait for the start of the mode
     if (state == VisualTimerState::IDLE) {
         //go to the working state
         state = VisualTimerState::WORKING;
         ServerPod::setPodLightState(255, true, CRGB(255, 0, 0), LightMode::LOADING_BAR, workTime); //turn on the pod light with a red color
+        ServerPod::setPodBuzzerState(255, true, 3000, 1000); //turn on the buzzer for 1 second
     }
 
     if (state == VisualTimerState::WORKING) {
@@ -43,27 +45,23 @@ void VisualTimerMode::update() {
             timer = millis();
             ServerPod::setPodLightState(255, false); //turn off the pods' light
             ServerPod::setPodLightState(255,true, CRGB(0, 0, 255), LightMode::UNLOADING_BAR, restTime); //turn on the pod light with a blue color
-            /* Test code for the buzzer 
-            pinMode(10, OUTPUT); //set the pin to output mode
-            digitalWrite(10, HIGH); //set the pin to high to turn on the buzzer
-            tone(10, 3000,1000); */
+
+            //turn on the buzzer
+            ServerPod::setPodBuzzerState(255, true, 3000, 1000); //turn on the buzzer for 1 second
+
             #ifdef isDebug
             DebugPrintln("Switching to rest state");
             #endif
-        }else{
-            //update the pod light to indicate the time left
-            //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
-            //ServerPod::setPodLightState(true, CRGB(brightness, 0, 0), LightMode::SIMPLE); //turn on the pod light with a red color
-        }
+        }//there is no else, the light updates are done by the LightTask
     } else if (state == VisualTimerState::RESTING) {
         if (millis() - timer >= restTime*1000) {
             //switch to work state
-            currentCircle++;
-            /* Test code for the buzzer
-            pinMode(10, OUTPUT); //set the pin to output mode
-            digitalWrite(10, HIGH); //set the pin to high to turn on the buzzer
-            tone(10, 3000,1000); */
-            if (currentCircle >= numberOfCycles) {
+            currentCycle++;
+
+            //turn on the buzzer
+            ServerPod::setPodBuzzerState(255, true, 3000, 1000); //turn on the buzzer for 1 second
+
+            if (currentCycle >= numberOfCycles) {
                 //stop the mode
                 stop();
                 return;
@@ -74,11 +72,7 @@ void VisualTimerMode::update() {
             #ifdef isDebug
             DebugPrintln("Switching to work state");
             #endif
-        }else{
-            //update the pod light to indicate the time left
-            //ServerPod::setPodLightState(255, true, CRGB(brightness, 0, 0)); //turn on the pod light with a red color
-            //ServerPod::setPodLightState(true, CRGB(0,brightness, 0), LightMode::SIMPLE); //turn on the pod light with a red color
-        }
+        }//there is no else, the light updates are done by the LightTask
     }
 }
 
@@ -130,7 +124,7 @@ PhysioPodMode* VisualTimerMode::generateMode() {
 
 void VisualTimerMode::reset() {
     timer = 0;
-    currentCircle = 0;
+    currentCycle = 0;
     VisualTimerState state = VisualTimerState::IDLE;
 }
 

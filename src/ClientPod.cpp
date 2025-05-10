@@ -299,6 +299,18 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             setOwnLightState(true, CRGB::Green, LightMode::BLINK_SLOW);
             break;
         }
+        case BUZZER:{
+            BuzzerMessage* buzzerMessage = (BuzzerMessage*)message.messageData;
+            #ifdef isDebug
+            DebugPrintln("Received a Buzzer message");
+            DebugPrintln("-State : "+String(buzzerMessage->state));
+            DebugPrintln("-Frequency : "+String(buzzerMessage->frequency));
+            DebugPrintln("-Duration : "+String(buzzerMessage->duration));
+            #endif
+            //call the buzzer function
+            setOwnBuzzerState(buzzerMessage->state, buzzerMessage->frequency, buzzerMessage->duration);
+            break;
+        }
         default:
             break;
     }

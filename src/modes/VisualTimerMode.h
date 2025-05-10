@@ -27,7 +27,7 @@ class VisualTimerMode : public PhysioPodMode {
         VisualTimerState state;
 
         uint numberOfCycles;
-        uint currentCircle;
+        uint currentCycle;
     
     public:
         static VisualTimerModeParameters parameters;

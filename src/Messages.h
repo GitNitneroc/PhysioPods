@@ -13,7 +13,8 @@ namespace Messages{
         CONTROL,
         PING,
         ID_REORG,
-        SSID
+        SSID,
+        BUZZER,
     };
 
     /*
@@ -63,6 +64,23 @@ namespace Messages{
         uint8_t g;
         uint8_t b;
         uint16_t modeSpecific;
+    };
+
+    /*
+        *The message that is used to send the state of the buzzer
+        *id : the id of the clientpod
+        *sessionId : the session id of the pods
+        *state : the state (on/off) of the buzzer
+        *frequency : the frequency of the buzz sound
+        *duration : the duration of the buzz sound
+    */
+    struct BuzzerMessage {
+        const MessageType type = MessageType::BUZZER;
+        uint8_t id;
+        uint16_t sessionId;
+        bool state; //true for on, false for off
+        uint16_t frequency; //frequency in Hz
+        uint16_t duration; //duration in ms
     };
 
     /*

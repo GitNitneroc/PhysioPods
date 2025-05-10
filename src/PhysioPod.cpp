@@ -413,3 +413,13 @@ void PhysioPod::setOwnLightState(bool state, CRGB color, LightMode mode, uint16_
     lightChanged = true;
     lightModeSpecificData = modeSpecific;
 }
+
+void PhysioPod::setOwnBuzzerState(bool state, uint16_t frequency, uint16_t duration){
+    #ifdef USE_BUZZER
+    if (state){
+        tone(BUZZER_PIN, frequency, duration);
+    }else{
+        noTone(BUZZER_PIN);
+    }
+    #endif
+}

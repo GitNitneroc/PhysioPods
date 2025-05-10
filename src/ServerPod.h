@@ -49,7 +49,7 @@ public :
     static void startMode(PhysioPodMode* newMode);
     static void onControlPressed(); //The callback for when the control is pressed
     static void setPodLightState(uint8_t podId, bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE, uint16_t modeSpecific = 0);
-
+    static void setPodBuzzerState(uint8_t podId, bool state, uint16_t frequency = 0, uint16_t duration = 0);
     /* static void broadcastMessage(const void* message); */
 
     //to please cppcheck :

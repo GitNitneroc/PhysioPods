@@ -469,6 +469,46 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
     }
 }
 
+void ServerPod::setPodBuzzerState(uint8_t podId, bool state, uint16_t frequency, uint16_t duration){
+    //should the message be sent to another pod ?
+    if (podId > 0) {
+        //create the LED message
+        BuzzerMessage message;        
+        message.id = podId;
+        message.sessionId = getInstance()->getSessionId();
+        message.state = state;
+        message.frequency = frequency;
+        message.duration = duration;
+
+        //send the message
+        esp_err_t result = esp_now_send(ip_addr_broadcast, (uint8_t *) &message, sizeof(BuzzerMessage));
+        if (result == ESP_OK) {
+            #ifdef isDebug
+            DebugPrintln("BuzzerMessage broadcasted (pod "+String(podId)+")");
+            #endif
+        } else {
+            #ifdef isDebug
+            DebugPrint("Error sending the ESP-NOW message : ");
+            DebugPrintln(esp_err_to_name(result));
+            #endif
+        }
+
+        //check if the serverPod is one of the targets
+        if (podId == 255) {
+            #ifdef isDebug
+            DebugPrintln("The ServerPod is one of the targets for the buzzer");
+            #endif
+            ServerPod::setOwnBuzzerState(state, frequency, duration);
+        }
+    }else{
+        //the serverPod is the only target
+        #ifdef isDebug
+        DebugPrintln("The serverPod is the target for the buzzer");
+        #endif
+        ServerPod::setOwnBuzzerState(state, frequency, duration);
+    }
+}
+
 /*Turn a pod light on or off. Use Id 0 for the server and 255 for every pod*/
 void ServerPod::setPodLightState(uint8_t podId, bool ledState, CRGB color, LightMode mode, uint16_t modeSpecificData){
     //should the message be sent to another pod ?

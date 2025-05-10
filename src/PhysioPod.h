@@ -69,8 +69,16 @@ public :
 
     uint16_t getSessionId();
 
-    /* This is used to set this pod light on or off*/
+    /* This is used to set this pod's light on or off*/
     static void setOwnLightState(bool state, CRGB color = CRGB::White, LightMode mode = LightMode::SIMPLE, uint16_t modeSpecific = 0);
+
+    /* This is used to control this pod's buzzer
+    This is only used if the buzzer is enabled with USE_BUZZER
+    * state : true to turn on the buzzer, false to turn it off
+    * frequency : the frequency of the buzzer in Hz
+    * duration : the duration of the buzzer in ms
+    */
+    static void setOwnBuzzerState(bool state, uint16_t frequency = 0, uint16_t duration = 0);
 
     /* This will turn on/off and animate lights */
     static void manageOwnLight(void *param);
