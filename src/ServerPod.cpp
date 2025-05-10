@@ -470,6 +470,9 @@ void ServerPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
 }
 
 void ServerPod::setPodBuzzerState(uint8_t podId, bool state, uint16_t frequency, uint16_t duration){
+    #ifndef USE_BUZZER
+    return;//why bother ?
+    #endif
     //should the message be sent to another pod ?
     if (podId > 0) {
         //create the LED message
