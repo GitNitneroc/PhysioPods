@@ -7,12 +7,10 @@ PhysioPod* pod = nullptr;
 bool shouldBeClient = false;
 
 //TODO : physioPodMode aller/retour...
-//TODO : préciser dans ModeChoice s'il y a un mode en cours que ça va l'arrêter
 //TODO : dans le mode ChasePod, un timer,qui dit en combien de temps on fait un cycle
 //TODO : dans fastPress donner les résultats selon la durée/nombre de pressions
 //TODO : on peut obtenir l'adresse mac du serveur simplement avec WiFi.BSSID()
 //TODO : afficher des stats plus sexy dans les résultats
-//TODO : S'assurer que le pod démarrer et permet la MAJ OTA même s'il n'y a pas les fichiers locaux, pourqu'on puisse justement les ajouter !
 
 void createPod();
 
