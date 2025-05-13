@@ -259,8 +259,9 @@ void ClientPod::OnDataReceived(const uint8_t * sender_addr, const uint8_t *data,
             DebugPrintln("-State : "+String(ledMessage->state));
             DebugPrintln("-Color : "+String(ledMessage->r)+","+String(ledMessage->g)+","+String(ledMessage->b));
             DebugPrintln("-Mode : "+String(ledMessage->mode));
+            DebugPrintln("-Mode specific data : "+String(ledMessage->modeSpecific));
             #endif
-            PhysioPod::setOwnLightState(ledMessage->state, CRGB(ledMessage->r, ledMessage->g, ledMessage->b), static_cast<LightMode>(ledMessage->mode));
+            PhysioPod::setOwnLightState(ledMessage->state, CRGB(ledMessage->r, ledMessage->g, ledMessage->b), static_cast<LightMode>(ledMessage->mode), ledMessage->modeSpecific);
             break;
         }
         case ID_REORG:{
