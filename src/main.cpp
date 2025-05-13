@@ -16,11 +16,11 @@ void createPod();
 
 void setup(){
     Serial.begin(115200);
-    #ifdef isDebug
-    //TODO : remove this, it's just a stupid delay to facilitate debugging of the first steps
+    /* #ifdef isDebug
+    //This was just a stupid delay to facilitate debugging of the first steps. It's not needed right now but could be useful in the future
     //delay for the serial monitor to start
     vTaskDelay(3000 / portTICK_PERIOD_MS);
-    #endif
+    #endif */
     
     #ifdef isDebug
     DebugPrint("Booting, version ");
