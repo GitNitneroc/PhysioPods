@@ -9,7 +9,7 @@
 //TODO : re-tester les decoys.
 //TODO : donner des stats par pods ? Genre si pod 1 = main gauche ça me tente de savoir que c'est plus lent
 
-void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, bool avoidRepeat, uint8_t nColors) {
+void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimit, uint16_t limit, bool useDecoy, bool avoidRepeat, uint8_t nColors, bool useBuzzer) {
     this->minInterval = minInterval;
     this->maxInterval = maxInterval;
     this->timeLimit = timeLimit;
@@ -17,6 +17,7 @@ void FastPressMode::initialize(long minInterval, long maxInterval, bool timeLimi
     this->useDecoy = useDecoy;
     this->nColors = nColors;
     this->avoidRepeat = avoidRepeat;
+    this->useBuzzer = useBuzzer;
 
     this->generateColors(); //create the colors array ([0] is the error color)
 
@@ -44,10 +45,11 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     const AsyncWebParameter* useDecoyParam = request->getParam("decoy"); //optional traps or not
     const AsyncWebParameter* avoidRepeatParam = request->getParam("avoidRepeat"); //optional avoid repeat or not
     const AsyncWebParameter* nColorsParam = request->getParam("fastPressNColors");
+    const AsyncWebParameter* useBuzzerParam = request->getParam("useBuzzer"); //optional avoid repeat or not
 
     if (minIntervalParam == NULL || maxIntervalParam == NULL || limitParam == NULL || nColorsParam == NULL || limitationParam == NULL){
         DebugPrintln("could not read a parameter");
-        //NB : the decoy parameter is optional
+        //NB : the decoy, avoidRepeat and use Buzzer parameters are optional
         return false;
     }
     //this is not supposed to crash, it looks like toInt() returns 0 if it can't parse the string
@@ -59,11 +61,15 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     uint8_t nColors = nColorsParam->value().toInt();
     bool useDecoy = false; //default value for decoy
     if (useDecoyParam != NULL){
-        useDecoy = useDecoyParam->value().equals("1");
+        useDecoy = useDecoyParam->value().equals("on");
     }
     bool avoidRepeat = false; //default value for avoidRepeat
     if (avoidRepeatParam != NULL){
-        avoidRepeat = avoidRepeatParam->value().equals("1");
+        avoidRepeat = avoidRepeatParam->value().equals("on");
+    }
+    bool useBuzzer = false; //default value for avoidRepeat
+    if (useBuzzerParam != NULL){
+        useBuzzer = useBuzzerParam->value().equals("on");
     }
     //check the parameters
 
@@ -75,9 +81,10 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     DebugPrintln("useDecoy : "+ String(useDecoy));
     DebugPrintln("avoidRepeat : "+ String(avoidRepeat));
     DebugPrintln("nColors : "+ String(nColors));
+    DebugPrintln("useBuzzer : "+ String(useBuzzer));
     #endif
 
-    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, avoidRepeat, nColors, timeLimit};
+    FastPressMode::parameters = {minInterval, maxInterval, limit, useDecoy, avoidRepeat, nColors, timeLimit, useBuzzer};
 
     PhysioPodMode::modeConstructor = generateMode;
 
@@ -89,7 +96,7 @@ PhysioPodMode* FastPressMode::generateMode() {
     #ifdef isDebug
     DebugPrintln("Mode created, initializing...");
     #endif
-    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.avoidRepeat, FastPressMode::parameters.nColors);//this is in ms
+    newMode->initialize(FastPressMode::parameters.minInterval*100, FastPressMode::parameters.maxInterval*100, FastPressMode::parameters.timeLimit, FastPressMode::parameters.limit, FastPressMode::parameters.useDecoy, FastPressMode::parameters.avoidRepeat, FastPressMode::parameters.nColors, FastPressMode::parameters.useBuzzer);//this is in ms
     return newMode;
 }
 
@@ -222,6 +229,9 @@ void FastPressMode::update() {
                     DebugPrintln("Decoy pod lit");
                     #endif
                     ServerPod::setPodLightState(podToPress,true, CRGB::Blue, LightMode::SIMPLE);
+                    if (useBuzzer){
+                        ServerPod::setPodBuzzerState(podToPress,true, 3000, 100);
+                    }
                     timer = millis(); //we reset the timer
                     //let's choose a new, real pod to press
                     podToPress = random(ServerPod::getInstance()->peersNum+1);//number of peers + 1
@@ -238,6 +248,9 @@ void FastPressMode::update() {
                     
                     //the interval is over and we are not in a decoy, we should light the pod
                     ServerPod::setPodLightState(podToPress,true, randomColor, LightMode::SIMPLE);
+                    if (useBuzzer){
+                        ServerPod::setPodBuzzerState(podToPress,true, 3000, 100);
+                    }
                     timer = millis();
                     state = WAIT_FOR_PRESS;
                 }
