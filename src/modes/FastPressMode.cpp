@@ -56,7 +56,7 @@ bool FastPressMode::testRequestParameters(AsyncWebServerRequest *request) {
     //remember this is in 10th of seconds
     long minInterval = minIntervalParam->value().toInt(); //This doesn't check for 0 minterval, which could be problematic but should be client-side validation
     long maxInterval = minInterval+ maxIntervalParam->value().toInt();
-    bool timeLimit = limitationParam->value().equals("0"); //0 for time, 1 for tries
+    bool timeLimit = limitationParam->value().equals("on"); //0 for time, 1 for tries
     uint8_t limit = limitParam->value().toInt();
     uint8_t nColors = nColorsParam->value().toInt();
     bool useDecoy = false; //default value for decoy
